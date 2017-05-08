@@ -62,7 +62,7 @@
                                     <div class="btn-group">
                                         <a href="/acl/business/goTo/setPrivilege?id=${basicVO.id}" data-uid="$!basicVO.id"
                                            class="btn mini yellow set-privilege" style="margin-left: 3px;">
-                                            <i class="icon-cog"></i>设置角色权限</a>
+                                            <i class="icon-cog"></i>设置权限</a>
                                         <a href="/acl/business/setRole/add?businessId=$!basicVO.id&name=$!basicVO.name"  data-uid="$!basicVO.id" class="btn mini red" style="margin-left: 3px;">
                                             <i class="icon-cog"></i> 导入权限</a>
                                         <a href="/acl/business/goTo/modify?id=${basicVO.id}" data-uid="$!basicVO.id"

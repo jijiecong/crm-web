@@ -70,6 +70,12 @@ define(function (require, exports, module) {
                 $("#modal-form-submit").data('uid', '');
                 parent.init();
             });
+
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/business/findByName', {
+                multiple: false
+            });
+
+            businessSelect2.init($("#select-business").val());
             //打开弹出层修改页面
             $(".edit").on("click", function () {
                 var uid = $(this).data('uid');

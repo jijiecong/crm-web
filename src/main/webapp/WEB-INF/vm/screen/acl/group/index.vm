@@ -18,6 +18,11 @@
             <div class="span12 list-action-top-area">
                 <form action="/acl/group/index" class="form-horizontal listSearchBox" method="post">
                     <div class="span12">
+                        #if(${inSide})
+                            <span class="help-inline">商家名称：</span>
+                            <input type="hidden" id="select-business" name="businessId" placeholder="商家名称"
+                                   style="width: 240px" value=$!businessId>
+                        #end
                         <span class="help-inline">部门名称：</span>
                         <input type="text" class="m-wrap small" name="deptName" id="deptName" value=$!deptName>
                         <button type="submit" class="btn  search-btn">搜 索</button>

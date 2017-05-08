@@ -18,6 +18,7 @@ public class BaseController {
     @Autowired
     private SsoHelper ssoHelper;
     public static final int DEFAULT_ROWS = 10;
+
     @Autowired
     protected AclBizHasRoleService aclBizHasRoleService;
     @Autowired
@@ -205,7 +206,7 @@ public class BaseController {
      * TODO JIJC
      * 
      * */
-    public Boolean hasPrivilegeAuthorized(AclUserEntity user){      	
+    public Boolean hasPrivilegeAuthorized(AclUserEntity user){
     	return this.checkToken(user, PrivilegeTokenEnum.PRIVILEGE_AUTHORIZED.typeName);
     }
 
