@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	   ">
+
+   <dubbo:application name="${dubbo.application.name}" owner="programmer" organization="dubbox"/>
+   <dubbo:registry address="${dubbo.registry.address}" timeout="20000"/>
+
+    <dubbo:reference id="aclApiService" interface="com.meiren.acl.api.AclApiService" check="false"/>
+
+
+    <dubbo:reference id="questionaireBasicService" interface="com.meiren.tech.form.service.QuestionaireBasicService" check="false"/>
+   <dubbo:reference id="questionaireBasicRestService" interface="com.meiren.tech.form.service.facade.QuestionaireBasicRestService" check="false"/>
+
+   <dubbo:reference id="questionaireOptionService" interface="com.meiren.tech.form.service.QuestionaireOptionService" check="false"/>
+   <dubbo:reference id="questionaireOptionRestService" interface="com.meiren.tech.form.service.facade.QuestionaireOptionRestService" check="false"/>
+
+
+   <dubbo:reference id="questionaireTopicService" interface="com.meiren.tech.form.service.QuestionaireTopicService" check="false"/>
+   <dubbo:reference id="questionaireTopicRestService" interface="com.meiren.tech.form.service.facade.QuestionaireTopicRestService" check="false"/>
+
+    <dubbo:reference id="questionaireAnswerService" interface="com.meiren.tech.form.service.QuestionaireAnswerService" check="false"/>
+    <dubbo:reference id="questionaireAnswerDetailsService" interface="com.meiren.tech.form.service.QuestionaireAnswerDetailsService" check="false"/>
+
+
+    <!-- 验证器 -->
+    <dubbo:reference id="validatorService" interface="com.meiren.tech.form.service.QuestionaireValidatorService" check="false"/>
+    <dubbo:reference id="regexService" interface="com.meiren.tech.form.service.QuestionaireRegexService" check="false"/>
+
+
+    <!--任务相关服务-->
+    <dubbo:reference id="missionActionDefineService" interface="com.meiren.mission.service.MissionActionDefineService" check="false"/>
+    <dubbo:reference id="missionDefineService" interface="com.meiren.mission.service.MissionDefineService"  check="false"/>
+    <dubbo:reference id="missionInstanceService" interface="com.meiren.mission.service.MissionInstanceService"  check="false"/>
+    <dubbo:reference id="missionInstanceTraceService" interface="com.meiren.mission.service.MissionInstanceTraceService"  check="false"/>
+    <dubbo:reference id="missionChannelService" interface="com.meiren.mission.service.MissionChannelDefineService" check="false"/>
+    <dubbo:reference id="missionParamService" interface="com.meiren.mission.service.MissionParamService" check="false"/>
+
+    <!--提现账号绑定-->
+    <dubbo:reference id="accountInfoService" interface="com.meiren.mission.service.AccountInfoService" check="false"/>
+    <dubbo:reference id="walletAccountService" interface="com.meiren.mission.service.WalletAccountService" check="false"/>
+
+    <!-- 规则 -->
+	<dubbo:reference id="missionFilterRulesService" interface="com.meiren.mission.service.MissionFilterRulesService" check="false"/>
+	<dubbo:reference id="loginWhiteListService" interface="com.meiren.mission.service.LoginWhiteListService" check="false"/>
+    <dubbo:reference id="missionConditionService" interface="com.meiren.mission.service.MissionConditionService" check="false"/>
+    <dubbo:reference id="missionTemplateService" interface="com.meiren.mission.service.MissionTemplateService" check="false"/>
+    <dubbo:reference id="missionTypeService" interface="com.meiren.mission.service.MissionTypeService" check="false"/>
+
+    <!-- 钱包 -->
+    <dubbo:reference id="walletService" interface="com.meiren.mission.service.WalletService" check="false"/>
+    <dubbo:reference id="walletOrderService" interface="com.meiren.mission.service.WalletOrderService" check="false"/>
+    <dubbo:reference id="walletTraceService" interface="com.meiren.mission.service.WalletTraceService" check="false"/>
+
+    <!-- 日志 -->
+    <dubbo:reference id="producerLogService" interface="com.meiren.mission.service.ProducerLogService" check="false"/>
+    <dubbo:reference id="missionLogService" interface="com.meiren.mission.service.MissionLogService" check="false"/>
+
+	<!-- 权限审批 -->
+	<dubbo:reference id="aclApplyService"   interface="com.meiren.acl.service.AclApplyService" check="false"/>
+    <dubbo:reference id="aclProcessService" interface="com.meiren.acl.service.AclProcessService" check="false"/>
+    <dubbo:reference id="aclProcessModelService" interface="com.meiren.acl.service.AclProcessModelService" check="false"/>
+	<dubbo:reference id="aclGroupLeaderService" interface="com.meiren.acl.service.AclGroupLeaderService" check="false"/>
+    <dubbo:reference id="aclHierarchyService" interface="com.meiren.acl.service.AclHierarchyService" check="false"/>
+	<dubbo:reference id="aclApprovalService" interface="com.meiren.acl.service.AclApprovalService" check="false"/>
+	<dubbo:reference id="aclPrivilegeProcessService" interface="com.meiren.acl.service.AclPrivilegeProcessService" check="false"/>
+	<dubbo:reference id="aclRoleProcessService" interface="com.meiren.acl.service.AclRoleProcessService" check="false"/>
+	<dubbo:reference id="aclGroupHasRoleService" interface="com.meiren.acl.service.AclGroupHasRoleService" check="false"/>
+    
+    <!--用户-权限-->
+    <dubbo:reference id="aclUserService" interface="com.meiren.acl.service.AclUserService"  check="false"/>
+    <dubbo:reference id="aclPrivilegeService" interface="com.meiren.acl.service.AclPrivilegeService" check="false"/>
+    <dubbo:reference id="aclRoleService" interface="com.meiren.acl.service.AclRoleService" check="false"/>
+    <dubbo:reference id="aclUserHasPrivilegeService" interface="com.meiren.acl.service.AclUserHasPrivilegeService" check="false"/>
+    <dubbo:reference id="aclUserHasRoleService" interface="com.meiren.acl.service.AclUserHasRoleService" check="false"/>
+    <dubbo:reference id="aclRoleHasPrivilegeService" interface="com.meiren.acl.service.AclRoleHasPrivilegeService" group="roleHasPrivilege" check="false"/>
+    <dubbo:reference id="aclGroupService" interface="com.meiren.acl.service.AclGroupService" check="false"/>
+    <dubbo:reference id="aclGroupHasPrivilegeService" interface="com.meiren.acl.service.AclGroupHasPrivilegeService" check="false"/>
+    <dubbo:reference id="aclGroupHasUserService" interface="com.meiren.acl.service.AclGroupHasUserService" check="false"/>
+ 	<dubbo:reference id="aclPrivilegeOwnerService" interface="com.meiren.acl.service.AclPrivilegeOwnerService" check="false"/>
+ 	<dubbo:reference id="aclSignedService" interface="com.meiren.acl.service.AclSignedService" check="false"/>
+ 	<dubbo:reference id="aclBizService" interface="com.meiren.acl.service.AclBizService" check="false"/>
+ 	<dubbo:reference id="aclBizHasRoleService" interface="com.meiren.acl.service.AclBizHasRoleService" check="false"/>
+ 	<dubbo:reference id="aclRoleOwnerService" interface="com.meiren.acl.service.AclRoleOwnerService" check="false"/>
+ 	<dubbo:reference id="aclBizOwnerService" interface="com.meiren.acl.service.AclBizOwnerService" check="false"/>
+ 	<dubbo:reference id="aclBizHasPrivilegeService" interface="com.meiren.acl.service.AclBizHasPrivilegeService" check="false"/>
+    <dubbo:reference id="aclBusinessService" interface="com.meiren.acl.service.AclBusinessService"  check="false"/>
+    <dubbo:reference id="aclBusinessHasPrivilegeService" interface="com.meiren.acl.service.AclBusinessHasPrivilegeService" check="false"/>
+
+    <!-- 监控 -->
+    <dubbo:reference id="pavepawsMonitorConfigService" interface="com.meiren.monitor.service.PavepawsMonitorConfigService" check="false"/>
+    <dubbo:reference id="pavepawsMonitorResultService" interface="com.meiren.monitor.service.PavepawsMonitorResultService" check="false"/>
+    <dubbo:reference id="notifyTemplateService" interface="com.meiren.monitor.service.NotifyTemplateService" check="false"/>
+    <dubbo:reference id="notifyService" interface="com.meiren.monitor.service.NotifyService" check="false"/>
+    <dubbo:reference id="notifyLogService" interface="com.meiren.monitor.service.NotifyLogService" check="false"/>
+    <dubbo:reference id="pavepawsMonitorConfigHasUserService" interface="com.meiren.monitor.service.PavepawsMonitorConfigHasUserService" check="false"/>
+
+</beans>

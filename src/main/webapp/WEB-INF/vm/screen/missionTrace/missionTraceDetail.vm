@@ -1,0 +1,126 @@
+#set($layout = "/layout/content.vm")
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <title>任务奖励流水详情</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="robots" content="noindex,nofollow">
+    <link href="$formLink/admin/media/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="$formLink/admin/media/css/datetimepicker.css" rel="stylesheet" media="screen"  type="text/css">
+    <link href="$formLink/admin/media/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
+    <script src="$formLink/admin/form/script/jquery.min.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/configBase.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/exam/missiontraceexam.js?t=2016153612092"></script>
+    <script src="${formLink}/admin/static/js/sea-modules/seajs/2.2.1/sea.js"></script>
+    <script src="${formLink}/admin/static/js/app/seajs/config-seajs.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap.min.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap-datetimepicker.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap-select.js"></script>
+    <script src="${formLink}/admin/media/js/moment.js"></script>
+</head>
+<!-- CSS -->
+<style>
+    .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+    .ui-widget-overlay.custom-overlay
+    {
+        background-color: black;
+        background-image: none;
+        opacity: 0.9;
+        z-index: 1040;
+    }
+    .input-top{
+        margin-top: 10px;
+    }
+</style>
+<body>
+<!--主体框架开始-->
+<div class="pagebox" id="pageContentId">
+    <div class="home-desktop" id="desktop_scroll">
+        <div style="width:1025px; position: relative;">
+            <div class="create-questions-content">
+                <!--开始位置-->
+                <div class="create-questions">
+                    <div class="questions-head-title">
+                        <h4 class="h4-bg T-center" style="background-color: #008fbf"><span style="font-size:18px;"><font
+                                color="#fff" id="formTitle">任务奖励详情</font></span></h4>
+                    </div>
+                    <!--提现单号-->
+                    <ul id="fieldTraceId" style="font-size:12px;margin-top: 5px" class="form-group">
+
+                        流水编号<input type="text" id="textarea_trace_id"
+                                                           style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 20px"/>
+
+                    </ul>
+                    <!--用户id-->
+                    <ul id="fieldTraceUserId" style="font-size:12px;margin-top: 5px" class="form-group">
+
+                        用户编号<input type="text" id="textarea_trace_user_id"
+                                                          style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 20px"/>
+
+                    </ul>
+                    <!--用户名-->
+                    <ul id="fieldTraceUserName" style="font-size:12px;margin-top: 5px" class="form-group">
+
+                      用户名&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="textarea_trace_user_name"
+                                   style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 20px"/>
+
+                    </ul>
+
+                    <ul class="ui-questions-content-list" id="fieldAwardRegion">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>奖励详情</span></div>
+                        </div>
+                    </ul>
+
+
+                </div>
+            </div>
+            <div style="height:40px; margin: 20px 0; text-align: right;">
+                <button id="closeFormPage" type="button" class="cotrlBtn exam-close-btn btnBlue" style="height:40px;width: 140px; font-size:18px;">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!--渲染模块   奖励-->
+    <script type="text/html" id="award_choice">
+        <li class="awardComponent delComponent" >
+            <span>
+                <input type="text" disabled="disabled" value="{{awardName}}" data-awardType="{{awardType}}"  id="textarea_filter_award_type" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 100px;height: 30px;margin-left: 5px;">
+            </span>
+            <span>
+                &nbsp;&nbsp;&nbsp;&nbsp;奖励数量 <input type="text" value="{{amount}}" id="textarea_filter_award_amount" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 100px;height: 30px;margin-left: 5px;" >
+           </span>
+            <span>
+                {{if awardType==1}}优惠券号码{{/if}}<input type="text"  value="{{couponCode}}"  id="textarea_filter_award_code" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 100px;height: 30px;margin-left: 5px;display: {{if awardType==1}}inline{{else}}none{{/if}};">
+            </span>
+        </li>
+    </script>
+
+    <script type="text/javascript">
+
+        seajs.use("$formLink/admin/static/app/mission/missionTracebuilder", function (main) {
+            main.init();
+        });
+
+        $(function () {
+            missionTraceExam.init();
+        });
+    </script>
+    <script type="text/javascript">
+        $(".datetimepicker").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+    </script>
+
+</div>
+
+</body>
+
+</html>

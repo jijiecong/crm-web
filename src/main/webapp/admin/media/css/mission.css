@@ -1,0 +1,163 @@
+.u-tips {
+    display: none;
+    position: fixed;
+    height: auto;
+    z-index: 99999;
+    left: 50%;
+    top: 50%;
+    width: 236px;
+    margin-left: -118px;
+    padding: 8px;
+    line-height: 24px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .6);
+    text-align: center;
+    font-size: 20px;
+    color: #fff;
+    font-size: 1.4rem;
+}
+
+.div_frame, .div_frame_2 {
+    margin-left: 20px;
+    margin-bottom: 15px;
+    float: left;
+}
+
+.div_frame_2 {
+    width: 900px;
+}
+
+.div_frame_1 {
+    float: left;
+    width: 130px;
+    margin-left: 22px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    border: solid 1px;
+    width: 100px;
+}
+
+.liShow {
+    display: block;
+    background: white;
+}
+
+.liHide {
+    display: none;
+    background: blue;
+}
+
+.button_cancel {
+    width: 15px;
+    height: 15px;
+    border-radius: 20px; /* font-size: 10px;*/
+    background-image: url('/admin/media/upload/img/cancel.png');
+    border: none;
+    outline: none;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 50px;
+    background-color: transparent;
+    background-size: cover;
+    display: none;
+}
+
+.button_add {
+    width: 42px;
+    height: 41px;
+    border-radius: 20px; /* font-size: 10px;*/
+    background-image: url('/admin/media/upload/img/add.png');
+    border: none;
+    outline: none;
+    background-color: transparent;
+    background-size: cover;
+}
+
+.img_arrow {
+
+    /*   border: none;
+        outline: none;
+        position: absolute;
+        margin-top: 4px;
+        margin-left: 136px;
+        background-color: transparent;
+        background-size: cover;*/
+
+}
+.div_left,.div_right{
+    float: left;
+    width:550px;
+    border: 1px solid black;
+}
+.share_image{
+    width:330px;
+    position: absolute;
+    margin-left: 530px;
+    margin-top:-100px;
+}
+.mission_detail_image{
+    width:330px;
+    position: absolute;
+    margin-left: 520px;
+    margin-top:-23px;
+}
+
+#mainbox,#rmainbox {
+    width: 234px;
+    border-radius: 5px;
+}
+
+#box0,#rbox0 {
+    width: 150px;
+    height: 20px;
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    float: left;
+    padding-top: 2px;
+    padding-left: 2px;
+
+}
+
+#items,#ritems {
+    border: 1px solid gainsboro;
+    width: 152px;
+    display: none;
+    height: auto;
+    overflow-y: scroll;
+    text-align: center;
+    margin-left:22px;
+}
+
+#box3 {
+    width: 218px;
+    /*border-bottom:1px solid green;
+    border-left:1px solid green;
+    border-right:1px solid green;
+*/
+    padding-left: 4px;
+}
+
+.over {
+    background-color: #11586E;
+    font-weight: bold;
+    color: #FFF;
+    /*border-top:1px dotted black;
+    border-bottom:1px dotted black;*/
+    cursor: pointer;
+}
+
+p {
+    font-size: 12px;
+    color: activeCaption;
+    font-weight: bold;
+}
+
+ul { list-style-type: none;}
+li { display: inline-block;}
+li { margin: 10px 0;}
+input.labelauty + label { font: 12px "Microsoft Yahei";}

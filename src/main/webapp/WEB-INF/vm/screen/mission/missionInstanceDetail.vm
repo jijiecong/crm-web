@@ -1,0 +1,146 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <title>任务实例详情</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="robots" content="noindex,nofollow">
+    <script src="$formLink/admin/form/script/jquery.min.js"></script>
+    <script src="${formLink}/admin/media/js/jquery-1.10.1.min.js" type="text/javascript"></script>
+    <script src="${formLink}/admin/media/js/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/configBase.js"></script>
+    <script src="${formLink}/admin/static/js/sea-modules/seajs/2.2.1/sea.js"></script>
+    <script src="${formLink}/admin/static/js/app/seajs/config-seajs.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/exam/missionInstanceExam.js"></script>
+    <script src="${formLink}/admin/media/js/jquery-ui-1.10.1.custom.min.js" type="text/javascript"></script>
+    <script src="${formLink}/admin/media/js/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="${formLink}/admin/media/js/chosen.jquery.min.js" type="text/javascript"></script>
+    <script src="${formLink}/admin/media/js/ui-nestable.js"></script>
+    <script src="${formLink}/admin/media/js/app.js"></script>
+    <script src="${formLink}/admin/media/js/form-components.js"></script>
+    <script src="${formLink}/admin/static/gallery/artTemplate/2.0/artTemplate-debug.js"></script>
+    <script type="text/javascript" src="${formLink}/admin/static/js/component/mustache.js" ></script>
+    <link href="$formLink/admin/media/css/bosco/list.css"
+          rel="stylesheet" type="text/css">
+</head>
+<!-- CSS -->
+<style>
+    .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+    .ui-widget-overlay.custom-overlay
+    {
+        background-color: black;
+        background-image: none;
+        opacity: 0.9;
+        z-index: 1040;
+    }
+</style>
+<body>
+
+<div class="pagebox" id="pageContentId">
+    <div class="home-desktop" id="desktop_scroll">
+        <div style="width:1000px; position: relative;">
+            <div class="create-questions-content">
+                <div class="exam-nav">
+                </div>
+                <div class="portlet box green">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            任务实例详情列表
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <table class="table table-condensed table-hover" id="tableId">
+                            <thead>
+                            <tr>
+                                <th>实例编号</th>
+                                <th>任务状态</th>
+                                <th>任务名称</th>
+                                <th>任务编号</th>
+                                <th>任务类型</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div style="height:40px; margin: 20px 0; text-align: right;">
+                <button id="refreshForm" type="button" class="cotrlBtn exam-refresh-btn btnBlue" value="" style="height:40px;width: 140px; font-size:18px;" onclick="window.location.reload()">刷新</button>
+                <button id="saveForm" type="button" class="cotrlBtn exam-save-btn btnBlue"  style="height:40px;width: 100px; font-size:18px;">确定</button>
+                <button id="closeFormPage" type="button" class="cotrlBtn exam-close-btn btnBlue" style="height:40px;width: 100px; font-size:18px;">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden"  id="selectedBasicRegion"/>
+
+<!--渲染模块-->
+<script type="text/html" id="drag_choice">
+    <tr class="{{missionInstanceId}}">
+        <td>{{missionInstanceId}}</td>
+        <td>{{status}}</td>
+        <td>{{missionName}}</td>
+        <td>{{missionId}}</td>
+        <td>{{missionType}}</td>
+        <td>
+            <div class="btn-group" style="{{display}}">
+                <a class="btn mini purple setForm" href="#" data-toggle="dropdown" data-uid="{{missionInstanceId}}">
+                   审批
+                </a>
+            </div>
+        </td>
+    </tr>
+</script>
+
+<script type="text/javascript">
+
+    seajs.use("$formLink/admin/static/app/mission/missionInstanceDetail", function (main) {
+        main.init();
+    });
+
+    function closeIframe() {
+        $("#YuFrame2").remove();
+        $("#YuFrame2Bg").remove();
+    }
+
+    $(function() {
+        missionInstanceExam.init();
+    });
+
+    function loadFormStructure(){
+        var missionInstanceId = $("#selectedBasicRegion").val();
+        var formObj;
+        $.ajax({
+            type : "POST",
+            dataType :"json",
+            async: false,
+            data : {
+                missionInstanceId: missionInstanceId
+            },
+            url :  "/mission/instance/loadFormStructure",
+            success : function(result){
+                if (result.success) {
+                    formObj = result;
+                }else{
+                    alert(result.error);
+                }
+            }
+        });
+        return formObj;
+    }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<style>
+    .btn {
+        border-radius: 6px !important;
+        background-color: #1ab394;
+        border-color: #1ab394;
+        color: #fff;
+    }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<!--创建表单-->
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">$title</h3>
+                <span>$!message</span>
+            </div>
+        </div>
+        <div class="row-fluid margin-bottom-20 content-area">
+			<form id="form" class="form-horizontal">
+				<div class="control-group">
+					<label class="control-label" for="name">权限名称：</label>
+					<div class="controls">
+						<input type="text" id="name" name="name" placeholder="权限名称" style="width: 480px !important;">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="description">权限说明：</label>
+					<div class="controls">
+						<input type="text" id="description" name="description" placeholder="权限说明" style="width: 480px !important;">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="token">token：</label>
+					<div class="controls">
+						<input type="text" id="token" name="token" placeholder="token" style="width: 480px !important;">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="riskLevel">选择风险等级：</label>
+					<div class="controls">
+						<select id="riskLevel" name="riskLevel" style="width: 480px !important;">
+                        <option value ="1" selected="true">低风险</option>
+                        <option value ="2">中风险</option>
+                        <option value="3">高风险</option>
+                    </select>
+					</div>
+				</div>
+                <p style="">* 命名规范:<br>
+                    * 功能和菜单级别:meiren.acl.{appName}.{serviceName}.{funtionName}<br>
+                    * 字段级别:meiren.acl.{appName}.{serviceName}.{funtionName}.{fieldName}</p>
+
+                <div class="control-group">
+			    <div class="controls">
+			    	<button type="button" class="btn" id="close-form">返回</button>
+			    	<button type="button" class="btn green submit" id="form-submit"  data-uid="$id">确定</button>
+			    </div>
+			  </div>   	  
+			</form>
+		</div>
+	</div>		
+</div>
+
+<input type="hidden" id="selectedBasicRegion"/>
+<script src="${formLink}/admin/media/js/select2.min.js" type="text/javascript"></script>
+<script src="${formLink}/admin/media/js/jquery.multi-select.js" type="text/javascript"></script>
+<script>
+    seajs.use(["$formLink/admin/static/app/acl/privilege/edit"], function (main) {
+        main.init();
+    });
+</script>

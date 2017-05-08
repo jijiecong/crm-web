@@ -1,0 +1,175 @@
+#set($layout = "/layout/content.vm")  
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<meta name="renderer" content="webkit|ie-comp|ie-stand">
+		<title>动态表单工作台</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="robots" content="noindex,nofollow">
+		<script src="$formLink/admin/form/script/jquery.min.js"></script>
+		<script type="text/javascript" src="$formLink/admin/form/script/configBase.js"></script>
+		<script type="text/javascript" src="$formLink/admin/form/script/exam/exam.js"></script>
+		<script src="${formLink}/admin/static/js/sea-modules/seajs/2.2.1/sea.js"></script>
+		<script src="${formLink}/admin/static/js/app/seajs/config-seajs.js"></script>
+	</head>
+
+	<body>
+		<!--主体框架开始-->
+		<div class="pagebox" id="pageContentId">
+			<div class="home-desktop" id="desktop_scroll">
+				<div style="width:1025px; position: relative;"> 
+					<div class="create-questions-content">
+						<div class="exam-nav">
+							<div class="exam-item">
+								<h4 class="exam-item-title">表单元素<i class="icon-expand"></i></h4>
+								<ul class="exam-nav-list" id="ui_sortable_exam">
+									<li data-uid="1" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="1"><i class="icon-singleChoice"></i>单选项</a>
+									</li>
+									<li data-uid="2" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="2"><i class="icon-multipleChoice"></i>多选项</a>
+									</li> 
+									<li data-uid="3" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>单行文本</a>
+									</li> 
+									<li data-uid="4" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="4"><i class="icon-multiRow"></i>多行文本</a>
+									</li>  
+									<li data-uid="5" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="5"><i class="icon-gapFilling"></i>固态文本</a>
+									</li>  
+									<li data-uid="5" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="6"><i class="icon-describe"></i>日期控件</a>
+									</li>  
+									<li data-uid="6" data-tempId="drag_choice">
+										<a href="javascript:;" data-checkType="7"><i class="icon-picChoice"></i>地址控件</a>
+									</li> 
+								</ul>
+							</div>
+						</div>
+						<!--开始位置-->
+						<div class="create-questions">
+							<div class="questions-head-title">
+								<h4 class="h4-bg T-center" style="background-color: #008fbf"><span style="font-size:18px;"><font color="#fff" id="formTitle">表单名称</font></span></h4>
+  							</div> 
+							<ul class="ui-questions-content-list" id="fieldRegion"></ul>
+							<!--<ul class="ui-foot-all-list"></ul>-->
+						</div>
+					</div>
+					<div style="height:40px; margin: 20px 0; text-align: right;">
+						<button id="saveForm" type="button" class="cotrlBtn exam-save-btn btnBlue" value="" style="height:40px;width: 140px; font-size:18px;">保存</button>
+						<button id="closeFormPage" type="button" class="cotrlBtn exam-close-btn btnBlue" style="height:40px;width: 140px; font-size:18px;">关闭</button>
+					</div>
+				</div>
+			</div>
+			
+			 
+
+			<!--渲染模块-->
+			<script type="text/html" id="drag_choice">
+				<li class="ui-module items-questions">
+					<div class="theme-type">
+						<div class="module-menu">
+							<h4></h4>
+							<div class="module-ctrl">
+								<a href="javascript:void(0);" class="ui-up-btn" data-tisp="上移"><i class="icon-up"></i></a>
+								<a href="javascript:void(0);" class="ui-down-btn" data-tisp="下移"><i class="icon-down"></i></a>
+ 								<a href="javascript:void(0);" class="ui-del-btn" data-tisp="删除"><i class="icon-del"></i></a>
+							</div>
+						</div>
+						<div class="ui-drag-area">
+							<div class="cq-title T_edit T_plugins" data-Tid="{{itmetid}}"><span style="font-size:16px;">{{if type==1}}单选项{{else if type==2}}多选项{{else if type==3}}单行文本{{else if type==4}}多行文本{{else if type==5}}固态文本{{else if type==6}}日期控件{{else if type==7}}地址控件{{/if}}</span></div>
+						</div> 
+						<div class="cq-items-content">
+							<ul class="cq-unset-list" data-checkType="{{type}}" data-nameStr="{{name}}"> 
+								{{if type==1 || type==2}}
+									{{each items as itemData i}}
+										<li>
+											<label class="input-check">
+												<input type="{{if type==1}}radio{{else if type==2}}checkbox{{else if type==3}}text{{/if}}" name="{{name}}" value="{{itemData.value}}">
+											</label>
+											<div class="cq-answer-content T_edit T_plugins" data-Tid="{{itemData.tid}}">选项{{i+1}}</div>
+										</li>
+									{{/each}}  
+								{{else if type==3}}
+									<li> 
+	 									<input type="text" name="input_{{name}}" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 300px;height: 30px;" />
+									</li> 
+								{{else if type==4}}
+									<li> 
+										<textarea name="textarea_{{name}}" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 800px;height: 100px;"></textarea>
+ 									</li> 
+								{{else if type==5}}
+									<!--固态文本框-->
+									<li> 
+										 <div class="banner_{{name}}">这里只用于占位标题的作为Banner横幅提示使用</div>
+ 									</li> 
+								{{else if type==6}}
+									<li> 
+										<div  name="datePlaceHolder" >日期控件占位符,供移动端渲染用</div>
+ 									</li> 
+								{{else if type==7}}
+									<li> 
+										<div class="addressPlaceHolder" >地址控件占位符，供移动端渲染用</div>
+ 									</li> 
+								{{/if}}
+							</ul>
+							{{if type==1 || type==2}}
+								<div class="cq-items-ctrl">
+									<a href="javascript:void(0);" class="ui-add-item-btn" data-tisp="添加"><i class="icon-add"></i></a>
+								</div>
+							{{/if}}
+						</div>
+					</div>
+				</li>
+			</script>
+			 
+			 
+			<script type="text/html" id="drag_T_edit">
+				<div class="cq-into-edit">
+					<div class="add-edit cq-edit-title" contenteditable="true">{{title}}</div>
+				</div>
+			</script>
+			<script type="text/html" id="T_edit_plugins">
+				<div class="edit-plug-box">
+					<a href="javascript:void(0);"><i class="icon-picChoice"></i></a>
+					<a href="javascript:void(0);"><i class="icon-title"></i></a>
+				</div>
+			</script>
+			<script type="text/html" id="ui_additem_content">
+				{{each items as itemData i}}
+				<li><label class="input-check"><input type="{{if type==1}}radio{{else if type==2}}checkbox{{/if}}" name="{{name}}" value="{{itemData.value}}"></label>
+					<div class="cq-answer-content T_edit T_plugins" data-Tid="{{itemData.tid}}">选项{{i+1+index}}</div>
+				</li>
+				{{/each}}
+			</script> 
+			<script type="text/javascript">
+			
+				seajs.use("$formLink/admin/static/app/adminForm/formbuilder",function(main){
+				    main.init();
+				});
+			
+			
+			
+				$(function() {
+					exam.init();
+                    $("select").dcselect();
+                    //获取父类的基础信息
+                    var basicInfo =   window.parent.getBasicInfo();
+                    var basicInfoArray = basicInfo.split(":");
+                    $("#saveForm").val(basicInfoArray[0]);
+                    $("#formTitle").html(basicInfoArray[1]); 
+                     $("#closeFormPage").on("click", function(){ 
+ 						 window.parent.closeIframe(); //执行关闭自身操作
+		             }); 
+                    
+				});
+			</script>
+		</div>
+		<!--主体框架结束-->
+	</body>
+
+</html>

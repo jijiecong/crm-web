@@ -1,0 +1,68 @@
+<style>
+    .btn {
+        border-radius: 6px !important;
+        background-color: #1ab394;
+        border-color: #1ab394;
+        color: #fff;
+    }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<!--创建表单-->
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">$title</h3>
+                <span>$!message</span>
+            </div>
+        </div>
+        <div class="row-fluid margin-bottom-20 content-area">
+			<form id="form" class="form-horizontal">
+				<div class="control-group">
+					<label class="control-label" for="hierarchyName">层级名称：</label>
+					<div class="controls">
+						<input type="text" id="hierarchyName" name="hierarchyName" placeholder="层级名称" style="width: 480px !important;">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="hierarchyValue">层级值：</label>
+					<div class="controls">
+						<input type="text" id="hierarchyValue" name="hierarchyValue" placeholder="层级值" style="width: 480px !important;">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="sort">排序：</label>
+					<div class="controls">
+						<input type="text" id="sort" name="sort" placeholder="排序" style="width: 480px !important;">
+					</div>
+				</div>
+				#if(${inSide})
+                    <div class="control-group">
+                        <label class="control-label" for="businessId">所属商家：</label>
+                        <div class="controls">
+                            <input type="text" id="select-business" name="businessId" placeholder="所属商家"
+                                   style="width: 480px !important;">
+                        </div>
+                    </div>
+				#end
+             <div class="control-group">
+			    <div class="controls">
+			    	<button type="button" class="btn" id="close-form">返回</button>
+			    	<button type="button" class="btn green submit" id="form-submit"  data-uid="$id">确定</button>
+			    </div>
+			  </div>   	  
+			</form>
+		</div>
+	</div>		
+</div>
+
+<input type="hidden" id="selectedBasicRegion"/>
+<script src="${formLink}/admin/media/js/select2.min.js" type="text/javascript"></script>
+<script src="${formLink}/admin/media/js/jquery.multi-select.js" type="text/javascript"></script>
+<script>
+    seajs.use(["$formLink/admin/static/app/acl/hierarchy/edit"], function (main) {
+        main.init();
+    });
+</script>

@@ -1,0 +1,107 @@
+<link href="$formLink/admin/media/css/bosco/list.css"
+      rel="stylesheet" type="text/css" xmlns="http://www.w3.org/1999/html">
+<link href="$formLink/admin/media/css/jquery.mCustomScrollbar.css"
+      rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/sweetalert.css"
+      rel="stylesheet" type="text/css">
+<script src="$formLink/admin/static/js/component/sweetalert.min.js"></script>
+
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">你没有进行该操作的权限,请填写申请理由并申请</h3>
+            </div>
+        </div>
+        <div class="row-fluid" margin-bottom-20 content-area">
+        <div class="span12 list-action-top-area">
+                <div class="span12">
+                    <input id="tokenNameId" value="$!tokenName" style="display: none">
+                    <span class="help-inline">申请理由：</span>
+                    <input type="text" class="m-wrap small" name="missionInstanceTraceIdSearch" id="applyText" value=""></br>
+                    <button id="applyToken" class="btn red">申请</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#applyToken").on("click", function() {
+        //权限申请
+      var applyText=$("#applyText").val();
+      var tokeName= $("#tokenNameId").val();
+      if(applyText==null || applyText==""){
+          alertMessage("申请理由不能为空");
+          return;
+      }
+        $.ajax({
+            type : "POST",
+            dataType :"json",
+            data : {
+                tokeName: tokeName,
+                applyText:applyText,
+            },
+            url :  "/acl/apply/applyToken",
+            success : function(result){
+                if (result.success) {
+                    swal({
+                                title: "申请提交成功！",
+                                type: "success",
+                                showCancelButton:true,
+                                cancelButtonText:"关闭",
+                                confirmButtonText:"返回上一页"
+                            }, function (a) {
+                                if (a){
+                                    history.go(-1);
+                                    return false;
+                                }
+                            }
+                    );
+                }else{
+                    alertGlobalErrorCall(result);
+                }
+
+            }
+        });
+
+    })
+    
+
+##    function alertErrorCall(errorCode) {
+##        seajs.use("$formLink/admin/form/script/exam/error.js", function (main) {
+##            var errorMap= main.getErrorMap();
+##            if(errorMap[errorCode]!=null){
+##                $.notify(errorMap[errorCode],"warn");
+##            } else {
+##                $.notify("系统异常","warn");
+##            }
+##        });
+##    }
+##    function alertMessage(message) {
+##        $.notify(message, "info");
+##    }
+
+    function alertGlobalErrorCall(result) {
+        var errorCode=result.code;
+        var errorMap= $.getGlobalErrorMap();
+        if(errorCode==224){
+            $.noPrivilege(result)
+            return;
+        }
+        if(errorCode==225){
+            $.stackTrace(result)
+            return;
+        }
+
+        if(errorMap[errorCode]!=null){
+            $.notify(errorMap[errorCode],"warn");
+        } else {
+            $.notify("系统异常","warn");
+        }
+    }
+
+    function alertMessage(message) {
+        $.notify(message, "info");
+    }
+</script>

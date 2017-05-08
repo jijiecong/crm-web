@@ -1,0 +1,44 @@
+<style>
+.btn {
+	border-radius: 6px !important;
+	background-color: #1ab394;
+	border-color: #1ab394;
+	color: #fff;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!--创建表单-->
+
+<div class="page-content">
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span12">
+				<h3 class="page-title">$title</h3>
+				<span>$!message</span>
+			</div>
+		</div>
+		<div class="row-fluid margin-bottom-20 content-area">
+			<form id="form" class="form-horizontal">
+				<div class="control-group">
+				<div id="select-privilege" data-uid="$id">
+	
+	            </div>
+	            </div>
+	            <div class="control-group">
+						<div class="controls">
+							<button type="button" class="btn" id="close-form">返回</button>
+						</div>
+				</div>
+			</form>
+		</div>		
+	</div>
+</div>
+
+<input type="hidden" id="selectedBasicRegion" />
+<script src="${formLink}/admin/media/js/jquery.multi-select.js" type="text/javascript"></script>
+<script>
+	seajs.use([ "$formLink/admin/static/app/acl/role/edit_privilege" ], function(main) {
+		main.init();
+	});
+</script>

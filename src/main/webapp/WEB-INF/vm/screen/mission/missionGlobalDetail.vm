@@ -1,0 +1,178 @@
+<link href="$formLink/admin/media/css/bosco/list.css"
+      rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/jquery.mCustomScrollbar.css"
+      rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/datetimepicker.css" rel="stylesheet" media="screen" type="text/css">
+<script src="${formLink}/admin/media/js/bootstrap-datetimepicker.js"></script>
+<script src="${formLink}/admin/media/js/bootstrap-select.js"></script>
+
+##<script src="$formLink/admin/static/app/mission/missionIndex"></script>
+<style type="text/css">
+    .u-tips {
+        display: none;
+        position: fixed;
+        height: auto;
+        z-index: 99999;
+        left: 50%;
+        top: 50%;
+        width: 236px;
+        margin-left: -118px;
+        padding: 8px;
+        line-height: 24px;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, .6);
+        text-align: center;
+        font-size: 20px;
+        color: #fff;
+        font-size: 1.4rem;
+    }
+
+    .td {
+        text-align: center;
+    }
+
+    div {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="page-content">
+
+    <div class="container-fluid">
+        <div class="row-fluid" style="margin-left: 20px;width: 900px">
+            <div class="span12">
+                <h3 class="page-title" style="font-weight: 2px"><strong>任务详情</strong></h3>
+            </div>
+
+            <div style="width: 800px">
+                <h5><strong>任务基本信息</strong></h5>
+                <hr>
+                <div style="float: left;width: 33%">任务类型：
+                    #if($missionVO.missionType=="NEWER")
+                        拉新任务
+                    #elseif($missionVO.missionType=="EXPAND")
+                        互动任务
+                    #elseif($missionVO.missionType=="VIDEO")
+                        广告任务
+                    #end
+                </div>
+                <div style="float: left;width: 33%">任务名称：$missionVO.missionName</div>
+                <div style="float: left;width: 100%">任务起止时间：$!date.format('yyyy-MM-dd HH:mm:ss ',$!missionVO.beginTime)
+                    至
+                    $!date.format('yyyy-MM-dd HH:mm:ss ',$!missionVO.endTime)</div>
+                <div style="float: left;width: 33%">奖励类型：
+                    #if($awardMap.CASH&&$awardMap.SCORE)
+                        现金、积分
+                    #elseif($awardMap.CASH)
+                        现金
+                    #else
+                        积分
+                    #end
+                </div>
+                <div style="float: left;width: 33%">奖励数额：
+                    #set($cash=$awardMap.CASH)
+                    #set($score=$awardMap.SCORE)
+                    #if($awardMap.CASH&&$awardMap.SCORE)
+                        $!awardMap.CASH 元、$!awardMap.SCORE 分
+                    #elseif($awardMap.CASH)
+                        $!awardMap.CASH 元
+                    #else
+
+                        $!awardMap.SCORE 分
+                    #end
+
+                </div>
+                <div style="float: left;width: 33%">任务数量：$missionVO.totalSnapshot</div>
+                <div style="width: 100%">
+                    <div style="float: left">任务封面：</div>
+                    <div style="float: left"><img style="width: 300px;margin-top: 3px" src="$missionVO.pic"></div>
+                </div>
+
+            </div>
+
+
+            <div style="width: 800px;float: left;margin-bottom: 20px">
+                <h5><strong>任务详情</strong></h5>
+                <hr>
+                <div style="float: left;width: 100%"><div style="float: left">任务完成条件：</div>
+                    <div style="float: left">
+                        #set($filterRuleDetailList=$filterRuleVO.filterRuleDetailList)
+                        #set($i=1)
+                        #foreach($filterRuleDetail in $filterRuleDetailList)
+                            #if($filterRuleDetail.ruleKey=="login")
+                                $i . 成功注册后在活动时间内累计登录$filterRuleDetail.ruleValue 天 <br>
+                            #elseif($filterRuleDetail.ruleKey=="opus_timeline")
+                                $i . 成功注册后在活动时间内累计保存作品到服务器$filterRuleDetail.ruleValue 次 <br>
+                            #elseif($filterRuleDetail.ruleKey=="opus_local")
+                                $i . 成功注册后在活动时间内累计保存作品到本地$filterRuleDetail.ruleValue 次 <br>
+                            #elseif($filterRuleDetail.ruleKey=="release_works")
+                                $i . 发布活动作品$filterRuleDetail.ruleValue 个 <br>
+                            #end
+                            #set($i=$i+1)
+                        #end
+                        #if($missionVO.missionType=="VIDEO")
+                            1 .领取任务，浏览广告，获得奖励
+                        #end
+                    </div>
+                </div>
+                <div style="float: left;width: 100%">奖励发放方式：
+                    #if($filterRuleVO.isAuto==true)
+                        自动发放
+                    #else
+                        手动发放
+                    #end
+
+                </div>
+
+                <div style="float: left;width: 100%">
+                    <div style="float: left">任务详情：</div>
+                    <div style="float: left"><img style="width: 150px;margin-top: 3px" src="$missionDetailUrl"></div>
+                </div>
+                <div style="float: left;width: 100%">投放渠道：$!missionVO.channelIdsDesc</div>
+                #if($missionVO.missionType=="NEWER")
+                    <div style="float: left;width: 100%">
+                        <div style="float: left">分享链接：</div>
+                        <div style="float: left;background: white;width: 30%;height: 95px">
+                            <div style="float: left;width:60%;margin-left: 10px">
+                                <div><h5><strong>$!share.title</strong></h5></div>
+                                <div style="color: grey">$!share.desc</div>
+                            </div>
+                            <div style="float: left;width: 25%;margin-left: 10px"> <img style="width:px;margin-top: 15px;margin-right: 5px" src="$share.icon"></div>
+
+                        </div>
+                    </div>
+                #elseif($missionVO.missionType=="EXPAND")
+                    <div style="float: left;width: 100%">活动跳转链接：$!share.template</div>
+                #elseif($missionVO.missionType=="VIDEO")
+                    <div style="float: left;width: 100%">广告链接：$!share.link</div>
+                #end
+
+            </div>
+        </div>
+
+
+        <tr style="text-align: end"></tr>
+    ##                    return false 为了兼容Safari
+        <a href="" onclick="history.go(-1);return false;" class="btn blue search-btn">返回</a>
+
+
+        <script>
+            seajs.use("$formLink/admin/static/app/mission/missionIndex", function (main) {
+//            main.init();
+
+            });
+            function alertErrorCall(errorCode) {
+                seajs.use("$formLink/admin/form/script/exam/error.js", function (main) {
+                    var errorMap = main.getErrorMap();
+                    if (errorMap[errorCode] != null) {
+                        $.notify(errorMap[errorCode], "warn");
+                    } else {
+                        $.notify("系统异常", "warn");
+                    }
+                });
+            }
+            function alertMessage(message) {
+                $.notify(message, "info");
+            }
+        </script>

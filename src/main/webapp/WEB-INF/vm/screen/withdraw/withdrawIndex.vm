@@ -1,0 +1,514 @@
+<link href="$formLink/admin/media/css/bosco/list.css"
+      rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/jquery.mCustomScrollbar.css"
+      rel="stylesheet" type="text/css">
+<script src="$formLink/admin/form/script/simpleUpload.min.js"></script>
+<script src="$formLink/admin/form/script/jquery-ui.min.js"></script>
+<link href="$formLink/admin/media/css/datetimepicker.css" rel="stylesheet" media="screen" type="text/css">
+<script src="${formLink}/admin/media/js/bootstrap-datetimepicker.js"></script>
+<link href="$formLink/admin/media/js/need/laydate.css" rel="stylesheet" media="screen" type="text/css">
+<link href="$formLink/admin/media/js/skins/default/laydate.css" rel="stylesheet" media="screen" type="text/css">
+<script src="${formLink}/admin/media/js/laydate.js"></script>
+
+<link href="$formLink/admin/media/css/sumoselect.css" rel="stylesheet">
+<script src="$formLink/admin/media/js/jquery.sumoselect.min.js"></script>
+
+##emoji
+<link href="$formLink/admin/media/css/emojione.min.css" rel="stylesheet">
+<script src="$formLink/admin/media/js/emojione.min.js"></script>
+<style type="text/css">
+    .u-tips {
+        display: none;
+        position: fixed;
+        height: auto;
+        z-index: 99999;
+        left: 50%;
+        top: 50%;
+        width: 236px;
+        margin-left: -118px;
+        padding: 8px;
+        line-height: 24px;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, .6);
+        text-align: center;
+        font-size: 20px;
+        color: #fff;
+        font-size: 1.4rem;
+    }
+
+
+    #withdraw_detail_div{
+        position: absolute;
+        top: 20%;
+    }
+    .detail_inner_div{
+        margin-left: 15px;
+        margin-top: 10px;
+    }
+
+</style>
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">提现管理</h3>
+                <span>$!message</span>
+            </div>
+        </div>
+
+        <div class="row-fluid margin-bottom-20 content-area">
+        <div class="span12 list-action-top-area">
+            <form action="/withdraw/index" class="form-horizontal listSearchBox" method="post">
+
+                <table  style="width: 100%">
+
+                    <tr >
+                       <td class="first_tr">
+                           <span >用 户 ID</span>
+                           <input class="head_input" type="text" name="userId" id="user_id_input" value="$!userId" style="width: 46%">
+                       </td>
+                        <td class="first_tr">
+                            <span >用户名称</span>
+                            <input class="head_input" type="text" name="userName" id="user_name_input" value="$!userName" style="width: 46%">
+                        </td>
+                        <td class="first_tr">
+                            <span class="help-inlin" >提现账号</span>
+                            <input class="head_input" type="text" name="withdrawAccount" id="withdraw_account_input"
+                                   value="$!withdrawAccount" style="width: 45%">
+                        </td>
+                        <td class="first_tr">
+                            <span class="help-inlin" >审核人</span>
+                            <input class="head_input" type="text" name="auditUserName" id="audit_user_name_input"
+                                   value="$!auditUserName" style="width: 46%">
+                        </td>
+                        <td class="second_tr">
+                            <span >排序方式</span>
+                            <select name="sort" class="select_input" id="sort_input" style="width: 70%;">
+                                <option value=1
+                                    #if($!sort==1)
+                                        selected="selected"
+                                    #end
+                                >申请时间倒序
+                                </option>
+                                <option value=2
+                                    #if($!sort==2)
+                                        selected="selected"
+                                    #end
+                                >申请时间顺序
+                                </option>
+                                <option value=3
+                                    #if($!sort==3)
+                                        selected="selected"
+                                    #end
+                                >审核时间倒序
+                                </option>
+                                <option value=4
+                                    #if($!sort==4)
+                                        selected="selected"
+                                    #end
+                                >审核时间顺序
+                                </option>
+
+                        </td>
+                    </tr>
+                    <tr class="head_tr">
+                        <td class="second_tr">
+                            <span >申请时间</span>
+                            <input type="text" class="m-wrap laydate-icon time_input" name="applyMinTime" id="apply_min_time_input"
+                                   value="$!applyMinTime" style="width: 45%">
+                        </td>
+                        <td class="second_tr">
+                            <span class="time_middle">&nbsp;&nbsp;&nbsp;&nbsp;至&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" class="m-wrap  laydate-icon time_input" name="applyMaxTime" id="apply_max_time_input"
+                                   value="$!applyMaxTime" style="width: 46%;margin-left: 2%">
+                        </td>
+                        <td class="second_tr">
+                            <span  >审核时间</span>
+                            <input type="text" class="m-wrap  laydate-icon" name="auditMinTime"
+                                   id="audit_min_time_input" value="$!auditMinTime" style="width: 45%">
+                        </td>
+                        <td class="second_tr">
+                            <span class="time_middle">&nbsp;&nbsp;&nbsp;至&nbsp;&nbsp;&nbsp;</span>
+                            <input type="text" class="m-wrap laydate-icon" name="auditMaxTime" id="audit_max_time_input"
+                                   value="$!auditMaxTime" style="width: 47%;">
+                        </td>
+
+
+
+                    </tr>
+
+                    <tr class="head_tr" ">
+
+                        <td class="third_tr" style="margin-top: 5%">
+                            <a class="btn mini purple" id="modal-form-box-withdraw-export" data-toggle="modal"
+                               style="margin-left: 40%;margin-top: 1%;">
+                                <span class="head_button" style="font-size: 14px">未处理导出</span> <i class="icon-angle-down"></i>
+                            </a>
+                        </td>
+                        <td class="third_tr">
+                            <a class="btn mini purple" href="#modal-form-box-withdraw-import" data-toggle="modal"
+                               style="margin-left: 40%;margin-top: 1%">
+                                <span class="head_button" style="font-size: 14px">处理导入</span> <i class="icon-angle-down"></i>
+                            </a>
+                        </td>
+                        <td class="third_tr">
+                            <a class="btn mini purple withdrawRule" href="#modal-form-box-withdraw-rule" data-toggle="modal"
+                               style="margin-left: 40%;margin-top: 1%">
+                                <span class="head_button" style="font-size: 14px">提现规则</span> <i class="icon-angle-down"></i>
+                            </a>
+                        </td>
+                        <td class="third_tr" style="align: center">
+                            <button id="search_button" type="submit" class="btn mini purple" style="margin-left: 50%;margin-top: 1%">
+                                <span class="head_button" style="font-size: 14px">查  询</span><i class="icon-angle-down"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+##                存放两个状态选择的值
+                <input id="status_input_hidden" name="status" value="$!status" type="hidden" class="hiddenInput" selectId="status_select"></input>
+                <input id="process_input_hidden" name="hasProcess" value="$!hasProcess" type="hidden" class="hiddenInput" selectId="process_select"></input>
+            </form>
+        </div>
+        <div class="portlet box green">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-cogs"></i>
+                    提现列表
+                </div>
+            </div>
+
+            <div class="portlet-body">
+                <table class="table table-condensed table-hover">
+                    <colgroup>
+##                        提现编号
+                        <col style="width: 6%">
+##                        提现金额
+                        <col style="width: 5%">
+##                        用户名称
+                        <col style="width: 6%">
+##                        提现姓名
+                        <col style="width: 6%">
+##                        提现方式
+                        <col style="width: 6%">
+##                        提现账号
+                        <col style="width: 5%">
+##                        提现申请时间
+                        <col style="width: 13%">
+##                        审核状态
+                        <col style="width: 5%">
+##                        处理状态
+                        <col style="width: 7%">
+##                        提现审核时间
+                         <col style="width: 13%">
+##                        审核人
+                        <col style="width: 5%">
+##                        备注
+                        <col style="width: 10%">
+##                        操作
+                        <col style="width: 13%">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th style="text-align: center">提现编号</th>
+                        <th style="text-align: center">提现金额</th>
+                        <th style="text-align: center">用户名称</th>
+                        <th style="text-align: center">提现姓名</th>
+                        <th style="text-align: center">提现方式</th>
+                        <th style="text-align: center">提现账号</th>
+                        <th style="text-align: center">提现申请时间</th>
+##                        审核状态
+                        <th style="text-align: center">
+                            <select id="status_select" class="SumoSelect" inputId="status_input_hidden"  multiple="multiple" style="border: none;width: 85%;height: 10px">
+                                <option value="RUNNING">待审核</option>
+                                <option value="SUCCESS">通过</option>
+                                <option value="FAILED">拒绝</option>
+                            </select>
+                        </th>
+##                        处理状态
+                        <th style="text-align: center">
+                            <select id="process_select" class="SumoSelect" inputId="process_input_hidden"  multiple="multiple" style="border: none;width: 85%;height: 0px">
+                                <option value="0">未处理</option>
+                                <option value="1">处理中</option>
+                                <option value="2">处理完成</option>
+                            </select>
+                        </th>
+                        <th style="text-align: center">提现审核时间</th>
+                        <th style="text-align: center">审核人</th>
+                        <th style="text-align: center">备注</th>
+                        <th style="text-align: center">操作</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #foreach($basicVO in $basicVOList)
+                        <tr class="u_$!basicVO.id">
+                            <td style="text-align: center">$!basicVO.id</td>
+                            <td style="text-align: center">$!basicVO.withdrawMoney</td>
+                            <td style="text-align: center" class="emoji">$!basicVO.userName</td>
+                            <td style="text-align: center">$!basicVO.withdrawUserName</td>
+                            #if($!basicVO.withdrawType=='ALIPAY')
+                                <td style="text-align: center">支付宝</td>
+                            #elseif($!basicVO.withdrawType=='WEICAHTPAY')
+                                <td style="text-align: center">微信</td>
+                            #elseif($!basicVO.withdrawType=='TENAPY')
+                                <td style="text-align: center">财付通</td>
+                            #end
+
+                            <td style="text-align: center">$!basicVO.withdrawAccount</td>
+                            <td style="text-align: center">$dateUtils.format($!basicVO.applyTime,"yyyy-MM-dd HH:mm:ss")</td>
+                            #if($!basicVO.status=='RUNNING')
+                                <td style="text-align: center">待审核</td>
+                            #elseif($!basicVO.status=='SUCCESS')
+                                <td style="text-align: center">通过</td>
+                            #elseif($!basicVO.status=='FAILED')
+                                <td style="text-align: center">拒绝</td>
+                            #end
+
+                            #if($!basicVO.hasProcess==0)
+                                <td style="text-align: center">未处理</td>
+                            #elseif($!basicVO.hasProcess==1)
+                                <td style="text-align: center">处理中</td>
+                            #elseif($!basicVO.hasProcess==2)
+                                <td style="text-align: center">处理完成</td>
+                            #end
+
+                            <td style="text-align: center">$dateUtils.format($!basicVO.auditTime,"yyyy-MM-dd HH:mm:ss")</td>
+                            <td style="text-align: center">$!basicVO.auditUserName</td>
+                            <td style="text-align: center">$!basicVO.auditDesc</td>
+
+                            <td style="text-align: center">
+                                <div class="btn-group">
+                                    <a class="btn mini purple withdrawDetail" href="#withdraw_detail_div" data-toggle="modal"
+                                       data-uid="$!basicVO.id" style="margin-left: 3px;">
+                                         详情
+                                    </a>
+                                </div>
+                                #if ($basicVO.status=="RUNNING" && $!basicVO.hasProcess==0)
+
+                                    <div class="btn-group">
+                                        <a class="btn mini purple auditForm" href="#modal-form-box-aduit-success"
+                                           data-toggle="modal" data-uid="$!basicVO.id" style="margin-left: 3px;">
+                                             通过
+                                        </a>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a class="btn mini purple auditForm" href="#modal-form-box-aduit-fail"
+                                           data-toggle="modal" data-uid="$!basicVO.id" style="margin-left: 3px;">
+                                            拒绝
+                                        </a>
+                                    </div>
+                                #end
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        #if ($totalCount > 0)
+            <div class="pages" style="padding:3px">
+                #set($cpage = $pageUtil.pager($curPage, $pageSize, $totalCount))
+				        #set($url = $formLink.setTarget('/withdraw/index').addQueryData("userId","$!userId").addQueryData('userName',  "$!userName").addQueryData('withdrawAccount',  "$!withdrawAccount").addQueryData('auditUserName',  "$!auditUserName").addQueryData('hasProcess',  "$!hasProcess").addQueryData('status',  "$!status").addQueryData('sort',  "$!sort").addQueryData('applyMinTime',  "$!applyMinTime").addQueryData('auditMaxTime',  "$!auditMaxTime").addQueryData('applyMaxTime',  "$!applyMaxTime").fork())
+				   		#showPage($cpage $url)
+            </div>
+        #end
+    </div>
+</div>
+
+
+    <div id="withdraw_detail_div" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1"
+         aria-hidden="true"  >
+        <div class="detail_inner_div">
+            编号：<span id="withdraw_id"></span>
+        </div>
+        <div class="detail_inner_div">
+            用户名：<span id="withdraw_userName" class="emoji"></span>
+        </div>
+        <div class="detail_inner_div">
+            手机号：<span id="withdraw_phone"></span>
+        </div>
+        <div class="detail_inner_div">
+            金额：<span id="withdraw_count"></span>
+        </div>
+        <div class="detail_inner_div">
+            状态：<span id="withdraw_status"></span>
+        </div>
+        <div class="detail_inner_div">
+            申请时间：<span id="withdraw_applyTime"></span>
+        </div>
+        <div class="detail_inner_div">
+            提现方式：<span id="withdraw_type"></span>
+        </div>
+        <div class="detail_inner_div">
+            提现姓名：<span id="withdraw_name"></span>
+        </div>
+        <div class="detail_inner_div">
+            提现账号：<span id="withdraw_account"></span>
+        </div>
+        <div class="detail_inner_div">
+            申请渠道：<span id="withdraw_channel"></span>
+        </div>
+
+        <div class="detail_inner_div">
+            审核人：<span id="withdraw_auditUserName"></span>
+        </div>
+        <div class="detail_inner_div">
+            备注：<span id="withdraw_desc"></span>
+        </div>
+        <div class="detail_inner_div">
+            审核时间：<span id="withdraw_auditTime"></span>
+        </div>
+
+        <button  class="btn" id="close-modal" data-dismiss="modal" aria-hidden="true" style="margin-left: 85%;margin-bottom: 10px;">关闭</button>
+    </div>
+
+<div id="modal-form-box-aduit-success" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1"
+     aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h3 id="myModalLabel1">确认通过该请求？</h3>
+    </div>
+    <div class="modal-body" style="text-align: left;">
+            备注 <input name="title" id="aduitDescSUCCESS" placeholder="审批描述" type="text" class="m-wrap large"
+                        style="margin-left: 10px;margin-bottom: 5px;"> <br/>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn" id="close-modal" data-dismiss="modal" aria-hidden="true">关闭</button>
+        <button id="modal-form-submit" class="btn yellow audit_submit" value="SUCCESS">确定</button>
+    </div>
+</div>
+
+    <div id="modal-form-box-aduit-fail" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h3 id="myModalLabel1">确认拒绝该请求？</h3>
+        </div>
+        <div class="modal-body" style="text-align: left;">
+                备注 <input name="title" id="aduitDescFAILED" placeholder="审批描述" type="text" class="m-wrap large"
+                          style="margin-left: 10px;margin-bottom: 5px;"> <br/>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="close-modal" data-dismiss="modal" aria-hidden="true">关闭</button>
+            <button id="modal-form-submit-fail" class="btn yellow audit_submit" value="FAILED">确定</button>
+        </div>
+    </div>
+
+
+    <div id="modal-form-box-withdraw-rule" class="modal hide fade" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel1" aria-hidden="true" style="margin-top: -190px;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h3 id="myModalLabel1">提现规则</h3>
+        </div>
+        <div class="modal-body" style="text-align: left;">
+            <form id="form" method="post" class="form-horizontal">
+                最大提现金额 <input name="title" id="maxWithdrawCount" placeholder="最大提现金额" type="text" class="m-wrap large"
+                              style="margin-left: 10px;margin-bottom: 5px;"> <br/>
+                最小提现金额 <input name="title" id="minWithdrawCount" placeholder="最大提现金额" type="text" class="m-wrap large"
+                              style="margin-left: 10px;margin-bottom: 5px;"> <br/>
+                提现次数限制 <input name="title" id="limitTimesWithdraw" placeholder="提现次数限制" type="text" class="m-wrap large"
+                              style="margin-left: 10px;margin-bottom: 5px;"> <br/>
+                申请提现天数
+                <ul id="daysWithdraw" style="margin-top: 5px;font-size:12px;">
+                    <input type="checkbox" id="dayWithdraw1" data-uid="1" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>1
+                    <input type="checkbox" id="dayWithdraw2" data-uid="2" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>2
+                    <input type="checkbox" id="dayWithdraw3" data-uid="3" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>3
+                    <input type="checkbox" id="dayWithdraw4" data-uid="4" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>4
+                    <input type="checkbox" id="dayWithdraw5" data-uid="5" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>5
+                    <input type="checkbox" id="dayWithdraw6" data-uid="6" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>6
+                    <input type="checkbox" id="dayWithdraw7" data-uid="7" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>7
+                    <input type="checkbox" id="dayWithdraw8" data-uid="8" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>8
+                    <input type="checkbox" id="dayWithdraw9" data-uid="9" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>9
+                    <input type="checkbox" id="dayWithdraw10" data-uid="10" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>10<br/>
+                    <input type="checkbox" id="dayWithdraw11" data-uid="11" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>11
+                    <input type="checkbox" id="dayWithdraw12" data-uid="12" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>12
+                    <input type="checkbox" id="dayWithdraw13" data-uid="13" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>13
+                    <input type="checkbox" id="dayWithdraw14" data-uid="14" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>14
+                    <input type="checkbox" id="dayWithdraw15" data-uid="15" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>15
+                    <input type="checkbox" id="dayWithdraw16" data-uid="16" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>16
+                    <input type="checkbox" id="dayWithdraw17" data-uid="17" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>17
+                    <input type="checkbox" id="dayWithdraw18" data-uid="18" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>18
+                    <input type="checkbox" id="dayWithdraw19" data-uid="19" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>19
+                    <input type="checkbox" id="dayWithdraw20" data-uid="20" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>20<br/>
+                    <input type="checkbox" id="dayWithdraw21" data-uid="21" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>21
+                    <input type="checkbox" id="dayWithdraw22" data-uid="22" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>22
+                    <input type="checkbox" id="dayWithdraw23" data-uid="23" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>23
+                    <input type="checkbox" id="dayWithdraw24" data-uid="24" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>24
+                    <input type="checkbox" id="dayWithdraw25" data-uid="25" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>25
+                    <input type="checkbox" id="dayWithdraw26" data-uid="26" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>26
+                    <input type="checkbox" id="dayWithdraw27" data-uid="27" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>27
+                    <input type="checkbox" id="dayWithdraw28" data-uid="28" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>28
+                    <input type="checkbox" id="dayWithdraw29" data-uid="29" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>29
+                    <input type="checkbox" id="dayWithdraw30" data-uid="30" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>30
+                    <input type="checkbox" id="dayWithdraw31" data-uid="31" class="btn mini purple withdrawRuleClass"
+                           style="margin-left: 10px;"/>31
+                </ul>
+
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="close-modal" data-dismiss="modal" aria-hidden="true">关闭</button>
+            <button id="modal-form-submit-rule" data-dismiss="modal" class="btn yellow submit">确定</button>
+        </div>
+    </div>
+
+    <div id="modal-form-box-withdraw-import" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h3 id="myModalLabel1">导入审批文件</h3>
+    </div>
+    <div class="modal-body" style="text-align: left;">
+        <div id="filename"></div>
+        <div id="progress"></div>
+        <div id="progressBar"></div>
+        <input type="file" name="file">
+    </div>
+    <div class="modal-footer">
+        <button class="btn" id="close-modal" data-dismiss="modal" aria-hidden="true">关闭</button>
+        <button id="modal-form-submit-confirm" data-dismiss="modal" class="btn yellow submit">确定</button>
+    </div>
+</div>
+<input type="hidden" id="selectedBasicRegion"/>
+
+<script>
+    seajs.use("$formLink/admin/static/app/withdraw/withdraw");
+
+</script>
+
+

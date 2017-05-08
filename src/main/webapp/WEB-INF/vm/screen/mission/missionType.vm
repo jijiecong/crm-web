@@ -1,0 +1,161 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <title>任务工作台</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="robots" content="noindex,nofollow">
+    <script src="$formLink/admin/form/script/jquery.min.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/configBase.js"></script>
+    <script src="${formLink}/admin/static/js/sea-modules/seajs/2.2.1/sea.js"></script>
+    <script src="${formLink}/admin/static/js/app/seajs/config-seajs.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap.min.js"></script>
+
+</head>
+<!-- CSS -->
+<style>
+    .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+    .ui-widget-overlay.custom-overlay
+    {
+        background-color: black;
+        background-image: none;
+        opacity: 0.9;
+        z-index: 1040;
+    }
+    .selected{
+        background-color : #0FA74F;
+    }
+</style>
+<body>
+
+<div class="pagebox" id="pageContentId">
+    <div class="home-desktop" id="desktop_scroll">
+        <div style="width:1000px; position: relative;">
+            <div class="create-questions-content">
+                <div class="exam-nav">
+                </div>
+                <div class="portlet box green">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            类型列表
+                        </div>
+                        <div class="actions">
+                            <a href="#modal-form-type" data-toggle="modal" class="btn blue add">添加</a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <table class="table table-condensed table-hover" id="tableId">
+                            <thead>
+                            <tr>
+                                <th>类型编号</th>
+                                <th>类型名称</th>
+                                <th>是否使用表单</th>
+                                <th>是否单次触发</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                #foreach($basicVO in $basicVOList)
+                                <tr class="u_$!basicVO.id">
+                                    <td>$!basicVO.id</td>
+                                    <td>$!basicVO.name</td>
+                                    <td>$!basicVO.isUseForm</td>
+                                    <td>$!basicVO.isSingleInvoke</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a  href="#modal-form-type" data-toggle="modal" data-uid="$!basicVO.id" class="btn mini purple edit" style="margin-left: 3px;">
+                                                <i class="icon-edit"></i> 修改</a>
+                                            <a href="#myModal3" data-toggle="modal" data-uid="$!basicVO.id" class="btn mini red del" style="margin-left: 3px;">
+                                                <i class="icon-trash"></i> 删除
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                #end
+                            </tbody>
+                        </table>
+                    </div>
+                    #if ($totalCount > 0)
+                        <div class="pages" style="padding:3px">
+                            #set($cpage = $pageUtil.pager($curPage, $pageSize, $totalCount))
+				        #set($url = $formLink.setTarget('/mission/missionType').addQueryData('nothing', "nothing").fork())
+				   		#showPage($cpage $url)
+                        </div>
+                    #end
+                </div>
+            </div>
+            <div style="height:40px; margin: 20px 0; text-align: right;">
+                <button id="refreshForm" type="button" class="cotrlBtn exam-refresh-btn btnBlue" value="" style="height:40px;width: 140px; font-size:18px;" onclick="window.location.reload()">刷新</button>
+                <button id="saveForm" type="button" class="cotrlBtn exam-save-btn btnBlue"  style="height:40px;width: 100px; font-size:18px;">确定</button>
+                <button id="closeFormPage" type="button" class="cotrlBtn exam-close-btn btnBlue" style="height:40px;width: 100px; font-size:18px;">关闭</button>
+            </div>
+            </div>
+    </div>
+</div>
+
+<div id="modal-form-type" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h3 id="myModalLabel1">添加/修改</h3>
+    </div>
+    <div class="modal-body" style="text-align: left;">
+        <form id="form" method="post" class="form-horizontal">
+            <input name="uid" type="hidden" value=""/>
+            类型名称：<input name="typeName" placeholder="任务类型名" type="text"  class="m-wrap large" style="margin-bottom: 5px;"> <br/>
+            使用表单：<input name="typeIsUseForm" placeholder="是否使用表单" type="checkbox"  class="m-wrap large" style="margin-bottom: 5px;"> <br/>
+            单次触发：<input name="typeIsSingleInvoke" placeholder="是否单次触发" type="checkbox"  class="m-wrap large" style="margin-bottom: 5px;"> <br/>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" id="close-modal" data-dismiss="modal"
+                aria-hidden="true">关闭</button>
+        <button id="modal-form-submit" class="btn yellow submit">添加</button>
+        <button id="modal-form-edit" class="btn yellow submit">修改</button>
+    </div>
+</div>
+
+<div id="myModal3" class="modal hide fade" tabindex="-1"
+     role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true"
+     data-backdrop="static">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true"></button>
+        <h3 id="myModalLabel3">警告!</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            你正在删除一个表单!<br>这个操作不可逆转,你确定要这样做吗?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="affirm-del" data-dismiss="modal" class="btn red"
+                data-uid="0">确定</button>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+        seajs.use("$formLink/admin/static/app/mission/missionType", function (main) {
+            main.init();
+        });
+
+
+        $(function () {
+//            missionExam.init();
+//            $("select").dcselect();
+        });
+    </script>
+
+</body>
+
+</html>

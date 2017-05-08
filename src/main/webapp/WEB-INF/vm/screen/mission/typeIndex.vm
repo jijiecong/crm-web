@@ -1,0 +1,299 @@
+<link href="$formLink/admin/media/css/bosco/list.css"
+      rel="stylesheet" type="text/css">
+<link href="$formLink/admin/media/css/jquery.mCustomScrollbar.css"
+      rel="stylesheet" type="text/css">
+##<link href="$formLink/admin/media/css/datetimepicker.css" rel="stylesheet" media="screen"  type="text/css">
+##<script src="${formLink}/admin/media/js/bootstrap-datetimepicker.js"></script>
+<!-- Include the plugin's CSS and JS: -->
+<script type="text/javascript" src="${formLink}/admin/media/js/multiple-select.js"></script>
+<link rel="stylesheet" href="${formLink}/admin/media/css/multiple-select.css" type="text/css"/>
+<link href="$formLink/admin/media/js/need/laydate.css" rel="stylesheet" media="screen" type="text/css">
+<link href="$formLink/admin/media/js/skins/default/laydate.css" rel="stylesheet" media="screen" type="text/css">
+<script src="${formLink}/admin/media/js/laydate.js"></script>
+<style type="text/css">
+    .u-tips {
+        display: none;
+        position: fixed;
+        height: auto;
+        z-index: 99999;
+        left: 50%;
+        top: 50%;
+        width: 236px;
+        margin-left: -118px;
+        padding: 8px;
+        line-height: 24px;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, .6);
+        text-align: center;
+        font-size: 20px;
+        color: #fff;
+        font-size: 1.4rem;
+    }
+    #modal-form-type{
+        width: 700px;
+        top: calc(50% - 200px) !important;
+    }
+</style>
+
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">任务类型配置</h3>
+                <span>$!message</span>
+            </div>
+        </div>
+        <div class="row-fluid" margin-bottom-20 content-area">
+        <div class="span12 list-action-top-area">
+            <form action="/mission/typeIndex" class="form-horizontal listSearchBox" method="post">
+                <div class="span12">
+                    <span class="help-inline">任务类型</span>
+                    <input type="text" class="m-wrap small" name="typeNameSearch" id="typeNameSearch" value="$!typeNameSearch">
+                    <span class="help-inline">任务ID</span>
+                    <input type="text" class="m-wrap small" name="typeIdSearch" id="typeIdSearch" value="$!typeIdSearch">
+                    <span class="help-inline">创建时间</span>
+                    <input type="text" class="m-wrap small laydate-icon" name="createTimeBeginSearch" id="createTimeBeginSearch" value="$!createTimeBeginSearch">
+                    <span class="help-inline">至</span>
+                    <input type="text" class="m-wrap small laydate-icon" name="createTimeEndSearch" id="createTimeEndSearch" value="$!createTimeEndSearch">
+                    <button type="submit" class="btn blue search-btn">查询</button>
+                </div>
+            </form>
+        </div>
+        <div class="portlet box green">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-cogs"></i>
+                    任务类型列表
+                </div>
+                <div class="actions">
+                    <a href="#modal-form-type" data-toggle="modal" class="btn blue add"><i class="icon-pencil"></i>添加</a>
+                </div>
+            </div>
+
+            <div class="portlet-body" id="tableId">
+                <table class="table table-condensed table-hover">
+                    <thead>
+                    <tr>
+                        <th>类型ID</th>
+                        <th>任务类型</th>
+                        <th>创建时间</th>
+                        <th>关联任务条件</th>
+                        <th>编辑者</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #foreach($basicVO in $basicVOList)
+                        <tr class="u_$!basicVO.id">
+                            <td>$!basicVO.id</td>
+                            <td>$!basicVO.typeNameDesc</td>
+                            <td>$dateUtils.format($!basicVO.gmtCreated,"yyyy-MM-dd HH:mm:ss")</td>
+                            <td>$!basicVO.associateRuleDesc</td>
+                            <td>$!basicVO.userName</td>
+                            <td>$!basicVO.description</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a  href="#modal-form-type" data-toggle="modal" data-uid="$!basicVO.id" class="btn mini purple edit" style="margin-left: 3px;">
+                                        <i class="icon-edit"></i> 修改</a>
+                                    <a href="#myModal3" data-toggle="modal" data-uid="$!basicVO.id" class="btn mini red del" style="margin-left: 3px;">
+                                        <i class="icon-trash"></i> 删除
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        #if ($totalCount > 0)
+            <div class="pages" style="padding:3px">
+                #set($cpage = $pageUtil.pager($curPage, $pageSize, $totalCount))
+				        #set($url = $formLink.setTarget('/mission/typeIndex').addQueryData("typeNameSearch","$!typeNameSearch").addQueryData("typeIdSearch","$!typeIdSearch").addQueryData('createTimeBeginSearch',  "$!createTimeBeginSearch").addQueryData('createTimeEndSearch',  "$!createTimeEndSearch").fork())
+				   		#showPage($cpage $url)
+            </div>
+        #end
+    </div>
+</div>
+
+
+<div id="modal-form-type" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        <h3 id="myModalLabel1">添加/修改</h3>
+    </div>
+    <div class="modal-body" style="text-align: left;padding-bottom :60px">
+        <form id="form" method="post" class="form-horizontal">
+            <input name="uid" type="hidden" value=""/>
+            <ul id="typeNameDescUl">类型名：&nbsp;<input name="typeNameDesc" placeholder="类型名" type="text"  class="m-wrap large" style="margin-bottom: 5px;"></ul>
+            <ul id="typeNameUl">类型key：<input name="typeName" placeholder="类型key" type="text"  class="m-wrap large" style="margin-bottom: 5px;margin-left: 5px"></ul>
+            <ul id="descriptionUl">备注：&nbsp;&nbsp;<input name="description" placeholder="备注" type="text"  class="m-wrap large" style="margin-bottom: 5px;"></ul>
+            <ul id="assocaite-rule-selectUl">任务条件：<select id="assocaite-rule-select" multiple="multiple">
+
+                        </select></ul>
+
+        </form>
+    </div>
+    <div class="modal-footer" style="position: absolute;bottom: 0;width:670px;right: 0">
+        <button class="btn" id="close-modal" data-dismiss="modal"
+                aria-hidden="true">关闭</button>
+        <button id="modal-form-submit" class="btn yellow submit">添加</button>
+        <button id="modal-form-edit" class="btn yellow submit">修改</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#assocaite-rule-select").multipleSelect({
+        filter: true,
+        placeholder: "请选择",
+        selectAllText:"选择所有条件"
+    });
+    $.ajax({
+        type : "POST",
+        dataType :"json",
+        data : {},
+        url :  "/mission/missionConditionAvailable",
+        success : function(result){
+            if (result.success) {
+                //多选框数据初始化
+                var products=result.data;
+                var newProducts = new Array();
+                var obj = new Object();
+                $.each(products, function(index, product) {
+                    obj = {
+                        label : product.desc,
+                        value : product.id
+                    };
+                    $("<option></option>").val(product.id).text(product.desc).appendTo($("#assocaite-rule-select"));
+                });
+
+                $('#assocaite-rule-select').multipleSelect("refresh");
+            }else{
+                alert(result.error);
+            }
+        }
+    });
+    // 向权限组下拉框设置选项时，先清空select
+    //    $("#editGroupNameSelect").empty();
+
+    //数据初始化
+
+    //    var products = data.products;
+//    var newProducts = new Array();
+//    var obj = new Object();
+//    $.each(products, function(index, product) {
+//        obj = {
+//            label : product.id,
+//            value : product.name
+//        };
+//        newProducts.push(obj);
+//    });
+//    $(".multiselect").multiselect('dataprovider', newProducts);
+</script>
+
+<div id="myModal3" class="modal hide fade" tabindex="-1"
+     role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true"
+     data-backdrop="static">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true"></button>
+        <h3 id="myModalLabel3">警告!</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            你正在删除一个任务类型!<br>这个操作不可逆转,你确定要这样做吗?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="affirm-del" data-dismiss="modal" class="btn red"
+                data-uid="0">确定</button>
+    </div>
+</div>
+
+<input type="hidden" id="selectedBasicRegion"/>
+
+<script>
+    seajs.use("$formLink/admin/static/app/mission/missionType", function (main) {
+        main.init();
+    });
+     function getSelect() {
+        var selected= $("#assocaite-rule-select").multipleSelect("getSelects");
+        var ruleString="";
+         for(var i=0;i<selected.length;i++){
+             ruleString=ruleString+ selected[i]+",";
+         }
+         if(ruleString.length>=1){
+             ruleString=ruleString.substr(0,ruleString.length-1);
+         }
+        return ruleString;
+     }
+    function refreshSelect() {
+        $('#assocaite-rule-select').multipleSelect("refresh");
+    }
+</script>
+
+<script type="text/javascript">
+//    $(".datetimepicker").datetimepicker({format: 'yyyy-mm-dd hh:ii:ss'});
+var start = {
+    elem: '#createTimeBeginSearch',
+    format: 'YYYY-MM-DD hh:mm:ss',
+    max: '2099-06-16 23:59:59', //最大日期
+    istime: true,
+    istoday: false,
+    choose: function(datas){
+        end.min = datas; //开始日选好后，重置结束日的最小日期
+        end.start = datas //将结束日的初始值设定为开始日
+    }
+};
+var end = {
+    elem: '#createTimeEndSearch',
+    format: 'YYYY-MM-DD hh:mm:ss',
+    max: '2099-06-16 23:59:59',
+    istime: true,
+    istoday: false,
+    choose: function(datas){
+        start.max = datas; //结束日选好后，重置开始日的最大日期
+    }
+};
+laydate(start);
+laydate(end);
+</script>
+
+<script>
+
+    function alertGlobalErrorCall(result) {
+        var errorCode=result.code;
+        var errorMap= $.getGlobalErrorMap();
+        if(errorCode==224){
+            $.noPrivilege(result.data)
+            return;
+        }
+        if(errorCode==225){
+            $.stackTrace(result)
+            return;
+        }
+
+        if(errorMap[errorCode]!=null){
+            $.notify(errorMap[errorCode],"warn");
+        } else {
+            $.notify("系统异常","warn");
+        }
+    }
+
+    function alertErrorCall(errorCode) {
+        seajs.use("$formLink/admin/form/script/exam/error.js", function (main) {
+            var errorMap= main.getErrorMap();
+            if(errorMap[errorCode]!=null){
+                $.notify(errorMap[errorCode],"warn");
+            } else {
+                $.notify("系统异常","warn");
+            }
+        });
+    }
+    function alertMessage(message) {
+        $.notify(message, "info");
+    }
+</script>
+

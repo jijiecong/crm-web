@@ -1,0 +1,67 @@
+<link href="$formLink/admin/media/css/bosco/list.css"
+      rel="stylesheet" type="text/css" xmlns="http://www.w3.org/1999/html">
+<link href="$formLink/admin/media/css/jquery.mCustomScrollbar.css"
+      rel="stylesheet" type="text/css">
+<script src="${formLink}/admin/static/gallery/zeroclipboard/ZeroClipboard.min.js" type="text/javascript"></script>
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h2 class="page-title red">系统错误</h2>
+            </div>
+            <h3>系统错误，请联系后台管理员，他将协助您处理问题，谢谢您的配合。</h3>
+            <a href="javascript:void(0);" id="btnCopy" title="复制本文链接" style="display: none" >复制异常代码</a>
+        </div>
+        <div class="row-fluid" margin-bottom-20 content-area">
+        <div class="span12 list-action-top-area">
+##            请求地址：$!url<br/>
+##            错误原因：$!message<br/>
+##            堆栈信息：<br/>
+##            #foreach(${ste}  in ${exception.stackTrace})
+##                 &nbsp;&nbsp;&nbsp;&nbsp;${ste}<br/>
+##            #end
+##            <!--
+##                Failed URL: ${url}
+##                Exception:  ${exception}
+##                 #foreach(${ste}  in ${exception.stackTrace})
+##                    stackTrace: ${ste}
+##                #end
+##            --->
+        </div>
+    </div>
+</div>
+
+<script>
+
+//    var clip = null;
+//    ZeroClipboard.setDefaults({moviePath: 'ZeroClipboard.swf'});
+    $(document).ready(function(){
+        var clip = new ZeroClipboard($('#btnCopy'), {
+            moviePath : 'ZeroClipboard.swf'
+        });
+        clip.setText($(".list-action-top-area").html());
+        clip.on( "load", function(client) {
+            client.movie.title="复制";
+        });
+
+        //鼠标移上时改变按钮的样式
+        clip.on( "mouseOver", function(client) {
+            document.getElementById("btnCopy").style.cssText="color:#FF6600;";
+        });
+        //鼠标移除时改变按钮的样式
+        clip.on( "mouseOut", function(client) {
+            document.getElementById("btnCopy").style.cssText="";
+        });
+
+        //这个是复制成功后的提示
+        clip.on( "complete", function(){
+            $.notify("本文链接复制成功！");
+        });
+    });
+    ##    seajs.use("${formLink}/admin/static/gallery/zeroclipboard/ZeroClipboard.min",function(ZeroClipboard){
+
+
+//    });
+
+
+</script>

@@ -1,0 +1,358 @@
+#set($layout = "/layout/content.vm")
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <title>任务工作台</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="robots" content="noindex,nofollow">
+    <link href="$formLink/admin/media/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="$formLink/admin/media/css/datetimepicker.css" rel="stylesheet" media="screen"  type="text/css">
+    <link href="$formLink/admin/media/css/bootstrap-select.min.css" rel="stylesheet" type="text/css">
+    <script src="$formLink/admin/form/script/jquery.min.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/configBase.js"></script>
+    <script type="text/javascript" src="$formLink/admin/form/script/exam/missionexam.js?t=2016153612101"></script>
+    <script src="${formLink}/admin/static/js/sea-modules/seajs/2.2.1/sea.js"></script>
+    <script src="${formLink}/admin/static/js/app/seajs/config-seajs.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap.min.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap-datetimepicker.js"></script>
+    <script src="${formLink}/admin/media/js/bootstrap-select.js"></script>
+    <script src="${formLink}/admin/media/js/moment.js"></script>
+</head>
+<!-- CSS -->
+<style>
+    .ui-widget-header,.ui-state-default, ui-button {
+        background:#b9cd6d;
+        border: 1px solid #b9cd6d;
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+    .ui-widget-overlay.custom-overlay
+    {
+        background-color: black;
+        background-image: none;
+        opacity: 0.9;
+        z-index: 1040;
+    }
+    .input-top{
+        margin-top: 10px;
+    }
+</style>
+<body>
+<!--主体框架开始-->
+<div class="pagebox" id="pageContentId">
+    <div class="home-desktop" id="desktop_scroll">
+        <div style="width:1025px; position: relative;">
+            <div class="create-questions-content">
+                <div class="exam-nav">
+                    <div class="exam-item">
+                        <h4 class="exam-item-title">任务元素<i class="icon-expand"></i></h4>
+                        <ul class="exam-nav-list" id="ui_sortable_exam">
+                            <li data-uid="TITLE" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>标题</a>
+                            </li>
+                            <li data-uid="SUBTITLE" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>子标题</a>
+                            </li>
+                            <li data-uid="PIC" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>图片</a>
+                            </li>
+                            <li data-uid="FORM" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>表单</a>
+                            </li>
+                            <li data-uid="TEXT" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="4"><i class="icon-multiRow"></i>文本</a>
+                            </li>
+                            <li data-uid="TOPPIC" data-tempId="drag_choice">
+                                <a href="javascript:;" data-checkType="3"><i class="icon-gapFilling"></i>顶部图片</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!--开始位置-->
+                <div class="create-questions">
+                    <div class="questions-head-title">
+                        <h4 class="h4-bg T-center" style="background-color: #008fbf"><span style="font-size:18px;"><font
+                                color="#fff" id="formTitle">任务详情</font></span></h4>
+                    </div>
+                    <input type="text" id="textarea_mission_id" style="display: none">
+
+                    <!--用户id-->
+                    <ul id="fieldMissionUserId" style="font-size:12px;">
+
+                               用户编号 <input type="text" id="textarea_user_id"
+                                       style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;"/>
+
+
+                    </ul>
+                    <!--用户名-->
+                    <ul id="fieldMissionUserName" style="font-size:12px;margin-top: 5px" class="form-group">
+
+                       用户名&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="textarea_user_name"
+                                   style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;"/>
+
+                    </ul>
+
+                    <!--任务信息-->
+                    <ul id="fieldMissionState" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>任务信息</span></div>
+                        </div>
+                        <li>
+                            <span>
+                                <select id="textarea_state"  class="selectpicker" data-live-search="true"  data-style="btn-info" data-width="auto">
+                                </select>
+                            </span>
+                            <span>
+                                 &nbsp;&nbsp;&nbsp;&nbsp;任务名称 <input type="text" id="textarea_mission_name" class="input-top"
+                                                                     style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 5px"/>
+                            </span>
+                            <span>
+                                 &nbsp;&nbsp;&nbsp;&nbsp;任务总数 <input type="text" id="textarea_mission_total_snapshot" class="input-top"
+                                                                     style="border:1px solid;border-color:rgba(82,168,236,.8);width: 80px;height: 30px;margin-left: 5px"/>
+                            </span>
+                            <span>
+                                 &nbsp;&nbsp;限制次数 <input type="text" id="textarea_mission_receive_limit" class="input-top"
+                                                          style="border:1px solid;border-color:rgba(82,168,236,.8);width: 80px;height: 30px;margin-left: 5px"/>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <!--任务时间-->
+                    <ul id="fieldMissionTime" style="margin-top: 5px;font-size:12px">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>任务时间</span></div>
+                        </div>
+                        <li>
+                             <span>
+                                  起始时间 <input type="text" id="textarea_mission_begin_time" class="datetimepicker"
+                                                                     style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 5px" />
+                            </span>
+                            <span>
+                                结束时间 <input type="text" id="textarea_mission_end_time" class="datetimepicker"
+                                                                     style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 5px" />
+                            </span>
+                        </li>
+                    </ul>
+                    <!--奖励-->
+##                    <ul id="fieldMissionAward" style="margin-top: 5px;font-size:12px;">
+##                        <div class="ui-drag-area">
+##                            <div  ReadOnly="true"><span>任务奖励</span></div>
+##                        </div>
+##                        <li>
+##                            <span>
+##                                <select id="textarea_award"  class="selectpicker" data-live-search="true"  data-style="btn-info" data-width="auto">
+##                                </select>
+##                            </span>
+##                            <span>
+##                                 &nbsp;&nbsp;&nbsp;&nbsp;奖励数量 <input type="text" id="textarea_award_count" class="input-top"
+##                                         style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 5px"/>
+##                            </span>
+##                            <span id="textarea_award_coupCode_span" style="display:none;" class="input-top">
+##                                 &nbsp;&nbsp;&nbsp;&nbsp;优惠券号 <input type="text" id="textarea_award_coupCode" class="input-top"
+##                                             style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;margin-left: 5px"/>
+##                            </span>
+##                            <span>
+##                                <input id="textarea_is_auto" class="input-top" type="checkbox" style="margin-left: 10px"/>自动结算
+##                            </span>
+##                        </li>
+##                    </ul>
+                    <!--任务类型-->
+                    <ul id="fieldMissionType" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div  ReadOnly="true"><span>任务类型</span></div>
+                        </div>
+                        <li>
+                             <span>
+                                <select id="textarea_mission_type"  class="selectpicker" data-live-search="true"  data-style="btn-info" data-width="auto">
+                                </select>
+                            </span>
+                        </li>
+                    </ul>
+                    <!--是否置顶-->
+                    <ul id="fieldMissionIsTop" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div  ReadOnly="true"><span>是否置顶</span></div>
+                        </div>
+                        <li>
+                             <span>
+                                <select id="textarea_mission_isTop"  class="selectpicker" data-live-search="true"  data-style="btn-info" data-width="auto">
+                                </select>
+                            </span>
+                        </li>
+                    </ul>
+                    
+                    
+                     <!--是否实时-->
+                    <ul id="fieldMissionIsTimely" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div  ReadOnly="true"><span>是否实时</span></div>
+                        </div>
+                        <li>
+                             <span>
+                                <select id="textarea_mission_isTimely"  class="selectpicker" data-live-search="true"  data-style="btn-info" data-width="auto">
+                                </select>
+                            </span>
+                        </li>
+                    </ul>
+                    
+                    
+                    <!--channel 任务通道-->
+                    <ul id="fieldMissionChannel" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>任务通道</span></div>
+                        </div>
+                        <li>
+                            通道编号列表  <input type="text" id="textarea_mission_channelIdList" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;"/>
+                            <button type="button"  id="missionChannelButton" class="cotrlBtn  btnBlue"  style="margin-left: 10px;height:30px;width: 140px; font-size:18px;">选择任务通道</button>
+                        </li>
+                    </ul>
+
+                    <!--channel 任务通道-->
+                    <ul id="fieldMissionFilter" style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>任务过滤器</span></div>
+                        </div>
+                        <li>
+                            过滤器编号&nbsp;&nbsp;  <input type="text" id="textarea_mission_filter_id" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 200px;height: 30px;"/>
+                            <button type="button"  id="missionFilterButton" class="cotrlBtn  btnBlue"  style="margin-left: 10px;height:30px;width: 140px; font-size:18px;">查看详情</button>
+                        </li>
+                    </ul>
+
+                    <ul id="fieldMissionHtml style="margin-top: 5px;font-size:12px;">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>H5页面</span></div>
+                        </div>
+                        <li>
+                            <textarea  id="textarea_mission_html_id" class="input-top" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 800px;height: 200px;"></textarea>
+                        </li>
+                    </ul>
+
+                    <ul class="ui-questions-content-list" id="fieldRegion">
+                        <div class="ui-drag-area">
+                            <div ReadOnly="true"><span>任务详情</span></div>
+                        </div>
+                    </ul>
+                    <!--<ul class="ui-foot-all-list"></ul>-->
+                </div>
+            </div>
+            <div style="height:40px; margin: 20px 0; text-align: right;">
+                <button id="saveForm" type="button" class="cotrlBtn exam-save-btn btnBlue" value="" style="height:40px;width: 140px; font-size:18px;">保存</button>
+                <button id="closeFormPage" type="button" class="cotrlBtn exam-close-btn btnBlue" style="height:40px;width: 140px; font-size:18px;">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!--渲染模块-->
+    <script type="text/html" id="drag_choice">
+        <li class="ui-module items-questions">
+            <div class="theme-type">
+                <div class="module-menu">
+                    <h4></h4>
+                    <div class="module-ctrl">
+                        <a href="javascript:void(0);" class="ui-up-btn" data-tisp="上移"><i class="icon-up"></i></a>
+                        <a href="javascript:void(0);" class="ui-down-btn" data-tisp="下移"><i class="icon-down"></i></a>
+                        <a href="javascript:void(0);" class="ui-del-btn" data-tisp="删除"><i class="icon-del"></i></a>
+                    </div>
+                </div>
+                <div class="ui-drag-area">
+                    <div class="cq-title T_edit T_plugins" data-Tid="{{itmetid}}"><span style="font-size:16px;">{{desc}}</span></div>
+                </div>
+                <div class="cq-items-content">
+                    <ul class="cq-unset-list" data-checkType="{{type}}" data-nameStr="{{name}}">
+                        {{if type==4}}
+                        <li>
+									<textarea name="textarea_{{name}}" class="contentAdd" value="{{value}}" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 800px;height: 100px;">{{value}}</textarea>
+                        </li>
+                        {{else if type==3}}
+                        <li>
+                            <input type="text" name="input_{{name}}" class="contentAdd" value="{{value}}" style="border:1px solid;border-color:rgba(82,168,236,.8);width: 300px;height: 30px;" />
+                        </li>
+                        {{/if}}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    </script>
+
+
+    <script type="text/html" id="drag_T_edit">
+        <div class="cq-into-edit">
+            <div class="add-edit cq-edit-title" contenteditable="true">{{title}}</div>
+        </div>
+    </script>
+    <script type="text/html" id="T_edit_plugins">
+        <div class="edit-plug-box">
+            <a href="javascript:void(0);"><i class="icon-picChoice"></i></a>
+            <a href="javascript:void(0);"><i class="icon-title"></i></a>
+        </div>
+    </script>
+    <script type="text/html" id="ui_additem_content">
+        {{each items as itemData i}}
+        <li>
+            <label class="input-check"><input type="{{if type==1}}radio{{else if type==2}}checkbox{{/if}}"
+                                              name="{{name}}" value="{{itemData.value}}"></label>
+            <div class="cq-answer-content T_edit T_plugins" data-Tid="{{itemData.tid}}">选项{{i+1+index}}</div>
+        </li>
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+
+        seajs.use("$formLink/admin/static/app/mission/missionbuilder", function (main) {
+            main.init();           
+        });
+
+        function closeIframe(){
+            $("#YuFrame2").remove();
+            $("#YuFrame2Bg").remove();
+            $(".exam-nav").show();
+        }
+        function closeIframeChannel(){
+            $("#YuFrame3").remove();
+            $("#YuFrame3Bg").remove();
+            $(".exam-nav").show();
+        }
+        function loadFilterDetailStructure() {
+            var formId = $("#textarea_mission_filter_id").val();
+            var formObj;
+            if(formId!=-1 && formId!=""){
+                $.ajax({
+                    type : "POST",
+                    dataType :"json",
+                    async: false,
+                    data : {
+                        id: formId
+                    },
+                    url :  "/mission/filter/detail",
+                    success : function(result){
+                        if (result.success) {
+                            formObj= result.data;
+
+                        }else{
+                            alert(result.error);
+                        }
+
+                    }
+                });
+            }
+            return formObj;
+        }
+
+        $(function () {
+            missionExam.init();
+//            $("select").dcselect();
+        });
+    </script>
+    <script type="text/javascript">
+        $(".datetimepicker").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+//        $('.selectpicker').selectpicker();
+    </script>
+
+</div>
+
+</body>
+
+</html>

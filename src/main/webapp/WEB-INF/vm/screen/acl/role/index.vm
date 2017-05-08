@@ -1,0 +1,294 @@
+<link href="$formLink/admin/media/css/bosco/list.css" rel="stylesheet" type="text/css">
+<script src="http://g.tbcdn.cn/kissy/k/1.3.1/seed.js" data-config="{combine:true}"></script>
+
+<style type="text/css">
+    .dn {
+        display: none;
+    }
+
+    .tab-pane label {
+        float: left;
+    }
+
+    .ml2 {
+        margin-left: 2px
+    }
+
+    .mr2 {
+        margin-right: 2px
+    }
+
+    .ml8 {
+        margin-left: 8px
+    }
+
+    .mr5 {
+        margin-right: 5px
+    }
+
+    .nav {
+        margin-bottom: 8px;
+    }
+
+    .tab-pane {
+        overflow: auto;
+        height: 100px;
+    }
+
+    input[type="checkbox"] {
+        margin: auto;
+    }
+
+    .p-position {
+        position: relative;
+    }
+
+    .checkbox-fix {
+        position: absolute;
+        left: 6px;
+        top: 13px;
+    }
+
+    .bigModal {
+        width: 900px;
+        margin-left: -450px;
+    }
+
+    .btn {
+        border-radius: 6px !important;
+    }
+</style>
+<div class="page-content">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <h3 class="page-title">角色管理</h3>
+                <span>$!message</span>
+            </div>
+        </div>
+        <div class="row-fluid margin-bottom-20 content-area">
+            <div class="span12 list-action-top-area">
+                <form action="/acl/role/index" class="form-horizontal listSearchBox" method="post">
+                    <div class="span12">
+                        #if(${inSide})
+                            <span class="help-inline">商家名称：</span>
+                            <input type="text" id="select-business" name="businessId" placeholder="商家名称"
+                                   style="width: 240px" value=$!businessId>
+                        #end
+                        <span class="help-inline">角色名称：</span>
+                        <input type="text" class="m-wrap small" name="roleName" id="roleName" value=$!roleName>
+
+                        <button type="submit"
+                                style="border-radius: 6px !important;background-color: #1ab394;border-color: #1ab394;color: #fff;"
+                                class="btn  search-btn">搜 索
+                        </button>
+                        <a href="/acl/role/goTo/add" class="btn add"
+                           style="background-color:#E0E0E0;color:#1a1a1a;margin-left:20px;"><i class="icon-edit"></i>添加</a>
+                        <a href="#batch-del-modal" data-toggle="modal" class="btn"
+                           style="background-color:#E0E0E0;color:#1a1a1a;"><i class="icon-trash"></i> 批量删除</a>
+                    </div>
+                </form>
+            </div>
+            <div class="portlet-body">
+                <table class="table table-condensed table-hover">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" id="all-checkbox"></th>
+                        <th>编号</th>
+                        <th>角色名称</th>
+                        <th>角色描述</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #foreach($basicVO in $basicVOList)
+                        <tr class="u_$!basicVO.id">
+                            <td><input type="checkbox" class="list-checkbox" value="$!basicVO.id"></td>
+                            <td>$!basicVO.id</td>
+                            <td>$!basicVO.name</td>
+                            <td>$!basicVO.description</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="#set-process-modal" data-toggle="modal" data-uid="$!basicVO.id"
+                                       class="btn mini yellow set-process" style="margin-left: 3px;">
+                                        <i class="icon-cog"></i> 设置角色审核流程</a>
+                                    <a href="#set-role-modal" data-toggle="modal" data-uid="$!basicVO.id"
+                                       class="btn mini yellow set-role" style="margin-left: 3px;">
+                                        <i class="icon-cog"></i>设置角色owner</a>
+                                    <a href="/acl/role/goTo/setPrivilege?id=${basicVO.id}" data-uid="$!basicVO.id"
+                                       class="btn mini red set-privilege" style="margin-left: 3px;">
+                                        <i class="icon-cog"></i>设置角色权限</a>
+                                    <a href="#myModal3" data-toggle="modal" data-uid="$!basicVO.id"
+                                       class="btn mini blue del" style="margin-left: 3px;">
+                                        <i class="icon-trash"></i> 删除</a>
+                                    <a href="/acl/role/goTo/modify?id=${basicVO.id}" data-uid="$!basicVO.id"
+                                       class="btn mini purple edit" style="margin-left: 3px;">
+                                        <i class="icon-edit"></i> 修改</a>
+                                </div>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+            #if ($totalCount > 0)
+                <div class="pages" style="float: right">
+                    #set($cpage = $pageUtil.pager($curPage, $pageSize, $totalCount))
+				        #set($url = $formLink.setTarget('/acl/role/index').addQueryData(
+                    'roleName', "$!roleName").fork())
+				   		#showPage($cpage $url)
+                </div>
+            #end
+        </div>
+    </div>
+
+    <!--设置角色权限-->
+    <div id="set-privilege-modal" class="modal hide fade" tabindex="-1" style="top:10%"
+         role="dialog" aria-labelledby="myModalLabel9" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h3>设置角色权限</h3>
+        </div>
+        <div class="modal-body">
+            <div id="select-privilege">
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+        </div>
+    </div>
+
+    <!-- 设置角色审核流程 -->
+    <div id="set-process-modal" class="modal hide fade" tabindex="-1" style="top:10%"
+         role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true"></button>
+            <h3>设置角色审核流程</h3>
+        </div>
+        <div class="modal-body">
+            <div id="process-param">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+            <button id="process-submit" data-dismiss="modal" class="btn red"
+                    data-uid="0">确定
+            </button>
+        </div>
+    </div>
+
+    <!--设置角色owner-->
+    <div id="set-role-modal" class="modal hide fade" tabindex="-1" style="top:10%"
+         role="dialog" aria-labelledby="myModalLabel9" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h3>设置角色owner</h3>
+        </div>
+        <div class="modal-body">
+            <div id="select-role">
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+        </div>
+    </div>
+
+    <div id="batch-del-modal" class="modal hide fade" tabindex="-1" style="top:10%"
+         role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true"></button>
+            <h3 id="myModalLabel3">警告!</h3>
+        </div>
+        <div class="modal-body">
+            <h4>确认删除这些角色？</h4>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+            <button id="batch-del-submit" data-dismiss="modal" class="btn red"
+                    data-uid="0">确定
+            </button>
+        </div>
+    </div>
+    <!--删除-->
+    <div id="myModal3" class="modal hide fade" tabindex="-1" style="top:10%"
+         role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true"></button>
+            <h3 id="myModalLabel3">警告!</h3>
+        </div>
+        <div class="modal-body">
+            <h4>确认删除该角色？</h4>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+            <button id="affirm-del" data-dismiss="modal" class="btn red"
+                    data-uid="0">确定
+            </button>
+        </div>
+    </div>
+
+    <!--创建表单-->
+    <div id="modal-form-box" class="modal hide fade bigModal" style="top:10%" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel1"
+         aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h3 class="operation-name"></h3>
+        </div>
+        <div class="modal-body" style="text-align: left;">
+            <form id="form" method="post" class="form-horizontal">
+                <table style="width: auto">
+                    <tbody>
+
+                    <tr>
+                        <td>角色名称：</td>
+                        <td><input name="name" placeholder="角色名称" type="text" class="m-wrap large"></td>
+                    </tr>
+                    <tr>
+                        <td>角色类别：</td>
+                        <td><input name="description" placeholder="角色类别" type="text" class="m-wrap large"></td>
+                    </tr>
+                    <tr>
+                        <td>所属应用：</td>
+                        <td><input id="biz-select2" name="bizId" placeholder="应用选择" type="text" class="m-wrap large">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>选择风险等级：</td>
+                        <td><select id="riskLevel" name="riskLevel" class="m-wrap large" style="margin-bottom: 5px;">
+                            <option value="1" selected="true">低风险</option>
+                            <option value="2">中风险</option>
+                            <option value="3">高风险</option>
+                        </select></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="close-modal" data-dismiss="modal"
+                    aria-hidden="true">关闭
+            </button>
+            <button id="modal-form-submit" class="btn green submit">确定</button>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="selectedBasicRegion"/>
+<script src="${formLink}/admin/media/js/select2.min.js" type="text/javascript"></script>
+<script src="${formLink}/admin/media/js/jquery.multi-select.js" type="text/javascript"></script>
+<script>
+    seajs.use(["$formLink/admin/static/app/acl/role/role"], function (main, select2) {
+        main.init();
+    });
+</script>
