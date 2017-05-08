@@ -360,7 +360,7 @@ public class RoleModule extends BaseController {
                 	throw new Exception("not find riskLevel");
                 }
                 Long roleId;
-                Integer oldRiskLevel=RiskLevelEnum.NONE.typeValue;
+                Integer oldRiskLevel= RiskLevelEnum.NONE.typeValue;
                 if (!StringUtils.isBlank(id)) {
                 	oldRiskLevel=aclRoleService.findAclRoleById(Long.valueOf(id)).getRiskLevel();
                     Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclRoleEntity);

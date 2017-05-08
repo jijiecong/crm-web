@@ -132,13 +132,26 @@ public class UserRoleModule extends BaseController {
         }
         int pageSize = DEFAULT_ROWS;
 
+        AclUserEntity user = this.getUser(request);
         Map<String, Object> searchParamMap = new HashMap<>();
         //搜索名称和对应值
         Map<String, String> paramNames = new HashMap<>();
         paramNames.put("nicknameLike", "nickname");
-        paramNames.put("id", "userId");
         this.mapPrams(request, paramNames, searchParamMap, modelAndView);
+        boolean isInside = this.isMeiren(user);
+
+        if (isInside) {
+            Long businessId = RequestUtil.getLong(request, "businessId");
+            if (businessId == null) {
+                businessId = user.getBusinessId();
+            }
+            modelAndView.addObject("businessId", businessId);
+            searchParamMap.put("businessId", businessId);
+        } else {
+            searchParamMap.put("businessId", user.getBusinessId());
+        }
         ApiResult apiResult = aclUserService.searchAclUserAndRole(searchParamMap, pageNum, pageSize);
+
         String message = this.checkApiResult(apiResult);
         if (message != null) {
             modelAndView.addObject("message", message);
@@ -174,6 +187,7 @@ public class UserRoleModule extends BaseController {
         }
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
+        modelAndView.addObject("inSide", isInside);
 
         return modelAndView;
 

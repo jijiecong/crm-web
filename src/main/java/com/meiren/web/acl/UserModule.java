@@ -57,6 +57,7 @@ public class UserModule extends BaseController {
     /**
      * 离职
      * TODO jijc
+     *
      * @param request
      * @param response
      * @return
@@ -70,28 +71,29 @@ public class UserModule extends BaseController {
             if (userId == null) {
                 result.setError("id not null");
                 return result;
-            }           
-        	Map<String, Object> delMap = new HashMap<String, Object>();
-        	delMap.put("userId", userId);
-        	aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
-            aclUserHasRoleService.deleteAclUserHasRole(delMap);                       
+            }
+            Map<String, Object> delMap = new HashMap<String, Object>();
+            delMap.put("userId", userId);
+            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
+            aclUserHasRoleService.deleteAclUserHasRole(delMap);
             aclGroupHasUserService.deleteAclGroupHasUser(delMap);
             Map<String, Object> delMap_leader = new HashMap<String, Object>();
             delMap_leader.put("leaderId", userId);
             aclGroupLeaderService.deleteAclGroupLeader(delMap_leader);
             delMap.put("status", UserStatusEnum.DISABLE.name());
             result = aclUserService.updateAclUser(userId, delMap);
-            
+
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
         }
         return result;
     }
-    
+
     /**
      * 转岗
      * TODO jijc
+     *
      * @param request
      * @param response
      * @return
@@ -99,7 +101,7 @@ public class UserModule extends BaseController {
     @RequestMapping(value = "/group/changeGroup", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult changeGroup(HttpServletRequest request,
-                                    HttpServletResponse response) {
+                                 HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
             Long userId = RequestUtil.getLong(request, "userId");
@@ -109,37 +111,37 @@ public class UserModule extends BaseController {
             }
             Long fromGroupId = RequestUtil.getLong(request, "fromGroupId");
             Long toGroupId = RequestUtil.getLong(request, "toGroupId");
-            result = this.changeGroup(userId, fromGroupId,toGroupId);     //转岗               
-            
+            result = this.changeGroup(userId, fromGroupId, toGroupId);     //转岗
+
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
         }
         return result;
     }
-    
-    private ApiResult changeGroup(Long userId, Long fromGroupId, Long toGroupId) throws Exception{
-    	ApiResult result = new ApiResult();
+
+    private ApiResult changeGroup(Long userId, Long fromGroupId, Long toGroupId) throws Exception {
+        ApiResult result = new ApiResult();
         Map<String, Object> searchParamMap = new HashMap<String, Object>();
         //1、查询fromGroupId拥有的权限id和角色id
         //2、根据权限id和角色id，删除用户拥有的原部门下关联的权限和角色
         searchParamMap.put("groupId", fromGroupId);
-        List<AclPrivilegeEntity> allPrivilege = (List<AclPrivilegeEntity>)aclPrivilegeService.loadAclPrivilegeJoinGroupHas(searchParamMap).getData();
-        for(AclPrivilegeEntity entity :allPrivilege){
-        	Map<String, Object> delMap = new HashMap<String, Object>();
-        	delMap.put("userId", userId);
-        	delMap.put("privilegeId", entity.getId());
-        	aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
+        List<AclPrivilegeEntity> allPrivilege = (List<AclPrivilegeEntity>) aclPrivilegeService.loadAclPrivilegeJoinGroupHas(searchParamMap).getData();
+        for (AclPrivilegeEntity entity : allPrivilege) {
+            Map<String, Object> delMap = new HashMap<String, Object>();
+            delMap.put("userId", userId);
+            delMap.put("privilegeId", entity.getId());
+            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
         }
-        
-        List<AclRoleEntity> allRole = (List<AclRoleEntity>)aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
-        for(AclRoleEntity entity :allRole){
-        	Map<String, Object> delMap = new HashMap<String, Object>();
-        	delMap.put("userId", userId);
-        	delMap.put("roleId", entity.getId());
-        	aclUserHasRoleService.deleteAclUserHasRole(delMap);
+
+        List<AclRoleEntity> allRole = (List<AclRoleEntity>) aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
+        for (AclRoleEntity entity : allRole) {
+            Map<String, Object> delMap = new HashMap<String, Object>();
+            delMap.put("userId", userId);
+            delMap.put("roleId", entity.getId());
+            aclUserHasRoleService.deleteAclUserHasRole(delMap);
         }
-        
+
         //3、将用户从原来的部门中删除，并添加到新的部门
         Map<String, Object> delMap = new HashMap<String, Object>();
         delMap.put("userId", userId);
@@ -152,23 +154,24 @@ public class UserModule extends BaseController {
         AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
         entity.setUserId(userId);
         entity.setGroupId(toGroupId);
-        result=aclGroupHasUserService.createAclGroupHasUser(entity);
-        
-		return result;
-	}
+        result = aclGroupHasUserService.createAclGroupHasUser(entity);
 
-	private Map<String, Object> groupInit(Long userId) {
-		Map<String, Object> searchParamMap = new HashMap<String, Object>();
-		searchParamMap.put("userId", userId);
-		AclGroupEntity entity=(AclGroupEntity) aclGrouprService.loadAclGroupJoinHasUser(searchParamMap).getData();
-		Map<String, Object> dataMap = new HashMap<>();
+        return result;
+    }
+
+    private Map<String, Object> groupInit(Long userId) {
+        Map<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("userId", userId);
+        AclGroupEntity entity = (AclGroupEntity) aclGrouprService.loadAclGroupJoinHasUser(searchParamMap).getData();
+        Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("groupId", entity.getId());
         dataMap.put("groupName", entity.getName());
         return dataMap;
-	}
+    }
 
-	/**
+    /**
      * 收回个人所有权限
+     *
      * @param request
      * @param response
      * @return
@@ -305,13 +308,13 @@ public class UserModule extends BaseController {
      *
      * @param request
      * @param response
-     * @param type init:初始化；add:禁用；del:取消禁用
+     * @param type     init:初始化；add:禁用；del:取消禁用
      * @return
      */
     @RequestMapping(value = "/role/control/{type}", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult roleControl(HttpServletRequest request,
-                                      HttpServletResponse response, @PathVariable String type) {
+                                 HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
             Long initId = RequestUtil.getLong(request, "dataId");
@@ -337,52 +340,52 @@ public class UserModule extends BaseController {
         }
         return result;
     }
-    
+
     /**
      * 取消禁用角色
+     *
      * @param selectedId
      * @param uid
      * @return ApiResult
-     * @throws Exception 
-     * 
-     * */
+     * @throws Exception
+     */
     private ApiResult roleControlDel(Long selectedId, Long uid) throws Exception {
-    	AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+        AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
         entity.setStatus(UserRoleStatusEnum.DELETE.name());
         entity.setUserId(uid);
         entity.setRoleId(selectedId);
         return aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.reflexToMap(entity));
-	}
+    }
 
     /**
      * 禁用角色
+     *
      * @param selectedId
      * @param uid
      * @return ApiResult
-     * 
-     * */
-	private ApiResult roleControlAdd(Long selectedId, Long uid) {
-		AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+     */
+    private ApiResult roleControlAdd(Long selectedId, Long uid) {
+        AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
         entity.setStatus(UserRoleStatusEnum.DELETE.name());
         entity.setUserId(uid);
         entity.setRoleId(selectedId);
         return aclUserHasRoleService.createAclUserHasRole(entity);
-	}
+    }
 
-	/**
-	 * 初始化用户拥有角色和禁用角色
+    /**
+     * 初始化用户拥有角色和禁用角色
+     *
      * @param initId
      * @return ApiResult
-     * 
-     * */
-	private Map<String, Object> roleControlInit(Long initId) {
-		Map<String, Object> searchParamMap = new HashMap<>();
+     */
+    private Map<String, Object> roleControlInit(Long initId) {
+        Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("hasStatus", UserRoleStatusEnum.DELETE.name());
         searchParamMap.put("userId", initId);
         List<AclRoleEntity> all = (List<AclRoleEntity>)
                 aclRoleService.getAllRoleByUser(initId).getData();
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
-        		aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData();
+                aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
@@ -405,10 +408,11 @@ public class UserModule extends BaseController {
         dataMap.put("selected", selectedVOs);
         dataMap.put("selectData", selectDataVOs);
         return dataMap;
-	}
-	
+    }
+
     /**
      * 用户层级修改
+     *
      * @param request
      * @param response
      * @param aclUserEntity
@@ -433,12 +437,13 @@ public class UserModule extends BaseController {
     /**
      * 查询部门下所有用户
      * 暂未使用
+     *
      * @param request
      * @param response
      * @return
      */
     @RequestMapping("/indexByGroup")
-    public ModelAndView indexByGroup(HttpServletRequest request,HttpServletResponse response) {
+    public ModelAndView indexByGroup(HttpServletRequest request, HttpServletResponse response) {
 
         String page = request.getParameter("page") == null ? "1" : request
                 .getParameter("page");
@@ -506,17 +511,22 @@ public class UserModule extends BaseController {
         //搜索名称和对应值
         Map<String, String> userPrams = new HashMap<>();
         userPrams.put("nicknameLike", "nickname");
-//        userPrams.put("id", "userId");
+
         this.mapPrams(request, userPrams, searchParamMap, modelAndView);
-        Long businessId = RequestUtil.getLong(request, "businessId");
-        AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(user.getBusinessId()).getData();
-        modelAndView.addObject(aclBusinessEntity);
-        if(aclBusinessService.isMeiren(user.getId())){
-            searchParamMap.put("businessId",businessId);
-            apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回所有用户
-        }else {
+
+        boolean isInside = this.isMeiren(user);
+
+        if (isInside) {
+            Long businessId = RequestUtil.getLong(request, "businessId");
+            if (businessId == null) {
+                businessId = user.getBusinessId();
+            }
+            modelAndView.addObject("businessId", businessId);
+            searchParamMap.put("businessId", businessId);
+            apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
+        } else {
             searchParamMap.put("businessId", user.getBusinessId());
-            apiResult = aclUserService.searchAclUser(searchParamMap,pageNum,pageSize);  //如果是商家用户则返回该商家下所有用户
+            apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是商家用户则返回该商家下所有用户
         }
 
         String message = this.checkApiResult(apiResult);
@@ -537,7 +547,7 @@ public class UserModule extends BaseController {
 
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide",this.isMeiren(user));
+        modelAndView.addObject("inSide", isInside);
 
         return modelAndView;
 
@@ -682,25 +692,26 @@ public class UserModule extends BaseController {
      */
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response , @PathVariable String type) {
-    	ModelAndView modelAndView = new ModelAndView();
-    	AclUserEntity userEntity = this.getUser(request);
-    	AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(userEntity.getBusinessId()).getData();
-        modelAndView.addObject(aclBusinessEntity);
-    	switch (type) {
-    	case "add":
-            userEntity.getBusinessId();
-    		modelAndView.addObject("title","添加用户");
-    		modelAndView.addObject("id", "");
-    		modelAndView.setViewName("acl/user/edit");     
-            break;
-        case "modify":
-        	modelAndView.addObject("title", "编辑用户");
-        	modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-        	modelAndView.setViewName("acl/user/edit");     
-            break;
-    	}
-    	return modelAndView;
+    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+        ModelAndView modelAndView = new ModelAndView();
+        AclUserEntity userEntity = this.getUser(request);
+        boolean isInside = isMeiren(userEntity);
+        modelAndView.addObject("isInside", isInside);
+        switch (type) {
+            case "add":
+                userEntity.getBusinessId();
+                modelAndView.addObject("title", "添加用户");
+                modelAndView.addObject("id", "");
+                modelAndView.setViewName("acl/user/edit");
+                modelAndView.addObject("add", "add");
+                break;
+            case "modify":
+                modelAndView.addObject("title", "编辑用户");
+                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
+                modelAndView.setViewName("acl/user/edit");
+                break;
+        }
+        return modelAndView;
     }
 }
 

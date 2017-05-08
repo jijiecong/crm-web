@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
-
 /**
  * BusinessModule
  *
@@ -81,7 +80,6 @@ public class BusinessModule extends BaseController {
             apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
 
         } else {
-//            searchParamMap.put("businessId",id);
             apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
             modelAndView.addObject("businessName", "INSIDE");
         }
@@ -106,7 +104,6 @@ public class BusinessModule extends BaseController {
         return modelAndView;
 
     }
-
 
     /**
      * 删除单个
@@ -247,7 +244,7 @@ public class BusinessModule extends BaseController {
                 modelAndView.setViewName("acl/business/edit");
                 break;
             case "modify":
-                modelAndView.addObject("title", "编辑应用");
+                modelAndView.addObject("title", "编辑商家");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
                 modelAndView.setViewName("acl/business/edit");
                 break;
@@ -478,14 +475,9 @@ public class BusinessModule extends BaseController {
         String businessName = RequestUtil.getStringTrans(request,"name");
         switch (type) {
             case "add":
-                modelAndView.addObject("title","角色导入");
+                modelAndView.addObject("title","权限导入");
                 modelAndView.addObject("businessId",businessId);
                 modelAndView.addObject("businessName",businessName);
-                modelAndView.setViewName("acl/business/edit_role");
-                break;
-            case "modify":
-                modelAndView.addObject("title", "用户角色编辑");
-                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
                 modelAndView.setViewName("acl/business/edit_role");
                 break;
         }

@@ -27,8 +27,8 @@
                     <div class="span12">
                         #if(${inSide})
                             <span class="help-inline">商家名称：</span>
-                            <input type="text" id="select-business" name="businessId" placeholder="商家名称"
-                                   style="width: 240px" value=$!aclBusinessEntity.getId()>
+                            <input type="hidden" id="select-business" name="businessId" placeholder="商家名称"
+                                   style="width: 240px" value=$!businessId>
                         #end
                         <span class="help-inline">用户昵称：</span>
                         <input type="text" class="m-wrap small" name="nickname" id="nickname" value=$!nickname>
