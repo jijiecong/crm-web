@@ -1,7 +1,6 @@
 package com.meiren.common.context;
 
 import com.meiren.acl.service.entity.AclUserEntity;
-import com.meiren.web.login.BaseController;
 
 /**
  * Created by admin on 2017/1/17.

@@ -24,15 +24,7 @@
 				</list>
 			</property>
 	   </bean>
-	<!--<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">-->
-	<!--<property name="ignoreUnresolvablePlaceholders" value="true" />-->
-	<!--<property name="localOverride" value="false" />-->
-	<!--<property name="locations">-->
-	<!--<list>-->
-	<!--<value>classpath:form_web.properties</value>-->
-	<!--</list>-->
-	<!--</property>-->
-	<!--</bean>-->
+
      <bean id="bossConstant" class="com.meiren.common.constant.BossConstant">
     	<property name="signKey" value="${account.invoke.sign.key}"/>
     	<property name="phpApiRootUrl" value="${account.root.api.url}"/>
@@ -45,55 +37,6 @@
 		<property name="cdnPath" value="${cdnPath}"/>
 	</bean>
 
-	<bean id="templatePicConstant" class="com.meiren.common.constant.TemplatePicConstant">
-		<property name="qualityRatio" value="${templatePicConstant.qualityRatio}"/>
-		<property name="sharpen" value="${templatePicConstant.sharpen}"/>
-		<property name="maxSize" value="${templatePicConstant.maxSize}"/>
-		<property name="maxHeight" value="${templatePicConstant.maxHeight}"/>
-		<property name="maxWidth" value="${templatePicConstant.maxWidth}"/>
-		<property name="height" value="${templatePicConstant.height}"/>
-		<property name="width" value="${templatePicConstant.width}"/>
-	</bean>
-
-	<bean id="templateBannerPicConstant" class="com.meiren.common.constant.TemplateBannerPicConstant">
-		<property name="qualityRatio" value="${templateBannerPicConstant.qualityRatio}"/>
-		<property name="sharpen" value="${templateBannerPicConstant.sharpen}"/>
-		<property name="maxSize" value="${templateBannerPicConstant.maxSize}"/>
-		<property name="maxHeight" value="${templateBannerPicConstant.maxHeight}"/>
-		<property name="maxWidth" value="${templateBannerPicConstant.maxWidth}"/>
-		<property name="height" value="${templateBannerPicConstant.height}"/>
-		<property name="width" value="${templateBannerPicConstant.width}"/>
-	</bean>
-
-	<bean id="missionPicConstant" class="com.meiren.common.constant.MissionPicConstant">
-		<property name="qualityRatio" value="${missionPicConstant.qualityRatio}"/>
-		<property name="sharpen" value="${missionPicConstant.sharpen}"/>
-		<property name="maxSize" value="${missionPicConstant.maxSize}"/>
-		<property name="maxHeight" value="${missionPicConstant.maxHeight}"/>
-		<property name="maxWidth" value="${missionPicConstant.maxWidth}"/>
-		<property name="height" value="${missionPicConstant.height}"/>
-		<property name="width" value="${missionPicConstant.width}"/>
-	</bean>
-
-	<bean id="missionDetailPicConstant" class="com.meiren.common.constant.MissionDetailPicConstant">
-		<property name="qualityRatio" value="${missionDetailPicConstant.qualityRatio}"/>
-		<property name="sharpen" value="${missionDetailPicConstant.sharpen}"/>
-		<property name="maxSize" value="${missionDetailPicConstant.maxSize}"/>
-		<property name="maxHeight" value="${missionDetailPicConstant.maxHeight}"/>
-		<property name="maxWidth" value="${missionDetailPicConstant.maxWidth}"/>
-		<property name="height" value="${missionDetailPicConstant.height}"/>
-		<property name="width" value="${missionDetailPicConstant.width}"/>
-	</bean>
-
-	<bean id="sharePicConstant" class="com.meiren.common.constant.SharePicConstant">
-		<property name="qualityRatio" value="${sharePicConstant.qualityRatio}"/>
-		<property name="sharpen" value="${sharePicConstant.sharpen}"/>
-		<property name="maxSize" value="${sharePicConstant.maxSize}"/>
-		<property name="maxHeight" value="${sharePicConstant.maxHeight}"/>
-		<property name="maxWidth" value="${sharePicConstant.maxWidth}"/>
-		<property name="height" value="${sharePicConstant.height}"/>
-		<property name="width" value="${sharePicConstant.width}"/>
-	</bean>
 
 	<context:annotation-config />
 

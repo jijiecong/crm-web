@@ -1,14 +1,13 @@
 package com.meiren.form.web.interceptor;
 
 import com.alibaba.fastjson.JSON;
-import com.meiren.acl.enums.AclCommonEnum;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.annotation.Logical;
 import com.meiren.common.context.CurrentContext;
 import com.meiren.common.result.ApiResult;
+import com.meiren.common.result.ResultCode;
 import com.meiren.common.utils.StringUtils;
-import com.meiren.mission.result.ResultCode;
 import com.meiren.redis.client.RedisClient;
 import com.meiren.sso.web.SsoHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,9 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by admin on 2017/3/13.

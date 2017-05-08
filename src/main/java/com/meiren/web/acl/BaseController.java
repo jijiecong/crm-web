@@ -4,11 +4,9 @@ import com.meiren.acl.enums.BusinessEnum;
 import com.meiren.acl.enums.PrivilegeTokenEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
-import com.meiren.common.constant.BossConstant;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
-import com.meiren.mission.service.LoginWhiteListService;
 import com.meiren.sso.web.SsoHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,11 +18,6 @@ public class BaseController {
     @Autowired
     private SsoHelper ssoHelper;
     public static final int DEFAULT_ROWS = 10;
-
-    @Autowired
-    protected BossConstant bossConstant;
-    @Autowired
-    protected LoginWhiteListService loginWhiteListService;
     @Autowired
     protected AclBizHasRoleService aclBizHasRoleService;
     @Autowired

@@ -371,7 +371,7 @@ public class UserModule extends BaseController {
 
 	/**
 	 * 初始化用户拥有角色和禁用角色
-     * @param uid
+     * @param initId
      * @return ApiResult
      * 
      * */
