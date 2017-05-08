@@ -6,7 +6,7 @@
     version="3.0">
 
  
-    <display-name>boss-web</display-name> 
+    <display-name>crm-web</display-name>
    
     <context-param>  
         <param-name>Uri-PlaceHolder</param-name>  

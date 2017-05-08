@@ -6,10 +6,10 @@
         <artifactId>pom-parent</artifactId>
         <version>1.0.1</version>
     </parent>
-    <artifactId>mission-web</artifactId>
+    <artifactId>crm-web</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>mission-web</name>
+    <name>crm-web</name>
     <properties>
         <spring-version>4.1.6.RELEASE</spring-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -528,7 +528,7 @@
     </profiles>
 
     <build>
-        <finalName>mission-web</finalName>
+        <finalName>crm-web</finalName>
         <plugins>
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
