@@ -285,3 +285,6 @@ Landscape phone to portrait tablet
     background: #1e1e1e;
   }
 }
+.row-fluid [class*="span"] {
+  min-height: 45px;
+}
