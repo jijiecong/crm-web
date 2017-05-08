@@ -2,9 +2,7 @@ package com.meiren.web.monitor;
 
 import com.meiren.common.result.ApiResult;
 import com.meiren.monitor.service.PavepawsMonitorResultService;
-import com.meiren.monitor.service.entity.PavepawsMonitorConfigEntity;
 import com.meiren.monitor.service.entity.PavepawsMonitorResultEntity;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,5 +1,5 @@
 define(function (require, exports, module) {
-    require('../user/ajaxSelect2.js');
+    require('../acl/ajaxSelect2.js');
     var Basic = require('./basic.js');
     Basic.prototype.init = function () {
         var pThis = this;
@@ -22,10 +22,10 @@ define(function (require, exports, module) {
     var monitor = new Basic('monitor/config');
     return {
         init: function () {
-            var select2 = new ajaxSelect2('#userIds', "/search/user", {
+            var select2 = new ajaxSelect2('#userIds', "/acl/search/user", {
                 multiple: true,
                 textName:'nickname',
-                initUrl: "/search/user/initMoniorConfig"
+                initUrl: "/acl/search/user/initMoniorConfig"
             });
             var tokenSelect2 = new ajaxSelect2('#templateIds', "/monitor/notifyTemplate/select2", {
                 multiple: true,

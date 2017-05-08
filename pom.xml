@@ -48,17 +48,7 @@
             <version>1.0.2</version>
         </dependency>
         <!-- 动态表单API -->
-        <dependency>
-            <groupId>org.meiren</groupId>
-            <artifactId>dynamic-form-api</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
-        </dependency>
-        <!-- 任务管理API -->
-        <dependency>
-            <groupId>org.meiren</groupId>
-            <artifactId>mission-api</artifactId>
-            <version>1.0.9-SNAPSHOT</version>
-        </dependency>
+
 
         <dependency>
             <groupId>org.meiren</groupId>
