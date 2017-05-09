@@ -207,14 +207,12 @@ public class UserRoleModule extends BaseController {
             }
 
             List<Long> ownerRoleIds = new ArrayList<Long>();
-
-            if (this.checkToken(user, roleAll)) {
-                ownerRoleIds = null;                         //ownerRoleIds为null  默认查询所有权限
-            } else if (this.checkToken(user, roleBiz)) {
-                ownerRoleIds = this.getAllRoleIdsByRoleOwner(user);  //查询角色owner+应用owner拥有的权限
-            } else {
-                ownerRoleIds = this.getRoleIdsByRoleOwner(user);   //查询角色owner拥有的所有权限
+            List<AclRoleEntity> all = (List<AclRoleEntity>)
+                    aclRoleService.getManageableRole(user.getId(), user.getBusinessId()).getData();
+            for (AclRoleEntity role : all) {
+                ownerRoleIds.add(role.getId());
             }
+
             Map<String, Object> map = new HashMap<>();
             map.put("inUserIds", Arrays.asList(userIds));
             map.put("inRoleIds", ownerRoleIds);
