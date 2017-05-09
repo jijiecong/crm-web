@@ -50,107 +50,9 @@ public class RoleModule extends BaseController {
     protected AclUserService aclUserService;
     @Autowired
     protected AclProcessModelService aclProcessModelService;
-    public String roleAll = "meiren.acl.role.all";
-    public String roleBiz = "meiren.acl.role.biz";
     private String[] necessaryParam = {
             "name",
     };
-
-    /**
-     * 只有有角色添加权限,才可以使用,该查询
-     * role.all:添加角色时,可以选择所有权限
-     * role.biz:添加角色时,只能选择该用户下biz相关的权限
-     * @return
-     */
-    @RequestMapping("/roleAddPrivilege/{type}")
-    @ResponseBody
-    public ApiResult roleAddPrivilege(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-
-        try {
-            AclUserEntity user = this.getUser(request);
-            Map<String, Object> map = new HashMap<>();
-            switch (type) {
-                case "init":
-                    Long initRoleId = this.checkId(request);
-                    map.put("roleId", initRoleId);
-                    result = aclPrivilegeService.loadAclPrivilegeJoinRoleHas(map);
-                    break;
-                case "query":
-                    String q = RequestUtil.getStringTrans(request, "q");
-                    if (this.hasRoleAll(user)) {
-                        result = aclPrivilegeService.loadAclPrivilegeLikeName(q);
-                    } else if (this.checkToken(user, roleBiz)) {
-                        List<Long> inBizIds = this.getBizIdsByBizOwner(user);
-                        inBizIds.add(0L);
-                        map.put("inBizIds", inBizIds);
-                        map.put("nameLike", q);
-                        result = aclPrivilegeService.loadAclPrivilegeJoinBizHas(map);
-                    }
-                    break;
-
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    @RequestMapping("/roleAddBiz/{type}")
-    @ResponseBody
-    public ApiResult roleAddBiz(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-
-        try {
-            AclUserEntity user = this.getUser(request);
-            Map<String, Object> map = new HashMap<>();
-            switch (type) {
-                case "init":
-                    Long initRoleId = this.checkId(request);
-                    map.put("roleId", initRoleId);
-                    List<AclBizEntity> list = (List<AclBizEntity>)
-                            aclBizService.loadAclBizJoinHasRole(map).getData();
-                    if (list.size() > 0) {
-                        result.setData(list.get(0));
-                    } else {
-                        result.setData(null);
-                    }
-                    break;
-                case "query":
-                    String q = RequestUtil.getStringTrans(request, "q");
-                    if (this.hasRoleAll(user)) {
-                        result = aclBizService.loadAclBizLikeName(q);
-                    } else if (this.checkToken(user, roleBiz)) {
-                        map.put("ownerId", user.getId());
-                        map.put("nameLike", q);
-                        result = aclBizService.loadAclBizJoinOwner(map);
-                    }
-                    break;
-
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    @RequestMapping(value = "loadByUserId", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> map = new HashMap<>();
-            map.put("userId", request.getParameter("userId"));
-            map.put("status", UserRoleStatusEnum.NORMAL.name());
-            result = aclRoleService.loadAclRoleJoinUserHas(map);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
 
     /**
      *查询角色
@@ -333,13 +235,13 @@ public class RoleModule extends BaseController {
         		searchParamMap.put("roleId", Long.valueOf(id));
         	}
         	boolean canDo = false;
-            if(!StringUtils.isBlank(id)&&(aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)){//编辑情况            	
-            	canDo = true;           		           	
+            if(!StringUtils.isBlank(id)&&(aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)){//编辑情况
+            	canDo = true;
             }else if (this.hasRoleAll(user)) {// 有角色管理权限
                 canDo = true;
             }
             if (canDo) {
-                Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");   
+                Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
                 switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
                 case LOW:
                 	aclRoleEntity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
@@ -366,10 +268,10 @@ public class RoleModule extends BaseController {
                         aclRoleEntity.setPid(0L);
                     }
                     result = aclRoleService.createAclRole(aclRoleEntity);
-                    roleId =(Long) result.getData();                 
+                    roleId =(Long) result.getData();
                 }
                 //添加风险审核流程
-                result=this.addRoleProcess(roleId,riskLevel,oldRiskLevel);   
+                result=this.addRoleProcess(roleId,riskLevel,oldRiskLevel);
             }else{
             	result.setError("您无权操作角色");
                 return result;
@@ -387,7 +289,7 @@ public class RoleModule extends BaseController {
 	    	Map<String, Object> delParamMap = new HashMap<>();
 	    	delParamMap.put("roleId", roleId);
 	        aclRoleProcessService.deleteAclRoleProcess(delParamMap);
-	        
+
 	        Map<String, Object> searchParamMap = new HashMap<>();
 	        searchParamMap.put("riskLevel", riskLevel);
 	        List<AclProcessModelEntity> all=(List<AclProcessModelEntity>) aclProcessModelService.loadAclProcessModel(searchParamMap).getData();
@@ -402,7 +304,7 @@ public class RoleModule extends BaseController {
 	        }
     	}
         return result;
-		
+
 	}
 
 	@RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
@@ -438,7 +340,7 @@ public class RoleModule extends BaseController {
     }
 
     /**
-     * 设置角色权限
+     * 设置角色权限，设置权限，可以设置的权限为可管理的权限。
      * TODO jijc
      * @param request
      * @param response
@@ -557,6 +459,7 @@ public class RoleModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             Long initId = RequestUtil.getLong(request, "dataId");
+
             Long selectedId = RequestUtil.getLong(request, "selectedId");
             Long uid = RequestUtil.getLong(request, "uid");
             switch (type) {
@@ -640,7 +543,7 @@ public class RoleModule extends BaseController {
         dataMap.put("selectData", selectDataVOs);
         return dataMap;
     }
-    
+
     /**
      * 跳转添加/修改页面
      *
@@ -659,17 +562,17 @@ public class RoleModule extends BaseController {
     		modelAndView.addObject("title","添加角色");
             modelAndView.addObject("id", "");
     		modelAndView.addObject("businessId", user.getBusinessId());
-    		modelAndView.setViewName("acl/role/edit");     
+    		modelAndView.setViewName("acl/role/edit");
             break;
         case "modify":
         	modelAndView.addObject("title", "编辑角色");
         	modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-        	modelAndView.setViewName("acl/role/edit");     
+        	modelAndView.setViewName("acl/role/edit");
             break;
     	}
     	return modelAndView;
     }
-    
+
     /**
      * 跳转设置拥有权限页面
      *
@@ -677,14 +580,14 @@ public class RoleModule extends BaseController {
      * @param response
      * @return
      */
-    	
+
 	@AuthorityToken (needToken = {"meiren.acl.privilege.authorized"})
     @RequestMapping(value = "goTo/setPrivilege")
     public ModelAndView setPrivilege(HttpServletRequest request, HttpServletResponse response) {
-    	ModelAndView modelAndView = new ModelAndView();    	
+    	ModelAndView modelAndView = new ModelAndView();
     	modelAndView.addObject("title", "设置拥有权限");
     	modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-    	modelAndView.setViewName("acl/role/edit_privilege");     
+    	modelAndView.setViewName("acl/role/edit_privilege");
     	return modelAndView;
     }
 }
