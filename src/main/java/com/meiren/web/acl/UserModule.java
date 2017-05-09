@@ -33,8 +33,6 @@ public class UserModule extends BaseController {
     @Autowired
     protected AclGroupLeaderService aclGroupLeaderService;
     @Autowired
-    protected AclPrivilegeOwnerService aclPrivilegeOwnerService;
-    @Autowired
     protected AclPrivilegeService aclPrivilegeService;
     @Autowired
     protected AclUserHasPrivilegeService aclUserHasPrivilegeService;
@@ -159,42 +157,6 @@ public class UserModule extends BaseController {
         return result;
     }
 
-    private Map<String, Object> groupInit(Long userId) {
-        Map<String, Object> searchParamMap = new HashMap<String, Object>();
-        searchParamMap.put("userId", userId);
-        AclGroupEntity entity = (AclGroupEntity) aclGrouprService.loadAclGroupJoinHasUser(searchParamMap).getData();
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("groupId", entity.getId());
-        dataMap.put("groupName", entity.getName());
-        return dataMap;
-    }
-
-    /**
-     * 收回个人所有权限
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/privilege/clear", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult privilegeClear(HttpServletRequest request,
-                                    HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long userId = RequestUtil.getLong(request, "id");
-            if (userId == null) {
-                result.setData("id not null");
-            }
-            Map<String, Object> delMap = new HashMap<String, Object>();
-            delMap.put("userId", userId);
-            result = aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
 
     /**
      * 判断进行权限的哪种操作
@@ -434,57 +396,6 @@ public class UserModule extends BaseController {
         return result;
     }
 
-    /**
-     * 查询部门下所有用户
-     * 暂未使用
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping("/indexByGroup")
-    public ModelAndView indexByGroup(HttpServletRequest request, HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/user/indexByGroup");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-
-        Map<String, Object> searchParamMap = new HashMap<>();
-        if (!StringUtils.isBlank(request.getParameter("groupId"))) {
-            searchParamMap.put("groupId", request.getParameter("groupId"));
-            modelAndView.addObject("groupId", request.getParameter("groupId"));
-        }
-        ApiResult apiResult = aclUserService.searchAclUserByGroup(searchParamMap, pageNum, pageSize);
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
-        }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-        if (resultMap.get("data") != null) {
-            List<AclUserByGroupEntity> resultList = (List<AclUserByGroupEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
-    }
 
     /**
      * 用户列表
@@ -516,18 +427,13 @@ public class UserModule extends BaseController {
 
         boolean isInside = this.isMeiren(user);
 
-        if (isInside) {
-            Long businessId = RequestUtil.getLong(request, "businessId");
-            if (businessId == null) {
-                businessId = user.getBusinessId();
-            }
-            modelAndView.addObject("businessId", businessId);
-            searchParamMap.put("businessId", businessId);
-            apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
-        } else {
-            searchParamMap.put("businessId", user.getBusinessId());
-            apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是商家用户则返回该商家下所有用户
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            businessId = user.getBusinessId();
         }
+        modelAndView.addObject("businessId", businessId);
+        searchParamMap.put("businessId", businessId);
+        apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
 
         String message = this.checkApiResult(apiResult);
         if (message != null) {
