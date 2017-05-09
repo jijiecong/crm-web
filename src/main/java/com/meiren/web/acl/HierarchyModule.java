@@ -176,6 +176,7 @@ public class HierarchyModule extends BaseController {
      * @param response
      * @return
      */
+    @AuthorityToken(needToken = {"meiren.acl.all.superAdmin"})
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {

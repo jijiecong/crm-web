@@ -56,8 +56,10 @@ public class UserRoleModule extends BaseController {
         try {
             AclUserEntity user = this.getUser(request);
             List<Long> roleIds = new ArrayList<Long>();
+            Long userId = RequestUtil.getLong(request,"id");
+            AclUserEntity userEntity = (AclUserEntity) aclUserService.findAclUser(userId).getData();
             List<AclRoleEntity> all = (List<AclRoleEntity>)
-                    aclRoleService.getManageableRole(user.getId(), user.getBusinessId()).getData();
+                    aclRoleService.getManageableRole(user.getId(), userEntity.getBusinessId()).getData();
             for (AclRoleEntity role : all) {
                 roleIds.add(role.getId());
             }
@@ -197,8 +199,9 @@ public class UserRoleModule extends BaseController {
             }
 
             List<Long> ownerRoleIds = new ArrayList<Long>();
+            AclUserEntity userEntity = (AclUserEntity) aclUserService.findAclUser(Long.parseLong(userIds[0])).getData();
             List<AclRoleEntity> all = (List<AclRoleEntity>)
-                    aclRoleService.getManageableRole(user.getId(), user.getBusinessId()).getData();
+                    aclRoleService.getManageableRole(user.getId(), userEntity.getBusinessId()).getData();
             for (AclRoleEntity role : all) {
                 ownerRoleIds.add(role.getId());
             }

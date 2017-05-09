@@ -168,6 +168,7 @@ public class SearchModule extends BaseController {
     public ApiResult select2biz(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "init":
@@ -181,7 +182,9 @@ public class SearchModule extends BaseController {
                     break;
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
-                    result = aclPrivilegeService.loadAclPrivilegeLikeName(q);
+                    map.put("businessId", userEntity.getBusinessId());
+                    map.put("privilegeNameLike", q);
+                    result = aclPrivilegeService.loadAclPrivilegeJoinBusinessHas(map);
                     break;
             }
         } catch (Exception e) {

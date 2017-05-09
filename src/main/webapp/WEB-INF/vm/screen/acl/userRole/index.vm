@@ -25,7 +25,7 @@
                         <span class="help-inline">用户昵称：</span>
                         <input type="text" class="m-wrap small" name="nickname" value="$!nickname">
                         <button type="submit" class="btn  search-btn">搜 索</button>
-                        <a href="/acl/userRole/goTo/add" class="btn authorize" style="background-color:#E0E0E0;color: #1a1a1a;margin-left:30px;border-radius: 6px !important; "><i class="icon-pencil"></i> 授 权</a>
+                        ##<a href="/acl/userRole/goTo/add" class="btn authorize" style="background-color:#E0E0E0;color: #1a1a1a;margin-left:30px;border-radius: 6px !important; "><i class="icon-pencil"></i> 授 权</a>
                     </div>
                 </form>
             </div>
