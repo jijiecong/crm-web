@@ -13,7 +13,7 @@ define(function (require, exports, module) {
                 type = "修改失败";
                 hierarchy.getById(uid);
             }else{
-                businessSelect2.init();
+                businessSelect2.init($("#form-submit").data('bid'));
             }
 
             $("#close-form").on("click", function () {

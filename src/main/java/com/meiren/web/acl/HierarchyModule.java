@@ -57,13 +57,16 @@ public class HierarchyModule extends BaseController {
 
         Map<String, Object> searchParamMap = new HashMap<>();
         AclUserEntity user = this.getUser(request);
-        searchParamMap.put("businessId", user.getBusinessId());
-        modelAndView.addObject("businessId", user.getBusinessId());
         //搜索名称和对应值
         Map<String, String> mapPrams = new HashMap<>();
         mapPrams.put("hierarchyNameLike", "hierarchyName"); //模糊查询
-        mapPrams.put("businessId","businessId");
         this.mapPrams(request,mapPrams,searchParamMap,modelAndView);
+        Long businessId = RequestUtil.getLong(request,"businessId");
+        if(businessId == null){
+            businessId = user.getBusinessId();
+        }
+        searchParamMap.put("businessId", businessId);
+        modelAndView.addObject("businessId", businessId);
         ApiResult apiResult = aclHierarchyService.searchAclHierarchy(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -183,6 +186,7 @@ public class HierarchyModule extends BaseController {
                 modelAndView.addObject("inSide",this.isMeiren(user));
                 modelAndView.addObject("title","添加层级");
                 modelAndView.addObject("id", "");
+                modelAndView.addObject("bid", user.getBusinessId());
                 modelAndView.setViewName("acl/hierarchy/edit");
                 break;
             case "modify":
