@@ -33,7 +33,7 @@
                 <form action="/acl/business/index" class="form-horizontal listSearchBox" method="post">
                     <div class="span12">
                         <span class="help-inline">商家名称：</span>
-                        <input type="text" class="m-wrap small" name="businessName" id="businessName">
+                        <input type="text" class="m-wrap small" name="businessName" id="businessName" value="$!businessName">
                         <button type="submit" class="search-btn btns">搜 索</button>
                         <a href="/acl/business/goTo/add" class="btn add" style="margin-left:30px"><i class="icon-pencil"></i>添加</a>
 ##                        <a href="#batch-del-modal" data-toggle="modal" class="btn "><i
@@ -48,6 +48,7 @@
 ##                            <th><input type="checkbox" id="all-checkbox"></th>
                             <th>商家ID</th>
                             <th>商家名称</th>
+                             <th>商家token</th>
                             <th>商家描述</th>
                             <th>操作</th>
                         </tr>
@@ -57,6 +58,7 @@
                             <tr class="u_$!basicVO.id">
                                 <td>$!basicVO.id</td>
                                 <td>$!basicVO.name</td>
+                                <td>$!basicVO.token</td>
                                 <td>$!basicVO.description</td>
                                 <td>
                                     <div class="btn-group">

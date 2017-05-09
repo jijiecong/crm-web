@@ -48,9 +48,6 @@ public class BusinessModule extends BaseController {
     @Autowired
     protected AclRoleService aclRoleService;
 
-    public String roleAll = "meiren.acl.role.all";  //角色管理权限
-    public String roleBiz = "meiren.acl.role.biz";  //应用管理权限
-
     private String[] necessaryParam = {"name",};
     /**
      * 列表
@@ -186,33 +183,6 @@ public class BusinessModule extends BaseController {
     }
 
     /**
-     * 查找单个
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/findByName/{type}")
-    @ResponseBody
-    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String  type) {
-        ApiResult result = new ApiResult();
-        try {
-            switch (type){
-                case "query":
-                    result = aclBusinessService.loadAclBusinessLikeName(RequestUtil.getStringTrans(request, "q"));
-                    break;
-                case "init":
-                    Long id = this.checkId(request);
-                    result = aclBusinessService.findAclBusiness(id);
-                    break;
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
      * 添加/修改
      * @param request
      * @param response
@@ -230,14 +200,6 @@ public class BusinessModule extends BaseController {
                 Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclBusinessEntity);
                 result = aclBusinessService.updateAclBusiness(Long.valueOf(id), paramMap);
             } else {
-                List<AclBusinessEntity> list = (List<AclBusinessEntity>) aclBusinessService.loadAclBusiness(null).getData();
-                for (int i = 0; i < list.size(); ++i) {
-                    if (list.get(i).getToken().equals(aclBusinessEntity.getToken())) {
-                        result.setError("token不能重复");
-                        return result;
-                    }
-
-                }
                 result = aclBusinessService.createAclBusiness(aclBusinessEntity);
             }
         } catch (Exception e) {
@@ -246,6 +208,7 @@ public class BusinessModule extends BaseController {
         }
         return result;
     }
+
 
     /**
      * 跳转添加/修改页面
