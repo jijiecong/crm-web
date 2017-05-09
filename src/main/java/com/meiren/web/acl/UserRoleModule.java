@@ -31,19 +31,9 @@ public class UserRoleModule extends BaseController {
     @Autowired
     protected AclUserHasRoleService aclUserHasRoleService;
     @Autowired
-    protected AclBizHasRoleService aclBizHasRoleService;
-    @Autowired
     protected AclRoleService aclRoleService;
     @Autowired
     protected AclUserService aclUserService;
-    @Autowired
-    protected AclRoleOwnerService aclRoleOwnerService;
-    @Autowired
-    protected AclBusinessService aclBusinessService;
-
-    public String roleAll = "meiren.acl.role.all";  //角色管理权限
-    public String roleBiz = "meiren.acl.role.biz";  //应用管理权限
-
 
     /**
      * 用户角色授权
