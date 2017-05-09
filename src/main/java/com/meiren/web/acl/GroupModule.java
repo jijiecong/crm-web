@@ -44,29 +44,6 @@ public class GroupModule extends BaseController {
     private String[] necessaryParam = {
             "name",
     };
-    public String roleAll = "meiren.acl.role.all";
-
-    @RequestMapping(value = "user/set", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult userset(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long userId = RequestUtil.getLong(request, "userId");
-            Map<String, Object> delMap = new HashMap<>();
-            delMap.put("userId", userId);
-            aclGroupHasUserService.deleteAclGroupHasUser(delMap);
-
-            Long groupId = RequestUtil.getLong(request, "groupId");
-            AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
-            entity.setGroupId(groupId);
-            entity.setUserId(userId);
-            result = aclGroupHasUserService.createAclGroupHasUser(entity);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
 
 
     /**
@@ -96,17 +73,14 @@ public class GroupModule extends BaseController {
         Map<String, String> mapPrams = new HashMap<>();
         mapPrams.put("nameLike", "deptName");
         this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
-        boolean isInside = this.isMeiren(userEntity);
-        if (isInside) {
-            Long businessId = RequestUtil.getLong(request, "businessId");
-            if (businessId == null) {
-                businessId = userEntity.getBusinessId();
-            }
-            searchParamMap.put("businessId", businessId);
-            modelAndView.addObject("businessId", businessId);
-        } else {
-            searchParamMap.put("businessId", userEntity.getBusinessId());
+
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            businessId = userEntity.getBusinessId();
         }
+        searchParamMap.put("businessId", businessId);
+        modelAndView.addObject("businessId", businessId);
+
         ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -127,7 +101,7 @@ public class GroupModule extends BaseController {
 
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide",isInside);
+        modelAndView.addObject("inSide",this.isMeiren(userEntity));
 
         return modelAndView;
 
@@ -156,20 +130,6 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-    @RequestMapping(value = "loadByUserId", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> map = new HashMap<>();
-            map.put("userId", request.getParameter("userId"));
-            result = aclGroupService.loadAclGroupJoinHasUser(map);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
 
     /**
      * 查找单个
@@ -273,7 +233,7 @@ public class GroupModule extends BaseController {
             Long uid = RequestUtil.getLong(request, "uid");
             switch (type) {
                 case "init":
-                    Map<String, Object> data = this.setUserInit(initId,request);
+                    Map<String, Object> data = this.setUserInit(initId);
                     result.setData(data);
                     break;
                 case "add":
@@ -306,16 +266,16 @@ public class GroupModule extends BaseController {
         return aclGroupHasUserService.createAclGroupHasUser(entity);
     }
 
-    private Map<String, Object> setUserInit(Long dataId, HttpServletRequest request) {
+    private Map<String, Object> setUserInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
-        List<AclUserEntity> all = new ArrayList<>();
         searchParamMap.put("groupId", dataId);
-        AclUserEntity userEntity = this.getUser(request);
-
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
-        searchParamMap.put("businessId", userEntity.getBusinessId());
-        all = (List<AclUserEntity>) aclUserService.loadAclUser(searchParamMap).getData();
+
+        AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("businessId", group.getBusinessId());
+        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUser(paramMap).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
