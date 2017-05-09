@@ -119,7 +119,6 @@ public class ApplyModule extends BaseController {
     public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclApplyEntity aclApplyEntity, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-        	
             AclUserEntity user = this.getUser(request);
             aclApplyEntity.setUserId(user.getId());
             aclApplyEntity.setBusinessId(user.getBusinessId());
