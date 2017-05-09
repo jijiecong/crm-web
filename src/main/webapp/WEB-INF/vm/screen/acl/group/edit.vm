@@ -38,7 +38,7 @@
 						<input type="text" id="test" name="pid" placeholder="上级部门" style="width: 480px !important;">
 					</div>
 				</div>
-                <input type="hidden" id="businessId" name="businessId" value="$aclBusinessEntity.getId()" style="width: 480px !important;">
+##                <input type="hidden" id="businessId" name="businessId" value="$aclBusinessEntity.getId()" style="width: 480px !important;">
              <div class="control-group">
 			    <div class="controls">
 			    	<button type="button" class="btn" id="close-form">返回</button>

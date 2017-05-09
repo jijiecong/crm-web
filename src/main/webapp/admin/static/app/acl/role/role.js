@@ -279,7 +279,7 @@ define(function (require, exports, module) {
             var hierarchy = new ajaxSelect2('.hierarchy-select', "/acl/search/hierarchy", {
                 textName: 'hierarchyName'
             });
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/business/findByName', {
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/findByName', {
                 multiple: false
             });
 

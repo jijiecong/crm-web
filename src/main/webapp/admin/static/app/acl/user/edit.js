@@ -5,12 +5,12 @@ define(function (require, exports, module) {
 
     return {
         init: function () {
-            var select2 = new ajaxSelect2('#select-business', "/acl/business/findByName", {
+            var select2 = new ajaxSelect2('#select-business', "/acl/search/findByName", {
                 multiple: false,
                 textName: 'name',
-                initUrl: "/acl/business/findByName"
+                initUrl: "/acl/search/findByName"
             });
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/business/findByName', {
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/findByName', {
                 multiple: false
             });
 

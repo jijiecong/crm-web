@@ -227,4 +227,31 @@ public class SearchModule extends BaseController {
         }
         return result;
     }
+
+    /**
+     * 查找单个
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/findByName/{type}")
+    @ResponseBody
+    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String  type) {
+        ApiResult result = new ApiResult();
+        try {
+            switch (type){
+                case "query":
+                    result = aclBusinessService.loadAclBusinessLikeName(RequestUtil.getStringTrans(request, "q"));
+                    break;
+                case "init":
+                    Long id = this.checkId(request);
+                    result = aclBusinessService.findAclBusiness(id);
+                    break;
+            }
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
 }

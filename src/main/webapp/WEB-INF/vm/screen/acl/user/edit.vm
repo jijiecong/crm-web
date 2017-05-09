@@ -57,12 +57,9 @@
                         <label class="control-label" for="businessId">所属商家：</label>
                         <div class="controls">
                             <input type="text" id="select-business" name="businessId" placeholder="所属商家"
-                                   style="width: 480px !important;">
+                                   style="width: 480px !important;" value="$!businessId">
                         </div>
                     </div>
-                #else
-                    <input type="hidden" id="businessId" name="businessId" disabled="disabled"
-                           value="$aclBusinessEntity.getId()" style="width: 480px !important;">
                 #end
 
                 <div class="control-group">

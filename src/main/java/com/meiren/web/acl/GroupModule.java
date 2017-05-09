@@ -45,7 +45,6 @@ public class GroupModule extends BaseController {
             "name",
     };
 
-
     /**
      * 列表
      *
@@ -130,7 +129,6 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-
     /**
      * 查找单个
      *
@@ -184,7 +182,6 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-
     /**
      * 跳转添加/修改页面
      *
@@ -196,21 +193,17 @@ public class GroupModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity userEntity = this.getUser(request);
-        AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(userEntity.getBusinessId()).getData();
-        modelAndView.addObject(aclBusinessEntity);
         switch (type) {
             case "add":
                 modelAndView.addObject("title","添加部门");
                 modelAndView.addObject("id", "");
-                modelAndView.setViewName("acl/group/edit");
                 break;
             case "modify":
                 modelAndView.addObject("title", "编辑部门");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                modelAndView.setViewName("acl/group/edit");
                 break;
         }
+        modelAndView.setViewName("acl/group/edit");
         return modelAndView;
     }
 
@@ -271,7 +264,6 @@ public class GroupModule extends BaseController {
         searchParamMap.put("groupId", dataId);
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
-
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("businessId", group.getBusinessId());

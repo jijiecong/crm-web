@@ -605,18 +605,17 @@ public class UserModule extends BaseController {
         modelAndView.addObject("isInside", isInside);
         switch (type) {
             case "add":
-                userEntity.getBusinessId();
                 modelAndView.addObject("title", "添加用户");
                 modelAndView.addObject("id", "");
-                modelAndView.setViewName("acl/user/edit");
                 modelAndView.addObject("add", "add");
+                modelAndView.addObject("businessId", userEntity.getBusinessId());
                 break;
             case "modify":
                 modelAndView.addObject("title", "编辑用户");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                modelAndView.setViewName("acl/user/edit");
                 break;
         }
+        modelAndView.setViewName("acl/user/edit");
         return modelAndView;
     }
 }
