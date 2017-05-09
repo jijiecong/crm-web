@@ -44,30 +44,6 @@ public class GroupModule extends BaseController {
     private String[] necessaryParam = {
             "name",
     };
-    public String roleAll = "meiren.acl.role.all";
-
-    @RequestMapping(value = "user/set", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult userset(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long userId = RequestUtil.getLong(request, "userId");
-            Map<String, Object> delMap = new HashMap<>();
-            delMap.put("userId", userId);
-            aclGroupHasUserService.deleteAclGroupHasUser(delMap);
-
-            Long groupId = RequestUtil.getLong(request, "groupId");
-            AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
-            entity.setGroupId(groupId);
-            entity.setUserId(userId);
-            result = aclGroupHasUserService.createAclGroupHasUser(entity);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
 
     /**
      * 列表
@@ -96,17 +72,14 @@ public class GroupModule extends BaseController {
         Map<String, String> mapPrams = new HashMap<>();
         mapPrams.put("nameLike", "deptName");
         this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
-        boolean isInside = this.isMeiren(userEntity);
-        if (isInside) {
-            Long businessId = RequestUtil.getLong(request, "businessId");
-            if (businessId == null) {
-                businessId = userEntity.getBusinessId();
-            }
-            searchParamMap.put("businessId", businessId);
-            modelAndView.addObject("businessId", businessId);
-        } else {
-            searchParamMap.put("businessId", userEntity.getBusinessId());
+
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            businessId = userEntity.getBusinessId();
         }
+        searchParamMap.put("businessId", businessId);
+        modelAndView.addObject("businessId", businessId);
+
         ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -127,7 +100,7 @@ public class GroupModule extends BaseController {
 
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide",isInside);
+        modelAndView.addObject("inSide",this.isMeiren(userEntity));
 
         return modelAndView;
 
@@ -149,21 +122,6 @@ public class GroupModule extends BaseController {
             Long id = this.checkId(request);
             delMap.put("id", id);
             result = aclGroupService.deleteAclGroup(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    @RequestMapping(value = "loadByUserId", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> map = new HashMap<>();
-            map.put("userId", request.getParameter("userId"));
-            result = aclGroupService.loadAclGroupJoinHasUser(map);
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
@@ -224,7 +182,6 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-
     /**
      * 跳转添加/修改页面
      *
@@ -236,9 +193,6 @@ public class GroupModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
-//        AclUserEntity userEntity = this.getUser(request);
-//        AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(userEntity.getBusinessId()).getData();
-//        modelAndView.addObject(aclBusinessEntity);
         switch (type) {
             case "add":
                 modelAndView.addObject("title","添加部门");
@@ -308,11 +262,12 @@ public class GroupModule extends BaseController {
     private Map<String, Object> setUserInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
-        AclGroupEntity aclGroupEntity = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
-        searchParamMap.put("businessId",aclGroupEntity.getBusinessId());
-        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUser(searchParamMap).getData();
+        AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("businessId", group.getBusinessId());
+        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUser(paramMap).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
@@ -477,7 +432,11 @@ public class GroupModule extends BaseController {
         AclUserEntity user = this.getUser(request);
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
                 aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
-        List<AclRoleEntity> all = (List<AclRoleEntity>) aclRoleService.getManageableRoleByUser(user.getId()).getData();
+
+        AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
+        List<AclRoleEntity> all = (List<AclRoleEntity>)
+                aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下的全部权限
+
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 

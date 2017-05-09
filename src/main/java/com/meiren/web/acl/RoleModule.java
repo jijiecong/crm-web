@@ -416,6 +416,7 @@ public class RoleModule extends BaseController {
 
     /**
      * 查询已拥有的权限和全部可管理的权限
+     * 只能将角色所属商家下的权限赋予这个角色
      *
      * @param dataId
      * @return
@@ -423,8 +424,12 @@ public class RoleModule extends BaseController {
     private Map<String, Object> setPrivilegeInit(Long dataId, Long uid) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("roleId", dataId);
-        List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>) aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData(); //查询已拥有的权限
-        List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>) aclPrivilegeService.getManageablePriByUser(uid).getData(); //查询全部权限
+        List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>)
+                aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData(); //查询已拥有的权限
+
+        AclRoleEntity roleEntity = (AclRoleEntity) aclRoleService.findAclRole(dataId).getData();
+        List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>)
+                aclPrivilegeService.getManageablePrivilege(uid, roleEntity.getBusinessId()).getData(); //查询用户在该商家下的全部权限
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
@@ -526,8 +531,12 @@ public class RoleModule extends BaseController {
         searchParamMap.put("roleId", dataId);
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinRoleOwner(searchParamMap).getData();
+
+        AclRoleEntity roleEntity = aclRoleService.findAclRoleById(dataId);
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("businessId", roleEntity.getBusinessId());
         List<AclUserEntity> all = (List<AclUserEntity>)
-                aclUserService.loadAclUser(null).getData();
+                aclUserService.loadAclUser(paramMap).getData();
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();

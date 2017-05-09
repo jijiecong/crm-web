@@ -28,16 +28,6 @@ public class PrivilegeOutModule extends BaseController {
     @Autowired
     protected AclPrivilegeService aclPrivilegeService;
     @Autowired
-    protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
-    @Autowired
-    protected AclGroupHasPrivilegeService aclGroupHasPrivilegeService;
-    @Autowired
-    protected AclProcessService aclProcessService;
-    @Autowired
-    protected AclPrivilegeProcessService aclPrivilegeProcessService;
-    @Autowired
-    protected AclUserService aclUserService;
-    @Autowired
     protected AclPrivilegeOwnerService aclPrivilegeOwnerService;
     private String[] necessaryParam = {
             "name",
@@ -46,7 +36,8 @@ public class PrivilegeOutModule extends BaseController {
 
     /**
      * 列表
-     *  TODO jijc
+     * TODO jijc
+     *
      * @param request
      * @param response
      * @return
@@ -70,7 +61,7 @@ public class PrivilegeOutModule extends BaseController {
         Map<String, Object> searchParamMap = new HashMap<>();
         Map<String, String> mapPrams = new HashMap<>();
         mapPrams.put("nameOrToken", "nameOrToken");
-        this.mapPrams(request,mapPrams,searchParamMap,modelAndView);
+        this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
         ApiResult apiResult = aclPrivilegeService.searchAclPrivilege(searchParamMap, pageNum, pageSize);
 
         String message = this.checkApiResult(apiResult);
@@ -99,7 +90,8 @@ public class PrivilegeOutModule extends BaseController {
 
     /**
      * 添加
-     *  TODO jijc
+     * TODO jijc
+     *
      * @param request
      * @param response
      * @param aclPrivilegeEntity
@@ -116,17 +108,17 @@ public class PrivilegeOutModule extends BaseController {
                 aclPrivilegeEntity.setCreateUserId(user.getId());
             }
             aclPrivilegeEntity.setStatus(PrivilegeStatusEnum.NORMAL.name());
-                Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
-            
-        	//设置owner，另外添加
-            AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity =new AclPrivilegeOwnerEntity();
+            Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
+
+            //设置owner，另外添加
+            AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
             String userIds = RequestUtil.getString(request, "userIds");
-            if(!StringUtils.isBlank(userIds)){
-            	String [] useridArr=userIds.split(",");
-                for(int i=0;i<useridArr.length;i++){
-                	aclPrivilegeOwnerEntity.setUserId(Long.parseLong(useridArr[i]));
-                	aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
-                	result=aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
+            if (!StringUtils.isBlank(userIds)) {
+                String[] useridArr = userIds.split(",");
+                for (int i = 0; i < useridArr.length; i++) {
+                    aclPrivilegeOwnerEntity.setUserId(Long.parseLong(useridArr[i]));
+                    aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
+                    result = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
                 }
             }
         } catch (Exception e) {
@@ -148,9 +140,9 @@ public class PrivilegeOutModule extends BaseController {
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView();
         AclUserEntity user = this.getUser(request);
-        modelAndView.addObject("userId" , user.getId());
+        modelAndView.addObject("userId", user.getId());
         modelAndView.setViewName("acl/privilegeOut/edit");
         return modelAndView;
     }
-    
+
 }
