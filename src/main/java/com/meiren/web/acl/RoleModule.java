@@ -80,7 +80,7 @@ public class RoleModule extends BaseController {
                     break;
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
-                    if (this.checkToken(user, roleAll)) {
+                    if (this.hasRoleAll(user)) {
                         result = aclPrivilegeService.loadAclPrivilegeLikeName(q);
                     } else if (this.checkToken(user, roleBiz)) {
                         List<Long> inBizIds = this.getBizIdsByBizOwner(user);
@@ -121,7 +121,7 @@ public class RoleModule extends BaseController {
                     break;
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
-                    if (this.checkToken(user, roleAll)) {
+                    if (this.hasRoleAll(user)) {
                         result = aclBizService.loadAclBizLikeName(q);
                     } else if (this.checkToken(user, roleBiz)) {
                         map.put("ownerId", user.getId());
@@ -210,16 +210,19 @@ public class RoleModule extends BaseController {
 
         Map<String, Object> searchParamMap = new HashMap<>();
         AclUserEntity user = this.getUser(request);
-        searchParamMap.put("businessId", user.getBusinessId());
-        modelAndView.addObject("businessId", user.getBusinessId());
 
         //搜索名称和对应值
         Map<String, String> mapPrams = new HashMap<>();
         mapPrams.put("roleNameLike", "roleName");
-        mapPrams.put("businessId", "businessId");
         this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
 
-        if (this.checkToken(user, roleAll)) {
+        Long businessId = RequestUtil.getLong(request,"businessId");
+        if(businessId == null){
+            businessId = user.getBusinessId();
+        }
+        searchParamMap.put("businessId", businessId);
+        modelAndView.addObject("businessId", businessId);
+        if (this.hasRoleAll(user)) {
             //如果当前用户有角色管理员角色 则返回所有角色
             apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, pageSize);
         } else {
@@ -666,7 +669,8 @@ public class RoleModule extends BaseController {
     	case "add":
             modelAndView.addObject("inSide",this.isMeiren(user));
     		modelAndView.addObject("title","添加角色");
-    		modelAndView.addObject("id", "");
+            modelAndView.addObject("id", "");
+    		modelAndView.addObject("businessId", user.getBusinessId());
     		modelAndView.setViewName("acl/role/edit");     
             break;
         case "modify":
