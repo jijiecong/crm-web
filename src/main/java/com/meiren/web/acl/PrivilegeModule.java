@@ -41,42 +41,44 @@ public class PrivilegeModule extends BaseController {
     public String privilegeAll = "meiren.acl.privilege.all";
     private String[] necessaryParam = {"name", "token",};
 
-    /**
-     * 设置owner
-     *
-     * @param request
-     * @param response
-     * @param type
-     * @return
-     */
-    @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long userId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setOwnerInit(initId);
-                    result.setData(data);
-                    break;
-                case "add":
-                    result = this.setOwnerAdd(userId, uid);
-                    break;
-                case "del":
-                    result = this.setOwnerDel(userId, uid);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
+
+	/**
+	 * 设置owner
+	 * 
+	 * @param request
+	 * @param response
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
+	@ResponseBody
+	public ApiResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+		ApiResult result = new ApiResult();
+		try {
+			AclUserEntity user = this.getUser(request);
+			Long initId = RequestUtil.getLong(request, "dataId");
+			Long userId = RequestUtil.getLong(request, "selectedId");
+			Long uid = RequestUtil.getLong(request, "uid");
+			switch (type) {
+			case "init":
+				Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
+				result.setData(data);
+				break;
+			case "add":
+				result = this.setOwnerAdd(userId, uid);
+				break;
+			case "del":
+				result = this.setOwnerDel(userId, uid);
+				break;
+			default:
+				throw new Exception("type not find");
+			}
+		} catch (Exception e) {
+			result.setError(e.getMessage());
+			return result;
+		}
+		return result;
+	}
 
     private ApiResult setOwnerDel(Long userId, Long uid) {
         Map<String, Object> delMap = new HashMap<>();
@@ -92,18 +94,22 @@ public class PrivilegeModule extends BaseController {
         return aclPrivilegeOwnerService.createAclPrivilegeOwner(entity);
     }
 
-    /**
-     * 查询权限属于某个用户及全部用户
-     *
-     * @param dataId
-     * @return
-     */
-    private Map<String, Object> setOwnerInit(Long dataId) {
-        Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("privilegeId", dataId);
-        List<AclUserEntity> selected = (List<AclUserEntity>) aclUserService
-                .loadAclUserJoinPrivilegeOwner(searchParamMap).getData(); // 根据查询权限Id查询用户
-        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUser(null).getData(); // 查询所有用户
+	/**
+	 * 查询权限属于某个用户及全部用户
+	 * 
+	 * @param dataId
+	 * @return
+	 */
+	private Map<String, Object> setOwnerInit(Long dataId, Long businessId) {
+		Map<String, Object> searchParamMap = new HashMap<>();
+		searchParamMap.put("privilegeId", dataId);
+		List<AclUserEntity> selected = (List<AclUserEntity>)
+				aclUserService.loadAclUserJoinPrivilegeOwner(searchParamMap).getData(); // 根据查询权限Id查询用户
+
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("businessId", businessId);
+		List<AclUserEntity> all = (List<AclUserEntity>)
+				aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
