@@ -42,7 +42,7 @@ public class SearchModule extends BaseController {
     @RequestMapping("/hierarchy/{type}")
     @ResponseBody
     public ApiResult hierarchy(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+                               HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
             Long businessId = this.getUser(request).getBusinessId();
@@ -52,8 +52,8 @@ public class SearchModule extends BaseController {
             } else {
                 String q = RequestUtil.getStringTrans(request, "q");
                 Map<String, Object> paramMap = new HashMap<String, Object>();
-                paramMap.put("hierarchyNameLike",q);
-                paramMap.put("businessId",businessId);
+                paramMap.put("hierarchyNameLike", q);
+                paramMap.put("businessId", businessId);
                 result = aclHierarchyService.loadAclHierarchyLikeName(paramMap);
             }
             result.setData(result.getData());
@@ -63,6 +63,7 @@ public class SearchModule extends BaseController {
         }
         return result;
     }
+
     @RequestMapping("/biz/{type}")
     @ResponseBody
     public ApiResult select2(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
@@ -86,7 +87,7 @@ public class SearchModule extends BaseController {
     @RequestMapping("/user/{type}")
     @ResponseBody
     public ApiResult user(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+                          HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         Map<String, Object> map = new HashMap<String, Object>();
         try {
@@ -123,31 +124,26 @@ public class SearchModule extends BaseController {
     @RequestMapping("/group/{type}")
     @ResponseBody
     public ApiResult group(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+                           HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         try {
             AclUserEntity userEntity = this.getUser(request);
-            AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(userEntity.getBusinessId()).getData();
             if (Objects.equals(type, "init")) {
-                    Long id = this.checkId(request);
-                    if (id == 0) {
-                        AclGroupEntity aclGroupEntity = new AclGroupEntity();
-                        aclGroupEntity.setPid(0L);
-                        aclGroupEntity.setName("顶级");
-                        result.setData(aclGroupEntity);
-                        return result;
-                    }
-                    result = aclGroupService.findAclGroup(id);
+                Long id = this.checkId(request);
+                if (id == 0) {
+                    AclGroupEntity aclGroupEntity = new AclGroupEntity();
+                    aclGroupEntity.setPid(0L);
+                    aclGroupEntity.setName("顶级");
+                    result.setData(aclGroupEntity);
+                    return result;
+                }
+                result = aclGroupService.findAclGroup(id);
             } else {
                 String q = RequestUtil.getStringTrans(request, "q");
-                paramMap.put("name","%"+q+"%");
-                if(aclBusinessEntity.getToken().equals(BusinessEnum.INSIDE.name())) {
-                    result = aclGroupService.loadAclGroupLikeName(paramMap);
-                } else {
-                    paramMap.put("businessId",userEntity.getBusinessId());
-                    result = aclGroupService.loadAclGroupLikeName(paramMap);
-                }
+                paramMap.put("nameLike", q);
+                paramMap.put("businessId", userEntity.getBusinessId());
+                result = aclGroupService.loadAclGroupLikeName(paramMap);
             }
             result.setData(result.getData());
         } catch (Exception e) {
@@ -159,6 +155,7 @@ public class SearchModule extends BaseController {
 
     /**
      * 查询权限
+     *
      * @param request
      * @param response
      * @param type
@@ -197,11 +194,14 @@ public class SearchModule extends BaseController {
     public ApiResult role(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
-                    result = aclRoleService.loadAclRoleLikeName(q);
+                    map.put("businessId", userEntity.getBusinessId());
+                    map.put("roleNameLike", q);
+                    result = aclRoleService.loadAclRole(map);
                     break;
             }
         } catch (Exception e) {
@@ -210,11 +210,10 @@ public class SearchModule extends BaseController {
         }
         return result;
     }
-    
+
     /**
      * TODO jijc
-     * 
-     * */
+     */
     @RequestMapping(value = "/group/loadByUserId", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
