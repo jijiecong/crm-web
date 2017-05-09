@@ -222,15 +222,15 @@ public class RoleModule extends BaseController {
         }
         searchParamMap.put("businessId", businessId);
         modelAndView.addObject("businessId", businessId);
-        if (this.hasRoleAll(user)) {
-            //如果当前用户有角色管理员角色 则返回所有角色
-            apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, pageSize);
-        } else {
-            //当前用户没有角色管理权限 只能查看自己为owner的角色
-            searchParamMap.put("ownerId", user.getId());
-            apiResult = aclRoleService.searchAclRoleJoinOwner(searchParamMap, pageNum, pageSize);
-        }
-
+//        if (this.hasRoleAll(user)) {
+//            //如果当前用户有角色管理员角色 则返回所有角色
+//            apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, pageSize);
+//        } else {
+//            //当前用户没有角色管理权限 只能查看自己为owner的角色
+//            searchParamMap.put("ownerId", user.getId());
+//            apiResult = aclRoleService.searchAclRoleJoinOwner(searchParamMap, pageNum, pageSize);
+//        }
+        apiResult = aclRoleService.getManageableRoleByUser(user.getId());
         String message = this.checkApiResult(apiResult);
         if (message != null) {
             modelAndView.addObject("message", message);
