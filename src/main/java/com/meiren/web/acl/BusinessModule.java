@@ -2,7 +2,11 @@ package com.meiren.web.acl;
 
 import com.meiren.acl.enums.UserRoleStatusEnum;
 import com.meiren.acl.service.*;
-import com.meiren.acl.service.entity.*;
+import com.meiren.acl.service.entity.AclBusinessEntity;
+import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
+import com.meiren.acl.service.entity.AclPrivilegeEntity;
+import com.meiren.acl.service.entity.AclRoleHasPrivilegeEntity;
+import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
@@ -28,7 +32,7 @@ import java.util.*;
  * 商家相关
  */
 
-//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.biz.index"})
+@AuthorityToken(needToken = {"meiren.acl.all.superAdmin","meiren.acl.mbc.crm.acl.business.index"})
 @Controller
 @RequestMapping("acl/business")
 public class BusinessModule extends BaseController {
@@ -71,18 +75,8 @@ public class BusinessModule extends BaseController {
         Map<String, Object> searchParamMap = new HashMap<>();
         Map<String, String> userPrams = new HashMap<>();
         userPrams.put("nameLike", "businessName");
-        this.mapPrams(request,userPrams,searchParamMap,modelAndView);
-        AclUserEntity user = this.getUser(request);
-        AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(user.getBusinessId()).getData();
-        modelAndView.addObject(aclBusinessEntity);
-        if(!this.isMeiren(user)) {
-            searchParamMap.put("businessId", user.getBusinessId());
-            apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
-
-        } else {
-            apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
-            modelAndView.addObject("businessName", "INSIDE");
-        }
+        this.mapPrams(request, userPrams, searchParamMap, modelAndView);
+        apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
             modelAndView.addObject("message", message);
@@ -105,6 +99,27 @@ public class BusinessModule extends BaseController {
 
     }
 
+//    /**
+//     * 删除单个
+//     * @param request
+//     * @param response
+//     * @return
+//     */
+//    @RequestMapping(value = "delete", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ApiResult deleteMap(HttpServletRequest request, HttpServletResponse response) {
+//        ApiResult result = new ApiResult();
+//        Map<String, Object> delMap = new HashMap<>();
+//        try {
+//            Long id = this.checkId(request);
+//            delMap.put("id",id);
+//            result = aclBusinessService.deleteAclBusiness(delMap);
+//        } catch (Exception e) {
+//            result.setError(e.getMessage());
+//            return result;
+//        }
+//        return result;
+//    }
     /**
      * 删除单个
      * @param request
@@ -115,11 +130,9 @@ public class BusinessModule extends BaseController {
     @ResponseBody
     public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
-        Map<String, Object> delMap = new HashMap<>();
         try {
             Long id = this.checkId(request);
-            delMap.put("id", id);
-            result = aclBusinessService.deleteAclBusiness(delMap);
+            result = aclBusinessService.deleteById(id);
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
@@ -217,6 +230,14 @@ public class BusinessModule extends BaseController {
                 Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclBusinessEntity);
                 result = aclBusinessService.updateAclBusiness(Long.valueOf(id), paramMap);
             } else {
+                List<AclBusinessEntity> list = (List<AclBusinessEntity>) aclBusinessService.loadAclBusiness(null).getData();
+                for (int i = 0; i < list.size(); ++i) {
+                    if (list.get(i).getToken().equals(aclBusinessEntity.getToken())) {
+                        result.setError("token不能重复");
+                        return result;
+                    }
+
+                }
                 result = aclBusinessService.createAclBusiness(aclBusinessEntity);
             }
         } catch (Exception e) {
@@ -241,14 +262,13 @@ public class BusinessModule extends BaseController {
             case "add":
                 modelAndView.addObject("title","添加商家");
                 modelAndView.addObject("id", "");
-                modelAndView.setViewName("acl/business/edit");
                 break;
             case "modify":
                 modelAndView.addObject("title", "编辑商家");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                modelAndView.setViewName("acl/business/edit");
                 break;
         }
+        modelAndView.setViewName("acl/business/edit");
         return modelAndView;
     }
 
@@ -260,18 +280,7 @@ public class BusinessModule extends BaseController {
                              HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
-            List<Long> roleIds = new ArrayList<Long>();
-            if (this.checkToken(user, roleAll)) {
-                roleIds = null;              //如果当前用户拥有角色管理权限  则返回所有角色
-            } else if (this.checkToken(user, roleBiz)) {
-                //如果用户为应用owner且为正常角色owner 则返回正常角色+应用下角色
-                roleIds = this.getAllRoleIdsByRoleOwner(user);  //查询正常角色+应用下角色id
-            } else {
-                //如果用户既不是角色管理权限 也不是应用owner 则返回用户为owner的所有角色id
-                roleIds = this.getRoleIdsByRoleOwner(user);     //查询当前用户为owner的所有角色id
-            }
-            result = this.initAndQuery(request, roleIds, type);
+            result = this.initAndQuery(request, type);
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
@@ -289,18 +298,16 @@ public class BusinessModule extends BaseController {
      * @return
      * @throws Exception
      */
-    private ApiResult initAndQuery(HttpServletRequest request, List<Long> roleIds, String type) throws Exception {
+    private ApiResult initAndQuery(HttpServletRequest request, String type) throws Exception {
         ApiResult result = new ApiResult();
         if (Objects.equals(type, "init")) {
             Long userId = this.checkId(request);
             Map<String, Object> map = new HashMap<>();
             map.put("userId", userId);
-            map.put("inRoleIds", roleIds);
             map.put("hasStatus", UserRoleStatusEnum.NORMAL.name());
             result = aclRoleService.loadAclRoleJoinUserHas(map);     //查询用户拥有的未被禁用的并且当前登录用户为owner的角色
         } else {
             Map<String, Object> map = new HashMap<>();
-            map.put("inIds", roleIds);
             map.put("roleNameLike", RequestUtil.getStringTrans(request, "q"));
             result = aclRoleService.loadAclRole(map);               //查询角色
         }
@@ -310,7 +317,7 @@ public class BusinessModule extends BaseController {
 
 
     /**
-     * 添加/修改
+     * 批量导入权限
      * @param request
      * @param response
      * @param aclUserEntity
@@ -454,7 +461,7 @@ public class BusinessModule extends BaseController {
     @RequestMapping(value = "goTo/setPrivilege")
     public ModelAndView setPrivilege(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("title", "设置拥有权限");
+        modelAndView.addObject("title", "设置权限");
         modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
         modelAndView.setViewName("acl/business/edit_privilege");
         return modelAndView;

@@ -79,7 +79,7 @@ public class GroupModule extends BaseController {
     @RequestMapping("/index")
     public ModelAndView index(HttpServletRequest request,
                               HttpServletResponse response) {
-        ApiResult apiResult = new ApiResult();
+
         String page = request.getParameter("page") == null ? "1" : request
                 .getParameter("page");
         ModelAndView modelAndView = new ModelAndView();
@@ -102,14 +102,12 @@ public class GroupModule extends BaseController {
             if (businessId == null) {
                 businessId = userEntity.getBusinessId();
             }
-            modelAndView.addObject("businessId", businessId);
             searchParamMap.put("businessId", businessId);
-            apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
+            modelAndView.addObject("businessId", businessId);
         } else {
             searchParamMap.put("businessId", userEntity.getBusinessId());
-            apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
         }
-
+        ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
             modelAndView.addObject("message", message);
@@ -308,7 +306,7 @@ public class GroupModule extends BaseController {
         return aclGroupHasUserService.createAclGroupHasUser(entity);
     }
 
-    private Map<String, Object> setUserInit(Long dataId , HttpServletRequest request) {
+    private Map<String, Object> setUserInit(Long dataId, HttpServletRequest request) {
         Map<String, Object> searchParamMap = new HashMap<>();
         List<AclUserEntity> all = new ArrayList<>();
         searchParamMap.put("groupId", dataId);
@@ -316,13 +314,9 @@ public class GroupModule extends BaseController {
 
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
-        if(this.isMeiren(userEntity)) {
-            all = (List<AclUserEntity>)
-                    aclUserService.loadAclUserNotUsedWithGroupHas().getData();
-        } else {
-            searchParamMap.put("businessId" , userEntity.getBusinessId());
-            all = (List<AclUserEntity>) aclUserService.loadAclUser(searchParamMap).getData();
-        }
+        searchParamMap.put("businessId", userEntity.getBusinessId());
+        all = (List<AclUserEntity>) aclUserService.loadAclUser(searchParamMap).getData();
+
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
@@ -482,19 +476,11 @@ public class GroupModule extends BaseController {
 
     private Map<String, Object> setRoleInit(Long dataId ,HttpServletRequest request) {
         Map<String, Object> searchParamMap = new HashMap<>();
-        List<AclRoleEntity> all = new ArrayList<>();
         searchParamMap.put("groupId", dataId);
         AclUserEntity user = this.getUser(request);
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
                 aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
-        if (this.checkToken(user, roleAll)) {
-            //如果当前用户有角色管理员角色 则返回所有角色
-            all = (List<AclRoleEntity>)aclRoleService.loadAclRole(null).getData();
-        } else {
-            //当前用户没有角色管理权限 只能查看自己为owner的角色
-            searchParamMap.put("ownerId", user.getId());
-            all = (List<AclRoleEntity>) aclRoleService.loadAclRoleJoinOwner(searchParamMap).getData();
-        }
+        List<AclRoleEntity> all = (List<AclRoleEntity>) aclRoleService.getManageableRoleByUser(user.getId()).getData();
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
