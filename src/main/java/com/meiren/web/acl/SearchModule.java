@@ -213,7 +213,7 @@ public class SearchModule extends BaseController {
         return result;
     }
 
-    @RequestMapping(value = "/garoup/loadByUserId", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/loadByUserId", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
