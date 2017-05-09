@@ -480,7 +480,11 @@ public class GroupModule extends BaseController {
         AclUserEntity user = this.getUser(request);
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
                 aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
-        List<AclRoleEntity> all = (List<AclRoleEntity>) aclRoleService.getManageableRoleByUser(user.getId()).getData();
+
+        AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
+        List<AclRoleEntity> all = (List<AclRoleEntity>)
+                aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下的全部权限
+
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 

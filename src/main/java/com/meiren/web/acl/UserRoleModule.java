@@ -2,6 +2,7 @@ package com.meiren.web.acl;
 
 import com.meiren.acl.enums.UserRoleStatusEnum;
 import com.meiren.acl.service.*;
+import com.meiren.acl.service.entity.AclRoleEntity;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.acl.service.entity.AclUserHasRoleEntity;
 import com.meiren.common.annotation.AuthorityToken;
@@ -65,15 +66,10 @@ public class UserRoleModule extends BaseController {
         try {
             AclUserEntity user = this.getUser(request);
             List<Long> roleIds = new ArrayList<Long>();
-            if (this.checkToken(user, roleAll)) {
-                roleIds = null;              //如果当前用户拥有角色管理权限  则返回所有角色
-                System.out.println(roleIds);
-            } else if (this.checkToken(user, roleBiz)) {
-                //如果用户为应用owner且为正常角色owner 则返回正常角色+应用下角色
-                roleIds = this.getAllRoleIdsByRoleOwner(user);  //查询正常角色+应用下角色id
-            } else {
-                //如果用户既不是角色管理权限 也不是应用owner 则返回用户为owner的所有角色id
-                roleIds = this.getRoleIdsByRoleOwner(user);     //查询当前用户为owner的所有角色id
+            List<AclRoleEntity> all = (List<AclRoleEntity>)
+                    aclRoleService.getManageableRole(user.getId(), user.getBusinessId()).getData();
+            for (AclRoleEntity role : all) {
+                roleIds.add(role.getId());
             }
             result = this.initAndQuery(request, roleIds, type);
         } catch (Exception e) {
@@ -138,18 +134,13 @@ public class UserRoleModule extends BaseController {
         Map<String, String> paramNames = new HashMap<>();
         paramNames.put("nicknameLike", "nickname");
         this.mapPrams(request, paramNames, searchParamMap, modelAndView);
-        boolean isInside = this.isMeiren(user);
 
-        if (isInside) {
-            Long businessId = RequestUtil.getLong(request, "businessId");
-            if (businessId == null) {
-                businessId = user.getBusinessId();
-            }
-            modelAndView.addObject("businessId", businessId);
-            searchParamMap.put("businessId", businessId);
-        } else {
-            searchParamMap.put("businessId", user.getBusinessId());
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            businessId = user.getBusinessId();
         }
+        modelAndView.addObject("businessId", businessId);
+        searchParamMap.put("businessId", businessId);
         ApiResult apiResult = aclUserService.searchAclUserAndRole(searchParamMap, pageNum, pageSize);
 
         String message = this.checkApiResult(apiResult);
@@ -187,7 +178,7 @@ public class UserRoleModule extends BaseController {
         }
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide", isInside);
+        modelAndView.addObject("inSide", this.isMeiren(user));
 
         return modelAndView;
 
