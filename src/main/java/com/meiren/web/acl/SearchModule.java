@@ -1,8 +1,6 @@
 package com.meiren.web.acl;
 
-import com.meiren.acl.enums.BusinessEnum;
 import com.meiren.acl.service.*;
-import com.meiren.acl.service.entity.AclBusinessEntity;
 import com.meiren.acl.service.entity.AclGroupEntity;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.result.ApiResult;
@@ -54,7 +52,7 @@ public class SearchModule extends BaseController {
                 Map<String, Object> paramMap = new HashMap<String, Object>();
                 paramMap.put("hierarchyNameLike", q);
                 paramMap.put("businessId", businessId);
-                result = aclHierarchyService.loadAclHierarchyLikeName(paramMap);
+                result = aclHierarchyService.loadAclHierarchy(paramMap);
             }
             result.setData(result.getData());
         } catch (Exception e) {
@@ -91,13 +89,17 @@ public class SearchModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> map = new HashMap<String, Object>();
         try {
+            AclUserEntity userEntity = this.getUser(request);
             switch (type) {
                 case "notUsed":
                     map.put("nicknameLike", RequestUtil.getStringTrans(request, "q"));
                     result = aclUserService.loadAclUserNotUsedWithRoleHas(map);
                     break;
                 case "query":
-                    result = aclUserService.loadAclUserLikeName(RequestUtil.getStringTrans(request, "q"));
+                    String q = RequestUtil.getStringTrans(request, "q");
+                    map.put("nicknameLike", q);
+                    map.put("businessId", userEntity.getBusinessId());
+                    result = aclUserService.loadAclUser(map);
                     break;
 
                 case "initMoniorConfig":
@@ -143,7 +145,7 @@ public class SearchModule extends BaseController {
                 String q = RequestUtil.getStringTrans(request, "q");
                 paramMap.put("nameLike", q);
                 paramMap.put("businessId", userEntity.getBusinessId());
-                result = aclGroupService.loadAclGroupLikeName(paramMap);
+                result = aclGroupService.loadAclGroup(paramMap);
             }
             result.setData(result.getData());
         } catch (Exception e) {
@@ -211,10 +213,7 @@ public class SearchModule extends BaseController {
         return result;
     }
 
-    /**
-     * TODO jijc
-     */
-    @RequestMapping(value = "/group/loadByUserId", method = RequestMethod.POST)
+    @RequestMapping(value = "/garoup/loadByUserId", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult loadByUserId(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();

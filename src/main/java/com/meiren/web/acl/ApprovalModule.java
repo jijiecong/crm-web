@@ -117,7 +117,6 @@ public class ApprovalModule extends BaseController {
 
     /**
      * 转,加签
-     * TODO JIJC
      * @param request
      * @param response
      * @return
@@ -202,7 +201,6 @@ public class ApprovalModule extends BaseController {
 
     /**
      * 设置审核结果
-     * TODO JIJC
      * @param request
      * @param response
      * @return
