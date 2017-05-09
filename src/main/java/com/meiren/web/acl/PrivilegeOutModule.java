@@ -116,7 +116,7 @@ public class PrivilegeOutModule extends BaseController {
                 aclPrivilegeEntity.setCreateUserId(user.getId());
             }
             aclPrivilegeEntity.setStatus(PrivilegeStatusEnum.NORMAL.name());
-            Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
+                Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
             
         	//设置owner，另外添加
             AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity =new AclPrivilegeOwnerEntity();

@@ -33,8 +33,6 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
     @Autowired
-    protected AclUserHasRoleService aclUserHasRoleService;
-    @Autowired
     protected AclUserHasPrivilegeService aclUserHasPrivilegeService;
     @Autowired
     protected AclGroupHasRoleService aclGroupHasRoleService;
@@ -222,14 +220,7 @@ public class RoleModule extends BaseController {
         }
         searchParamMap.put("businessId", businessId);
         modelAndView.addObject("businessId", businessId);
-        if (this.hasRoleAll(user)) {
-            //如果当前用户有角色管理员角色 则返回所有角色
-            apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, pageSize);
-        } else {
-            //当前用户没有角色管理权限 只能查看自己为owner的角色
-            searchParamMap.put("ownerId", user.getId());
-            apiResult = aclRoleService.searchAclRoleJoinOwner(searchParamMap, pageNum, pageSize);
-        }
+        apiResult = aclRoleService.searchAclManageableRole(user.getId(), searchParamMap, pageNum, pageSize);
 
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -367,17 +358,14 @@ public class RoleModule extends BaseController {
                 if (!StringUtils.isBlank(id)) {
                 	oldRiskLevel=aclRoleService.findAclRoleById(Long.valueOf(id)).getRiskLevel();
                     Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclRoleEntity);
-//                    result = aclRoleService.updateAclRole(Long.valueOf(id), paramMap);
+                    result = aclRoleService.updateAclRole(Long.valueOf(id), paramMap);
                     roleId=Long.valueOf(id);
                 } else {
                     aclRoleEntity.setStatus(RoleStatusEnum.NORMAL.name());
                     if (aclRoleEntity.getPid() == null) {
                         aclRoleEntity.setPid(0L);
                     }
-                    if(!this.isMeiren(user)){
-//                        aclRoleEntity.setBusinessId(user.getBusinessId());
-                    }
-//                    result = aclRoleService.createAclRole(aclRoleEntity);
+                    result = aclRoleService.createAclRole(aclRoleEntity);
                     roleId =(Long) result.getData();                 
                 }
                 //添加风险审核流程
