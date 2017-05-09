@@ -48,9 +48,6 @@ public class BusinessModule extends BaseController {
     @Autowired
     protected AclRoleService aclRoleService;
 
-    public String roleAll = "meiren.acl.role.all";  //角色管理权限
-    public String roleBiz = "meiren.acl.role.biz";  //应用管理权限
-
     private String[] necessaryParam = {"name",};
     /**
      * 列表
