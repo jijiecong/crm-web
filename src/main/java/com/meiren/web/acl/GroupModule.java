@@ -273,7 +273,7 @@ public class GroupModule extends BaseController {
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
         List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
 
-        //all.addAll(selected);
+        all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
