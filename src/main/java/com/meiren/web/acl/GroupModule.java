@@ -271,9 +271,7 @@ public class GroupModule extends BaseController {
         List<AclUserEntity> selected = (List<AclUserEntity>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("businessId", group.getBusinessId());
-        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUser(paramMap).getData();
+        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();

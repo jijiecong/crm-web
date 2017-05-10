@@ -288,7 +288,7 @@ public class RoleModule extends BaseController {
 
     private ApiResult addRoleProcess(Long roleId, Integer riskLevel, Integer oldRiskLevel) throws Exception {
         ApiResult result = new ApiResult();
-        if (riskLevel.intValue() != oldRiskLevel.intValue()) {
+        if (oldRiskLevel == null || riskLevel.intValue() != oldRiskLevel.intValue()) {
             Map<String, Object> delParamMap = new HashMap<>();
             delParamMap.put("roleId", roleId);
             aclRoleProcessService.deleteAclRoleProcess(delParamMap);

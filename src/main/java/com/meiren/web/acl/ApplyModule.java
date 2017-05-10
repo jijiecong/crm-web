@@ -123,7 +123,7 @@ public class ApplyModule extends BaseController {
             aclApplyEntity.setUserId(user.getId());
             switch (type) {
                 case "add":
-                    aclApplyEntity.setApplyType(ApplyTypeEnum.APPLY_PRIVILEGE.name());  //权限申请
+                    aclApplyEntity.setApplyType(ApplyTypeEnum.APPLY_PRIVILEGE.name());  //权限申请111
                     break;
                 case "addRole":
                     aclApplyEntity.setApplyType(ApplyTypeEnum.APPLY_ROLE.name());       //角色申请
