@@ -5,7 +5,11 @@ define(function (require, exports, module) {
     return {
         init: function () {
         	var parent = new ajaxSelect2('#test', "/acl/search/group", {});
-        	
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/business/findByName', {
+                multiple: false
+            });
+
+            businessSelect2.init($("#select-business").val());
             var type = "添加失败";
             var uid = $("#form-submit").data('uid');
             if (uid != "" && uid != undefined) {

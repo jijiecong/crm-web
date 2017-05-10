@@ -194,10 +194,15 @@ public class GroupModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
+        AclUserEntity userEntity = this.getUser(request);
+        boolean isInside = isMeiren(userEntity);
+        modelAndView.addObject("isInside", isInside);
         switch (type) {
             case "add":
                 modelAndView.addObject("title","添加部门");
                 modelAndView.addObject("id", "");
+                modelAndView.addObject("add", "add");
+                modelAndView.addObject("businessId", userEntity.getBusinessId());
                 break;
             case "modify":
                 modelAndView.addObject("title", "编辑部门");
