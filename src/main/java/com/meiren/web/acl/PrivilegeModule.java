@@ -381,7 +381,7 @@ public class PrivilegeModule extends BaseController {
      */
     private ApiResult addPrivilegeProcess(Long privilegeId, Integer riskLevel, Integer oldRiskLevel) throws Exception {
         ApiResult result = new ApiResult();
-        if (riskLevel.intValue() != oldRiskLevel.intValue()) {
+        if (oldRiskLevel == null || riskLevel.intValue() != oldRiskLevel.intValue()) {
             Map<String, Object> delParamMap = new HashMap<>();
             delParamMap.put("privilegeId", privilegeId);
             aclPrivilegeProcessService.deleteAclPrivilegeProcess(delParamMap);
