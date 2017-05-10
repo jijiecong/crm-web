@@ -234,7 +234,7 @@ public class SearchModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/findByName/{type}")
+    @RequestMapping(value = "/business/findByName/{type}")
     @ResponseBody
     public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String  type) {
         ApiResult result = new ApiResult();

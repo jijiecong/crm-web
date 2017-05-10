@@ -71,7 +71,7 @@ define(function (require, exports, module) {
                 parent.init();
             });
 
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/findByName', {
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/business/findByName', {
                 multiple: false
             });
 

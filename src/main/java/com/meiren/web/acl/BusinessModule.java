@@ -32,7 +32,7 @@ import java.util.*;
  * 商家相关
  */
 
-@AuthorityToken(needToken = {"meiren.acl.all.superAdmin","meiren.acl.mbc.crm.acl.business.index"})
+@AuthorityToken(needToken = {"meiren.acl.all.superAdmin", "meiren.acl.mbc.crm.acl.business.index"})
 @Controller
 @RequestMapping("acl/business")
 public class BusinessModule extends BaseController {
@@ -49,8 +49,11 @@ public class BusinessModule extends BaseController {
     protected AclRoleService aclRoleService;
 
     private String[] necessaryParam = {"name",};
+
     /**
      * 列表
+     * TODO zhangw
+     *
      * @param request
      * @param response
      * @return
@@ -58,7 +61,6 @@ public class BusinessModule extends BaseController {
     @RequestMapping("/index")
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
 
-        ApiResult apiResult = new ApiResult();
         String page = request.getParameter("page") == null ? "1" : request.getParameter("page");
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("acl/business/index");
@@ -73,7 +75,7 @@ public class BusinessModule extends BaseController {
         Map<String, String> userPrams = new HashMap<>();
         userPrams.put("nameLike", "businessName");
         this.mapPrams(request, userPrams, searchParamMap, modelAndView);
-        apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
+        ApiResult apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
         String message = this.checkApiResult(apiResult);
         if (message != null) {
             modelAndView.addObject("message", message);
@@ -91,34 +93,37 @@ public class BusinessModule extends BaseController {
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
 
-
         return modelAndView;
 
     }
 
-//    /**
-//     * 删除单个
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "delete", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult deleteMap(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        Map<String, Object> delMap = new HashMap<>();
-//        try {
-//            Long id = this.checkId(request);
-//            delMap.put("id",id);
-//            result = aclBusinessService.deleteAclBusiness(delMap);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
+    /**
+     * 删除单个 -- 暂未使用
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "deleteMap", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResult deleteMap(HttpServletRequest request, HttpServletResponse response) {
+        ApiResult result = new ApiResult();
+        Map<String, Object> delMap = new HashMap<>();
+        try {
+            Long id = this.checkId(request);
+            delMap.put("id", id);
+            result = aclBusinessService.deleteAclBusiness(delMap);
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
     /**
      * 删除单个
+     * TODO zhangw
+     *
      * @param request
      * @param response
      * @return
@@ -139,6 +144,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 批量删除
+     *
      * @param request
      * @param response
      * @return
@@ -162,6 +168,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 查找单个
+     *
      * @param request
      * @param response
      * @return
@@ -184,6 +191,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 添加/修改
+     *
      * @param request
      * @param response
      * @param aclUserEntity
@@ -212,6 +220,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 跳转添加/修改页面
+     * TODO zhangw
      *
      * @param request
      * @param response
@@ -219,11 +228,11 @@ public class BusinessModule extends BaseController {
      */
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
+    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
         switch (type) {
             case "add":
-                modelAndView.addObject("title","添加商家");
+                modelAndView.addObject("title", "添加商家");
                 modelAndView.addObject("id", "");
                 break;
             case "modify":
@@ -236,7 +245,16 @@ public class BusinessModule extends BaseController {
     }
 
 
-//    @AuthorityToken(needToken = {"meiren.acl.role.authorized"})
+    /**
+     * 查询角色
+     * TODO zhangw
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     */
+    //    @AuthorityToken(needToken = {"meiren.acl.role.authorized"})
     @RequestMapping("/searchRole/{type}")
     @ResponseBody
     public ApiResult select2(HttpServletRequest request,
@@ -253,6 +271,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * init  and Query
+     * TODO zhangw
      *
      * @param request
      * @param userId
@@ -278,9 +297,10 @@ public class BusinessModule extends BaseController {
     }
 
 
-
     /**
      * 批量导入权限
+     * TODO　zhangw
+     *
      * @param request
      * @param response
      * @param aclUserEntity
@@ -324,6 +344,7 @@ public class BusinessModule extends BaseController {
     /**
      * 设置商家权限
      * TODO zhangw
+     *
      * @param request
      * @param response
      * @param type
@@ -332,13 +353,12 @@ public class BusinessModule extends BaseController {
     @RequestMapping(value = "/setPrivilege/{type}", method = RequestMethod.POST)
     @ResponseBody
     public ApiResult setBusinessPrivilege(HttpServletRequest request,
-                                  HttpServletResponse response, @PathVariable String type) {
+                                          HttpServletResponse response, @PathVariable String type) {
         ApiResult apiResult = new ApiResult();
         try {
             Long initId = RequestUtil.getLong(request, "dataId");
             Long selectedId = RequestUtil.getLong(request, "selectedId");
             Long uid = RequestUtil.getLong(request, "uid");
-
             switch (type) {
                 case "init":
                     Map<String, Object> data = this.setPrivilegeInit(initId);       //查询权限
@@ -361,8 +381,9 @@ public class BusinessModule extends BaseController {
     }
 
     /**
-     *  删除商家权限
-     *  TODO zhangw
+     * 删除商家权限
+     * TODO zhangw
+     *
      * @param privilegeId
      * @param uid
      * @return
@@ -377,6 +398,7 @@ public class BusinessModule extends BaseController {
     /**
      * 为商家添加权限
      * TODO zhangw
+     *
      * @param privilegeId
      * @param uid
      * @return
@@ -387,9 +409,11 @@ public class BusinessModule extends BaseController {
         entity.setBusinessId(uid);
         return aclBusinessHasPrivilegeService.createAclBusinessHasPrivilege(entity);
     }
+
     /**
      * 查询已拥有的权限和全部权限
      * TODO zhangw
+     *
      * @param dataId
      * @return
      */
@@ -420,7 +444,16 @@ public class BusinessModule extends BaseController {
         dataMap.put("selectData", selectDataVOs);
         return dataMap;
     }
-//    @AuthorityToken (needToken = {"meiren.acl.privilege.authorized"})
+
+    /**
+     * 设置权限
+     * TODO zhangw
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    //    @AuthorityToken (needToken = {"meiren.acl.privilege.authorized"})
     @RequestMapping(value = "goTo/setPrivilege")
     public ModelAndView setPrivilege(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView();
@@ -432,6 +465,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 跳转添加/修改页面
+     * TODO zhangw
      *
      * @param request
      * @param response
@@ -439,15 +473,15 @@ public class BusinessModule extends BaseController {
      */
     @RequestMapping(value = "setRole/{type}", method = RequestMethod.GET)
     @ResponseBody
-    public ModelAndView addOrModify(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
+    public ModelAndView addOrModify(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
         Long businessId = RequestUtil.getLong(request, "businessId");
-        String businessName = RequestUtil.getStringTrans(request,"name");
+        String businessName = RequestUtil.getStringTrans(request, "name");
         switch (type) {
             case "add":
-                modelAndView.addObject("title","权限导入");
-                modelAndView.addObject("businessId",businessId);
-                modelAndView.addObject("businessName",businessName);
+                modelAndView.addObject("title", "权限导入");
+                modelAndView.addObject("businessId", businessId);
+                modelAndView.addObject("businessName", businessName);
                 modelAndView.setViewName("acl/business/edit_role");
                 break;
         }
