@@ -590,7 +590,7 @@ public class UserModule extends BaseController {
     }
 
     /**
-     * 跳转添加/修改页面
+     * 跳转添加/修改页面，test
      *
      * @param request
      * @param response
