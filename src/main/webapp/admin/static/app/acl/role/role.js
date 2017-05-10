@@ -244,42 +244,14 @@ define(function (require, exports, module) {
         }
     };
 
-    //var teamBox = new Team('#team-html');
-    //teamBox.add = function (data) {
-    //    var repeat = false;
-    //    var checkedData = privilegeSelect2.getData();
-    //    $.each(checkedData, function (key, val) {
-    //        if (val.id == data.id) {
-    //            repeat = true;
-    //            return false
-    //        }
-    //    });
-    //    if (!repeat) {
-    //        checkedData.push(data)
-    //    }
-    //    privilegeSelect2.setData(checkedData);
-    //};
-    //teamBox.del = function (data) {
-    //    var newData = [];
-    //    var checkedData = privilegeSelect2.getData();
-    //    $.each(checkedData, function (key, val) {
-    //        if (val.id != data.id) {
-    //            newData.push(val)
-    //        }
-    //    });
-    //    privilegeSelect2.setData(newData);
-    //};
-
     return {
         init: function () {
-         
-/*            var bizSelect2 = new ajaxSelect2('#biz-select2', "/acl/role/roleAddBiz");*/
             
             var process = new processBase('#process-param');
             var hierarchy = new ajaxSelect2('.hierarchy-select', "/acl/search/hierarchy", {
                 textName: 'hierarchyName'
             });
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/findByName', {
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/business/findByName', {
                 multiple: false
             });
 
@@ -299,39 +271,6 @@ define(function (require, exports, module) {
                 $("#select-role").data('uid', uid);
                 selectrole.init();
             });
-            
-/*            $(".add").on("click", function () {
-                $(".operation-name").html('添加');
-                $("#modal-form-submit").data('uid', '');               
-                role.clearData();
-                bizSelect2.init();
-            });*/
-
-/*            //查询角色权限start
-            var selectPrivilege = new ajaxMultiSelect({
-                dom: '#select-privilege',
-                url: '/acl/role/setPrivilege',
-                selectableHeaderTitle: '未拥有权限',
-                selectionHeaderTitle: '已拥有权限'
-            });
-
-            $(".set-privilege").on("click", function () {
-                var uid = $(this).data('uid');
-                $("#select-privilege").data('uid', uid);
-                selectPrivilege.init();
-            });*/
-
-          
-
-            //打开弹出层修改页面
-/*            $(".edit").on("click", function () {
-                var uid = $(this).data('uid');
-                $(".operation-name").html('编辑');
-                $("#modal-form-submit").data('uid', uid);
-                role.getById(uid, function () {
-                    bizSelect2.init(uid);
-                });
-            });*/
             
             $(".set-process").on("click", function () {
                 var uid = $(this).data('uid');

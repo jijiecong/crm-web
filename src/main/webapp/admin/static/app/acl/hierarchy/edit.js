@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var hierarchy = new Basic('acl/hierarchy');
     return {
         init: function () {
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/findByName', {
+            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/business/findByName', {
                 multiple: false
             });
             var type = "添加失败";
