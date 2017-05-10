@@ -102,7 +102,7 @@
         </div>
         <div class="modal-body">
             <p>
-            <h3>确认删除该应用？</h3>
+            <h3>确认删除该商家？</h3>
             </p>
         </div>
         <div class="modal-footer">
@@ -123,7 +123,7 @@
         </div>
         <div class="modal-body">
             <p>
-                确认删除这些应用？
+                确认删除这些商家？
             </p>
         </div>
         <div class="modal-footer">
