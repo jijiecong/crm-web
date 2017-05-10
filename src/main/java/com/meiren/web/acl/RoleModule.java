@@ -567,6 +567,7 @@ public class RoleModule extends BaseController {
      * @param response
      * @return
      */
+    @AuthorityToken(needToken = {"meiren.acl.role.all"})
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {

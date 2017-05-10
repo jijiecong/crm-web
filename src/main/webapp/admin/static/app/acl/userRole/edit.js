@@ -6,6 +6,7 @@ define(function (require, exports, module) {
 
     return {
         init: function () {
+            var uid = $("#form-submit").data('uid');
         	var user = new ajaxSelect2('#user-select2', '/acl/search/user', {
                 multiple: true,
                 textName: 'nickname',
@@ -13,11 +14,12 @@ define(function (require, exports, module) {
 
             });
             var role = new ajaxSelect2('#role-select2', '/acl/userRole/searchRole', {
-                multiple: true
+                multiple: true,
+                queryUrl: '/acl/userRole/searchRole/query?id='+uid
             });   
             
             var type="添加失败";
-            var uid = $("#form-submit").data('uid');
+
             if(uid!=""&&uid!=undefined){
             	type="修改失败";
                 user.init(uid);

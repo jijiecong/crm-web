@@ -77,7 +77,7 @@ public class AuthorityInterceptor extends HandlerInterceptorAdapter {
                 apiResult.setData(tokenName);
                 response.getWriter().write(JSON.toJSONString(apiResult));
             } else {
-                response.sendRedirect(noPrivilegeUrl.concat("?tokenName=").concat(tokenName));
+                response.sendRedirect(noPrivilegeUrl.concat("?token=").concat(tokenName));
             }
             return false;
 

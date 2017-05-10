@@ -121,7 +121,6 @@ public class ApplyModule extends BaseController {
         try {
             AclUserEntity user = this.getUser(request);
             aclApplyEntity.setUserId(user.getId());
-            aclApplyEntity.setBusinessId(user.getBusinessId());
             switch (type) {
                 case "add":
                     aclApplyEntity.setApplyType(ApplyTypeEnum.APPLY_PRIVILEGE.name());  //权限申请

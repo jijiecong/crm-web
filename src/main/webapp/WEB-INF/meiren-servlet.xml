@@ -98,7 +98,7 @@
 			<mvc:exclude-mapping path="/health/check"/>
 			<bean class="com.meiren.form.web.interceptor.AuthorityInterceptor" >
 				<property name="redisClient" ref="redisClient"/>
-				<property name="noPrivilegeUrl" value="/acl/apply/noPrivilege"/>
+				<property name="noPrivilegeUrl" value="${account.privilege.url}"/>
 			</bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
