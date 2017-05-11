@@ -22,22 +22,19 @@
                 <div class="control-group">
                     <label class="control-label" for="userName">用户帐号：</label>
                     <div class="controls">
-                        <input type="text" id="userName" name="userName" placeholder="用户帐号"
-                               style="width: 480px !important;">
+                        <input type="text" id="userName" name="userName" placeholder="用户帐号" style="width: 480px !important;">
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="nickname">用户昵称：</label>
                     <div class="controls">
-                        <input type="text" id="nickname" name="nickname" placeholder="用户昵称"
-                               style="width: 480px !important;">
+                        <input type="text" id="nickname" name="nickname" placeholder="用户昵称" style="width: 480px !important;">
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="password">密码：</label>
                     <div class="controls">
-                        <input type="password" id="password" name="password" placeholder="密码"
-                               style="width: 480px !important;">
+                        <input type="password" id="password" name="password" placeholder="密码" style="width: 480px !important;">
                     </div>
                 </div>
                 <div class="control-group">
@@ -56,12 +53,12 @@
                     <div class="control-group">
                         <label class="control-label" for="businessId">所属商家：</label>
                         <div class="controls">
-                            <input type="text" id="select-business" name="businessId" placeholder="所属商家"
-                                   style="width: 480px !important;" value="$!businessId">
+                            <input type="text" id="select-business" name="businessId" placeholder="所属商家" style="width: 480px !important;" value="$!businessId">
                         </div>
                     </div>
+                    #else
+                    <input type="hidden" name="businessId" value="$!businessId" />
                 #end
-
                 <div class="control-group">
                     <div class="controls">
                         <button type="button" class="btn" id="close-form">返回</button>
