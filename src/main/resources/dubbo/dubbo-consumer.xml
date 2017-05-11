@@ -27,7 +27,7 @@
     <dubbo:reference id="aclRoleService" interface="com.meiren.acl.service.AclRoleService" check="false"/>
     <dubbo:reference id="aclUserHasPrivilegeService" interface="com.meiren.acl.service.AclUserHasPrivilegeService" check="false"/>
     <dubbo:reference id="aclUserHasRoleService" interface="com.meiren.acl.service.AclUserHasRoleService" check="false"/>
-    <dubbo:reference id="aclRoleHasPrivilegeService" interface="com.meiren.acl.service.AclRoleHasPrivilegeService" group="roleHasPrivilege" check="false"/>
+    <dubbo:reference id="aclRoleHasPrivilegeService" interface="com.meiren.acl.service.AclRoleHasPrivilegeService" check="false"/>
     <dubbo:reference id="aclGroupService" interface="com.meiren.acl.service.AclGroupService" check="false"/>
     <dubbo:reference id="aclGroupHasPrivilegeService" interface="com.meiren.acl.service.AclGroupHasPrivilegeService" check="false"/>
     <dubbo:reference id="aclGroupHasUserService" interface="com.meiren.acl.service.AclGroupHasUserService" check="false"/>
