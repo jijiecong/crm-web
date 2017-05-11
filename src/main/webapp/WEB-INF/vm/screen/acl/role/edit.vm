@@ -58,6 +58,7 @@
                                    style="width: 480px !important;">
                         </div>
                     </div>
+				#else<input type="hidden" name="businessId" value="${businessId}" >
 				#end
 				<div class="control-group">
 					<div class="controls">

@@ -193,6 +193,7 @@ public class HierarchyModule extends BaseController {
             case "modify":
                 modelAndView.addObject("title", "编辑层级");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
+                modelAndView.addObject("bid", user.getBusinessId());
                 modelAndView.setViewName("acl/hierarchy/edit");
                 break;
         }
