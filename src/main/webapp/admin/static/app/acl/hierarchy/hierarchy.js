@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     Basic.prototype.init = function () {
         var pThis = this;
         //打开弹出层进行设置
-        $(".add").on("click", function () {
+/*        $(".add").on("click", function () {
             $(".operation-name").html('添加');
             $("#form input").val('');
             $("#modal-form-submit").data('uid', '');
@@ -15,7 +15,7 @@ define(function (require, exports, module) {
             pThis.getById(uid);
             $("#modal-form-submit").data('uid', uid);
             $(".operation-name").html('编辑');
-        });
+        });*/
 
         $("#modal-form-submit").on("click", function () {
             pThis.submit($(this).data('uid'));
@@ -35,11 +35,7 @@ define(function (require, exports, module) {
 
     return {
         init: function () {
-            var businessSelect2 = new ajaxSelect2('#select-business', '/acl/search/business/findByName', {
-                multiple: false
-            });
 
-            businessSelect2.init($("#select-business").val());
         }
     }
 });

@@ -43,7 +43,6 @@ public class SearchModule extends BaseController {
                                HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            Long businessId = this.getUser(request).getBusinessId();
             if (Objects.equals(type, "init")) {
                 Long id = this.checkId(request);
                 result = aclHierarchyService.findAclHierarchy(id);
@@ -51,7 +50,6 @@ public class SearchModule extends BaseController {
                 String q = RequestUtil.getStringTrans(request, "q");
                 Map<String, Object> paramMap = new HashMap<String, Object>();
                 paramMap.put("hierarchyNameLike", q);
-                paramMap.put("businessId", businessId);
                 result = aclHierarchyService.loadAclHierarchy(paramMap);
             }
             result.setData(result.getData());
