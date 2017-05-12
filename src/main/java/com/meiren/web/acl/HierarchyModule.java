@@ -96,6 +96,11 @@ public class HierarchyModule extends BaseController {
     @ResponseBody
     public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
+        AclUserEntity user = this.getUser(request);
+        if(!this.hasSuperAdmin(user)){
+            result.setError("您没有权限操作层级！");
+            return result;
+        }
         Map<String, Object> delMap = new HashMap<>();
         try {
             Long id = this.checkId(request);
