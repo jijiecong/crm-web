@@ -6,7 +6,7 @@ import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.annotation.Logical;
 import com.meiren.common.context.CurrentContext;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.result.ResultCode;
+import com.meiren.acl.result.ResultCode;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.redis.client.RedisClient;
 import com.meiren.sso.web.SsoHelper;
