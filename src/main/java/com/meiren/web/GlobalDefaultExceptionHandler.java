@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.meiren.common.context.CurrentContext;
 import com.meiren.common.result.ApiResult;
 import com.meiren.form.web.interceptor.ExceptionResult;
-import com.meiren.mission.result.ResultCode;
+import com.meiren.acl.result.ResultCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -46,7 +46,8 @@ class GlobalDefaultExceptionHandler {
 //            exceptionResult.setException(e);
 //            exceptionResult.setUrl(req.getRequestURL().toString());
             apiResult.setData(exceptionResult);
-            apiResult.setError(ResultCode.EXCEPTION_STACK_TRACE.getCode(),ResultCode.EXCEPTION_STACK_TRACE.getMessage());
+            apiResult.setError(String.format(
+                    ResultCode.INVOKE_EXCEPTION.getMessage(), e.getMessage()));
             return apiResult;
         }
     }
