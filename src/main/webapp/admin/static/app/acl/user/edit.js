@@ -27,12 +27,6 @@ define(function (require, exports, module) {
                 select2.init();
                 businessSelect2.init();
             }
-            // var type="添加失败";
-            // var uid = $("#form-submit").data('uid');
-            // if(uid!=""&&uid!=undefined){
-            // 	type="修改失败";
-            //     user.getById(uid);
-            // }
 
             $("#close-form").on("click", function () {
             	window.location.href = '/acl/user/index';
