@@ -22,24 +22,13 @@
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>monitor-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.meiren</groupId>
-                    <artifactId>acl-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.0.1</version>
         </dependency>
         <!-- ACL API -->
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>acl-api</artifactId>
             <version>1.0.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.meiren</groupId>
-            <artifactId>common-shared-utils</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- 路由API -->
         <dependency>
@@ -48,23 +37,16 @@
             <version>1.0.2</version>
         </dependency>
         <!-- 动态表单API -->
-
-
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>meiren-redis-client</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>sso-client</artifactId>
             <version>1.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.meiren</groupId>
-            <artifactId>common-shared-utils</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!--meiren api end-->
 
