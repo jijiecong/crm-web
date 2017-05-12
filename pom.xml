@@ -466,7 +466,7 @@
                                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>/home/deploy/conf/backend/</directory>
+                                            <directory>/home/deploy/conf/crm-web/</directory>
                                             <filtering>false</filtering>
                                         </resource>
                                     </resources>
