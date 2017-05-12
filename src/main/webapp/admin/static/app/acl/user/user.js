@@ -118,7 +118,6 @@ define(function (require, exports, module) {
             });
 
             $(".set-hierarchy").on("click", function () {
-                hierarchy.clear();
                 var uid = $(this).data("uid");
                 var hid = $(this).data("hid");
                 $("#set-hierarchy-submit").data('uid', uid);
@@ -129,7 +128,7 @@ define(function (require, exports, module) {
                 var uid = $(this).data("uid");
                 var hierarchyId = $("#hierarchy-select2").val();
                 if (hierarchyId != null && hierarchyId != "") {
-                    user.ajax('/acl/hierarchy/set', {id: uid, hierarchyId: hierarchyId}, function (data) {
+                    user.ajax('/acl/user/hierarchy/set', {id: uid, hierarchyId: hierarchyId}, function (data) {
                         console.log(data);
                         location.reload();
                     })

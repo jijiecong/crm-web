@@ -585,6 +585,7 @@ public class RoleModule extends BaseController {
                 //编辑的时候不需要修改businessId
                 modelAndView.addObject("title", "编辑角色");
                 modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
+                modelAndView.addObject("businessId", "");
                 modelAndView.setViewName("acl/role/edit");
                 break;
         }
