@@ -38,20 +38,10 @@
 						<input type="text" id="sort" name="sort" placeholder="排序" style="width: 480px !important;">
 					</div>
 				</div>
-				#if(${inSide})
-                    <div class="control-group">
-                        <label class="control-label" for="businessId">所属商家：</label>
-                        <div class="controls">
-                            <input type="text" id="select-business" name="businessId" placeholder="所属商家"
-                                   style="width: 480px !important;">
-                        </div>
-                    </div>
-				#else<input type="hidden" name="businessId" value="${bid}" >
-				#end
              <div class="control-group">
 			    <div class="controls">
 			    	<button type="button" class="btn" id="close-form">返回</button>
-			    	<button type="button" class="btn green submit" id="form-submit"  data-uid="$id" data-bid="$bid">确定</button>
+			    	<button type="button" class="btn green submit" id="form-submit"  data-uid="$id" >确定</button>
 			    </div>
 			  </div>   	  
 			</form>
