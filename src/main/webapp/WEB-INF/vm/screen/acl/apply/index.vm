@@ -39,7 +39,7 @@
                                 <td>$!basicVO.id</td>
                                 <td>$!basicVO.userName</td>
                                 <td>$!basicVO.applyContent</td>
-                                <td>$!basicVO.privilegeName</td>
+                                <td>$!basicVO.wantName</td>
                                 <td>$!basicVO.approvalState</td>
                                 <td>$dateUtils.format($!basicVO.applyTime,"yyyy-MM-dd HH:mm:ss")</td>
                             </tr>
