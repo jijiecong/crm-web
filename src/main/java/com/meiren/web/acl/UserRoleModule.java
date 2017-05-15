@@ -185,7 +185,6 @@ public class UserRoleModule extends BaseController {
      * @param aclUserHasRoleEntity
      * @return
      */
-    @AuthorityToken(needToken = {"meiren.acl.role.authorized"})
     @RequestMapping(value = {"authorize"}, method = RequestMethod.POST)
     @ResponseBody
     public ApiResult authorize(HttpServletRequest request, HttpServletResponse response) {
@@ -267,6 +266,7 @@ public class UserRoleModule extends BaseController {
      * @param response
      * @return
      */
+    @AuthorityToken(needToken = {"meiren.acl.role.authorized"})
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {

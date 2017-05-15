@@ -413,6 +413,10 @@ public class GroupModule extends BaseController {
                 result.setError("您没有权限操作部门！");
                 return result;
             }
+            if(!this.hasRoleAuthorized(user)){
+                result.setError("您没有权限授予角色！");
+                return result;
+            }
             Long initId = RequestUtil.getLong(request, "dataId");
             Long roleId = RequestUtil.getLong(request, "selectedId");
             Long uid = RequestUtil.getLong(request, "uid");
@@ -460,7 +464,7 @@ public class GroupModule extends BaseController {
 
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
         List<AclRoleEntity> all = (List<AclRoleEntity>)
-                aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下的全部权限
+                aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下可管理的所有角色
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
