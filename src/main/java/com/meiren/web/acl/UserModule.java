@@ -47,6 +47,8 @@ public class UserModule extends BaseController {
     @Autowired
     protected AclBusinessService aclBusinessService;
 
+    String userRoleAll = "meiren.acl.user.all";
+
     private String[] necessaryParam = {
             "userName",
             "mobile",
@@ -432,7 +434,7 @@ public class UserModule extends BaseController {
      */
     @RequestMapping("/index")
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult apiResult = new ApiResult();
+
         String page = request.getParameter("page") == null ? "1" : request
                 .getParameter("page");
         ModelAndView modelAndView = new ModelAndView();
@@ -458,7 +460,8 @@ public class UserModule extends BaseController {
         }
         modelAndView.addObject("businessId", businessId);
         searchParamMap.put("businessId", businessId);
-        apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
+
+        ApiResult apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
 
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -475,7 +478,8 @@ public class UserModule extends BaseController {
             List<AclUserEntity> resultList = (List<AclUserEntity>) resultMap.get("data");
             modelAndView.addObject("basicVOList", resultList);
         }
-
+        boolean isUserManager = this.checkToken(user,userRoleAll);
+        modelAndView.addObject("isUserManager", isUserManager);
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
         modelAndView.addObject("inSide", isInside);
@@ -485,7 +489,7 @@ public class UserModule extends BaseController {
     }
 
     /**
-     * 删除单个       --禁用
+     * 删除单个
      *
      * @param request
      * @param response

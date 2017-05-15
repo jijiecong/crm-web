@@ -63,6 +63,11 @@
                                 <div class="btn-group roll-nav roll-right">
                                      <a href="/acl/user/goTo/modify?id=${basicVO.id}" data-uid="$!basicVO.id"
                                        class="btn edit" style="border-radius:6px !important;margin-right: 10px;height:18px"> 修改</a>
+                                    #if($!isUserManager)
+                                    <a href="#myModal3" data-toggle="modal" data-uid="$!basicVO.id"
+                                       class="btn del" style="border-radius:6px !important;margin-right: 10px;height:18px">
+                                        <i class="icon-trash"></i> 删除</a>
+                                     #end
                                     <button class="dropdown J_tabClose btns" data-toggle="dropdown">用户操作<span
                                             class="caret"></span>
                                     </button>
