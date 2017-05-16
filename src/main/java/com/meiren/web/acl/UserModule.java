@@ -68,7 +68,7 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -110,7 +110,7 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -185,7 +185,7 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -297,7 +297,7 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -408,7 +408,7 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -478,7 +478,7 @@ public class UserModule extends BaseController {
             List<AclUserEntity> resultList = (List<AclUserEntity>) resultMap.get("data");
             modelAndView.addObject("basicVOList", resultList);
         }
-        boolean isUserManager = this.checkToken(user,userRoleAll);
+        boolean isUserManager = this.checkToken(user, userRoleAll);
         modelAndView.addObject("isUserManager", isUserManager);
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
@@ -502,7 +502,7 @@ public class UserModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -530,7 +530,7 @@ public class UserModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         try {
             AclUserEntity userEntity = this.getUser(request);
-            if(!this.hasUserAll(userEntity)){
+            if (!this.hasUserAll(userEntity)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
@@ -564,7 +564,7 @@ public class UserModule extends BaseController {
         List<String> idsList = Arrays.asList(ids);
         try {
             AclUserEntity user = this.getUser(request);
-            if(!this.hasUserAll(user)){
+            if (!this.hasUserAll(user)) {
                 result.setError("您没有权限操作用户！");
                 return result;
             }
