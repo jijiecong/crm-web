@@ -311,7 +311,8 @@ public class BusinessModule extends BaseController {
     public ApiResult addPrivilege(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
-            List<Long> list = new ArrayList<>();
+            List<Long> listOld = new ArrayList<>();
+            List<Long> listNew = new ArrayList<>();
             Map<String, Object> map = new HashMap<String, Object>();
             String[] roleIds = request.getParameterValues("roleIds[]");
             List<String> idsList = Arrays.asList(roleIds);
@@ -322,18 +323,27 @@ public class BusinessModule extends BaseController {
             roleMap.put("inRoleIds", idsList);
             List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
             for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
-                list.add(a.getPrivilegeId());
+                if(!listNew.contains(a.getPrivilegeId())){
+                    listNew.add(a.getPrivilegeId());
+                }
             }
             for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
-                list.add(b.getPrivilegeId());
+                listOld.add(b.getPrivilegeId());
             }
-            list = new ArrayList<Long>(new HashSet<Long>(list));
-            for (int i = 0; i < list.size(); ++i) {
+            listNew.removeAll(listOld);
+            List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
+            for (int i = 0; i < listNew.size(); ++i) {
                 AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
                 aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
-                aclBusinessHasPrivilegeEntity.setPrivilegeId(list.get(i));
-                aclBusinessHasPrivilegeService.createAclBusinessHasPrivilege(aclBusinessHasPrivilegeEntity);
+                aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
+                list.add(aclBusinessHasPrivilegeEntity);
             }
+            if(listNew.size() > 0 ){
+                result = aclBusinessHasPrivilegeService.createBatch(list);
+            }else{
+                result.setData("您选择导入的权限已经存在，无需重复添加！");
+            }
+
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
