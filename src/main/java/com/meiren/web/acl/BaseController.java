@@ -200,11 +200,11 @@ public class BaseController {
         }
         return null;
     }
-    
+
     /**
      * 判断用户是否拥有权限授权权限
      * TODO JIJC
-     * 
+     *
      * */
     public Boolean hasPrivilegeAuthorized(AclUserEntity user){
     	return this.checkToken(user, PrivilegeTokenEnum.PRIVILEGE_AUTHORIZED.typeName);
@@ -213,7 +213,7 @@ public class BaseController {
     /**
      * 判断用户是否拥有权限管理权限
      * TODO JIJC
-     * 
+     *
      * */
 	public Boolean hasPrivilegeAll(AclUserEntity user) {
 		return this.checkToken(user, PrivilegeTokenEnum.PRIVILEGE_ALL.typeName);
@@ -222,7 +222,7 @@ public class BaseController {
 	/**
      * 判断用户是否拥有角色授权权限
      * TODO JIJC
-     * 
+     *
      * */
 	public Boolean hasRoleAuthorized(AclUserEntity user) {
 		return this.checkToken(user, PrivilegeTokenEnum.ROLE_AUTHORIZED.typeName);
@@ -231,7 +231,7 @@ public class BaseController {
 	/**
      * 判断用户是否拥有角色管理权限
      * TODO JIJC
-     * 
+     *
      * */
 	public Boolean hasRoleAll(AclUserEntity user) {
 		return this.checkToken(user, PrivilegeTokenEnum.ROLE_ALL.typeName);
@@ -240,7 +240,7 @@ public class BaseController {
 	/**
      * 判断用户是否拥有超级管理权限
      * TODO JIJC
-     * 
+     *
      * */
 	public Boolean hasSuperAdmin(AclUserEntity user) {
 		return this.checkToken(user, PrivilegeTokenEnum.SUPERADMIN.typeName);
@@ -249,7 +249,7 @@ public class BaseController {
 	/**
      * 判断用户是否拥有用户管理权限
      * TODO JIJC
-     * 
+     *
      * */
 	public Boolean hasUserAll(AclUserEntity user) {
 		return this.checkToken(user, PrivilegeTokenEnum.USER_ALL.typeName);

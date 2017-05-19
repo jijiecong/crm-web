@@ -69,9 +69,7 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
               <el-col :span="13">
-<<<<<<< Updated upstream
                 <el-button split-button type="info" icon="edit" size="small" @click="to_router('businessUpdate',props.row)">修改</el-button>
-=======
                 <el-dropdown
                   trigger="click"
                   split-button type="info" size="small"
@@ -79,25 +77,13 @@
                   修改
 
                 </el-dropdown>
->>>>>>> Stashed changes
               </el-col>
             </el-row>
           </template>
         </el-table-column>
       </el-table>
       <bottom-tool-bar>
-<<<<<<< Updated upstream
-        <!--<el-button-->
-        <!--type="danger"-->
-        <!--icon="delete"-->
-        <!--size="small"-->
-        <!--:disabled="batch_select.length === 0"-->
-        <!--@click="on_batch_del"-->
-        <!--slot="handler">-->
-        <!--<span>批量删除</span>-->
-        <!--</el-button>-->
-=======
->>>>>>> Stashed changes
+
         <div slot="page">
           <el-pagination
             @current-change="handleCurrentChange"
@@ -112,22 +98,14 @@
   </div>
 </template>
 <script type="text/javascript">
-<<<<<<< Updated upstream
-  import {panelTitle, bottomToolBar} from 'components'
-  import {request_business} from 'common/request_api'
-=======
   import {simpleSelect, panelTitle, bottomToolBar} from 'components'
   import {request_user, request_business} from 'common/request_api'
   import {mapGetters} from 'vuex'
->>>>>>> Stashed changes
 
   export default{
     data(){
       return {
-<<<<<<< Updated upstream
-=======
         select_url: request_business.search,
->>>>>>> Stashed changes
         table_data: null,
         //当前页码
         currentPage: 1,
@@ -140,12 +118,6 @@
         //批量选择数组
         batch_select: [],
         search_data: {
-<<<<<<< Updated upstream
-        },
-      }
-    },
-    components: {
-=======
           businessId: ''
         },
       }
@@ -153,19 +125,10 @@
     watch: {},
     components: {
       simpleSelect,
->>>>>>> Stashed changes
       panelTitle,
       bottomToolBar
     },
     created(){
-<<<<<<< Updated upstream
-      this.get_table_data()
-    },
-    methods: {
-      to_router(routerName, row){
-        this.$router.push({name: routerName, params: {id: row.id}})
-      },
-=======
       if (this.getUserInfo.businessId) {
         this.search_data.businessId = this.getUserInfo.businessId;
       }
@@ -184,9 +147,8 @@
         this.$router.push({name: routerName, params: {id: row.id}})
       },
       to_router_hierarchy(routerName, row){
-        this.$router.push({name: routerName, params: {id: row.id,hierarchyId:row.hierarchyId}})
+        this.$router.push({name: routerName, params: {id: row.id, hierarchyId: row.hierarchyId}})
       },
->>>>>>> Stashed changes
       //刷新
       on_refresh(){
         this.get_table_data()
@@ -208,10 +170,7 @@
           this.load_data = false
         })
       },
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
       //单个删除
       delete_data(item){
         this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
@@ -219,12 +178,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-<<<<<<< Updated upstream
           let param = this.$qs.stringify({id: item.id})
-=======
-          let param = this.$qs.stringify(this.$route.params.id)
->>>>>>> Stashed changes
-          this.$http.post(request_business.del, param)
+          this.$http.post(request_user.del,param)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
@@ -241,31 +196,19 @@
         this.batch_select = val
       },
       //批量删除
-<<<<<<< Updated upstream
-/*      on_batch_del(){
-=======
       on_batch_del(){
->>>>>>> Stashed changes
         this.$confirm('此操作将批量删除选择数据, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-<<<<<<< Updated upstream
-          this.$http.post(request_uri.batch_del, this.batch_select)
-=======
           this.$http.post(request_user.batch_del, this.batch_select)
->>>>>>> Stashed changes
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
             })
         })
-<<<<<<< Updated upstream
-      }*/
-=======
       }
->>>>>>> Stashed changes
     }
   }
 </script>
