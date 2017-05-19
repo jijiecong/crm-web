@@ -1,13 +1,14 @@
 package com.meiren.web.acl;
 
 import com.meiren.acl.enums.PrivilegeStatusEnum;
-import com.meiren.acl.service.*;
+import com.meiren.acl.service.AclPrivilegeOwnerService;
+import com.meiren.acl.service.AclPrivilegeService;
 import com.meiren.acl.service.entity.AclPrivilegeEntity;
 import com.meiren.acl.service.entity.AclPrivilegeOwnerEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -103,7 +104,7 @@ public class PrivilegeOutModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             this.checkParamMiss(request, this.necessaryParam);
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if (user != null) {
                 aclPrivilegeEntity.setCreateUserId(user.getId());
             }
@@ -139,7 +140,7 @@ public class PrivilegeOutModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
         modelAndView.addObject("userId", user.getId());
         modelAndView.setViewName("acl/privilegeOut/edit");
         return modelAndView;

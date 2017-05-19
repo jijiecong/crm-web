@@ -7,6 +7,7 @@ import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,7 +67,7 @@ public class GroupModule extends BaseController {
             pageNum = 1;
         }
         int pageSize = DEFAULT_ROWS;
-        AclUserEntity userEntity = this.getUser(request);
+        SessionUserVO userEntity = this.getUser(request);
         Map<String, Object> searchParamMap = new HashMap<>();
         //搜索名称和对应值
         Map<String, String> mapPrams = new HashMap<>();
@@ -119,7 +120,7 @@ public class GroupModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> delMap = new HashMap<>();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if(!this.hasGroupAll(user)){
                 result.setError("您没有权限操作部门！");
                 return result;
@@ -200,7 +201,7 @@ public class GroupModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity userEntity = this.getUser(request);
+        SessionUserVO userEntity = this.getUser(request);
         boolean isInside = isMeiren(userEntity);
         modelAndView.addObject("isInside", isInside);
         switch (type) {
@@ -233,7 +234,7 @@ public class GroupModule extends BaseController {
                              HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if(!this.hasGroupAll(user)){
                 result.setError("您没有权限操作部门！");
                 return result;
@@ -321,7 +322,7 @@ public class GroupModule extends BaseController {
                                HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if(!this.hasGroupAll(user)){
                 result.setError("您没有权限操作部门！");
                 return result;
@@ -408,7 +409,7 @@ public class GroupModule extends BaseController {
                              HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if(!this.hasGroupAll(user)){
                 result.setError("您没有权限操作部门！");
                 return result;
@@ -458,7 +459,7 @@ public class GroupModule extends BaseController {
     private Map<String, Object> setRoleInit(Long dataId ,HttpServletRequest request) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
                 aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
 

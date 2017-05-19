@@ -11,6 +11,7 @@ import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.monitor.utils.ObjectUtils;
 import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -109,7 +110,7 @@ public class RoleModule extends BaseController {
         int pageSize = DEFAULT_ROWS;
 
         Map<String, Object> searchParamMap = new HashMap<>();
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
 
         //搜索名称和对应值
         Map<String, String> mapPrams = new HashMap<>();
@@ -230,7 +231,7 @@ public class RoleModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             this.checkParamMiss(request, this.necessaryParam);
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             String id = request.getParameter("id");
             HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
             searchParamMap.put("ownerId", user.getId());
@@ -356,7 +357,7 @@ public class RoleModule extends BaseController {
                                   HttpServletResponse response, @PathVariable String type) {
         ApiResult apiResult = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             if (!this.hasPrivilegeAuthorized(user)) {
                 apiResult.setError("您没有权限授权权限！");
                 return apiResult;
@@ -571,7 +572,7 @@ public class RoleModule extends BaseController {
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
         switch (type) {
             case "add":
                 modelAndView.addObject("inSide", this.isMeiren(user));

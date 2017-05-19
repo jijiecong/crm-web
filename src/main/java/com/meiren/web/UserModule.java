@@ -5,10 +5,9 @@ import com.meiren.acl.enums.UserRoleStatusEnum;
 import com.meiren.acl.enums.UserStatusEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
+import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.result.VueResultCode;
-import com.meiren.common.annotation.AuthorityToken;
-import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
@@ -16,7 +15,6 @@ import com.meiren.vo.SessionUserVO;
 import com.meiren.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.index"})
-@Controller
-@RequestMapping("{uuid}/acl/user")
-@ResponseBody
+//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.index"})
+//@Controller
+//@RequestMapping("{uuid}/acl/user")
+//@ResponseBody
 public class UserModule extends BaseController {
 
     @Autowired

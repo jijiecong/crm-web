@@ -1,34 +1,39 @@
 package com.meiren.web;
 
-import com.meiren.acl.enums.ApprovalConditionEnum;
 import com.meiren.acl.enums.PrivilegeStatusEnum;
 import com.meiren.acl.enums.RiskLevelEnum;
 import com.meiren.acl.service.AclPrivilegeProcessService;
 import com.meiren.acl.service.AclPrivilegeService;
 import com.meiren.acl.service.AclProcessModelService;
 import com.meiren.acl.service.AclProcessService;
-import com.meiren.acl.service.entity.*;
-import com.meiren.common.result.VueResult;
-import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.acl.service.entity.AclPrivilegeEntity;
+import com.meiren.acl.service.entity.AclPrivilegeProcessEntity;
+import com.meiren.acl.service.entity.AclProcessEntity;
+import com.meiren.acl.service.entity.AclProcessModelEntity;
 import com.meiren.common.result.ApiResult;
+import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
-import com.meiren.utils.StringUtils;
 import com.meiren.utils.RequestUtil;
-import com.meiren.vo.*;
+import com.meiren.utils.StringUtils;
+import com.meiren.vo.PrivilegeProcessVO;
+import com.meiren.vo.PrivilegeVO;
+import com.meiren.vo.ProcessVO;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.acl.Acl;
 import java.util.*;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.privilege.index"})
-@Controller
-@RequestMapping("{uuid}/acl/privilege")
-@ResponseBody
+//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.privilege.index"})
+//@Controller
+//@RequestMapping("{uuid}/acl/privilege")
+//@ResponseBody
 public class PrivilegeModule extends BaseController {
 
     @Autowired
