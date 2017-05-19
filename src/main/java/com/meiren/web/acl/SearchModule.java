@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@Controller
+@Controller("SearchModule2")
 @RequestMapping("/acl/search")
 public class SearchModule extends BaseController {
 

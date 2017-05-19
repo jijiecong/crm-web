@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
-@Controller
+@Controller("HierarchyModule2")
 @RequestMapping("/acl/hierarchy")
 public class HierarchyModule extends BaseController {
 

@@ -11,7 +11,7 @@ import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
-import com.meiren.monitor.utils.ObjectUtils;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.vo.SelectVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -277,7 +277,7 @@ public class BizModule extends BaseController {
             String userIds = RequestUtil.getString(request, "userIds");
             this.checkParamMiss(request, this.necessaryParam);  //验证参数是否为空
             if (!StringUtils.isBlank(id)) {
-                Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclBizEntity);
+                Map<String, Object> paramMap = ObjectUtils.entityToMap(aclBizEntity);
                 result = aclBizService.updateAclBiz(Long.valueOf(id), paramMap, privilegeIds, userIds);
             } else {
                 result = aclBizService.createAclBiz(aclBizEntity, privilegeIds, userIds);

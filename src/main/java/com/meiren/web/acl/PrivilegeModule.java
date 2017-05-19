@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.privilege.index"})
-@Controller
+@Controller("PrivilegeModule2")
 @RequestMapping("/acl/privilege")
 public class PrivilegeModule extends BaseController {
 
@@ -44,7 +44,7 @@ public class PrivilegeModule extends BaseController {
 
 	/**
 	 * 设置owner
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param type
@@ -96,7 +96,7 @@ public class PrivilegeModule extends BaseController {
 
 	/**
 	 * 查询权限属于某个用户及全部用户
-	 * 
+	 *
 	 * @param dataId
 	 * @return
 	 */

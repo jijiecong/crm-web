@@ -1,44 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 	http://www.springframework.org/schema/context 
-	http://www.springframework.org/schema/context/spring-context-4.0.xsd
-	http://www.springframework.org/schema/tx 
-	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
-	http://www.springframework.org/schema/mvc 
-	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
-	http://www.springframework.org/schema/aop 
-	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
-           
-	   <import resource="classpath:dubbo/dubbo.xml" />
-	   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-			<property name="ignoreResourceNotFound" value="false" />
-			<property name="ignoreUnresolvablePlaceholders" value="true" />
-			<property name="locations">
-				<list>
-					<value>classpath:form_web.properties</value>
-				</list>
-			</property>
-	   </bean>
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
-     <bean id="bossConstant" class="com.meiren.common.constant.BossConstant">
-    	<property name="signKey" value="${account.invoke.sign.key}"/>
-    	<property name="phpApiRootUrl" value="${account.root.api.url}"/>
-     	<property name="secretKey" value="${meiren.common.api.secretkey}"/>
-    </bean>
-	<bean id="ossConstant" class="com.meiren.common.constant.OssConstant">
-		<property name="userId" value="${oss.userId}"/>
-		<property name="ossStsUrl" value="${oss.sts.url}"/>
-		<property name="ossSecretKey" value="${oss.secretKey}"/>
-		<property name="cdnPath" value="${cdnPath}"/>
-	</bean>
-
-
-	<context:annotation-config />
 
 
 </beans>
