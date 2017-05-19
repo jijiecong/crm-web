@@ -274,8 +274,6 @@ public class BusinessModule extends BaseController {
      * TODO zhangw
      *
      * @param request
-     * @param userId
-     * @param roleIds
      * @param type
      * @return
      * @throws Exception
@@ -322,6 +320,7 @@ public class BusinessModule extends BaseController {
             Map<String, Object> roleMap = new HashMap<String, Object>();
             roleMap.put("inRoleIds", idsList);
             List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
+            //对不同角色拥有同一权限，去重处理
             for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
                 if(!listNew.contains(a.getPrivilegeId())){
                     listNew.add(a.getPrivilegeId());
@@ -330,7 +329,9 @@ public class BusinessModule extends BaseController {
             for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
                 listOld.add(b.getPrivilegeId());
             }
+            //对新加的权限商家之前已经拥有的，去重处理
             listNew.removeAll(listOld);
+
             List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
             for (int i = 0; i < listNew.size(); ++i) {
                 AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
