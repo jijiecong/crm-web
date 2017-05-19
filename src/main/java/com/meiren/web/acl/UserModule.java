@@ -47,6 +47,8 @@ public class UserModule extends BaseController {
     @Autowired
     protected AclBusinessService aclBusinessService;
 
+    String userRoleAll = "meiren.acl.user.all";
+
     private String[] necessaryParam = {
             "userName",
             "mobile",
@@ -65,6 +67,11 @@ public class UserModule extends BaseController {
     public ApiResult resign(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long userId = RequestUtil.getLong(request, "id");
             if (userId == null) {
                 result.setError("id not null");
@@ -102,6 +109,11 @@ public class UserModule extends BaseController {
                                  HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long userId = RequestUtil.getLong(request, "userId");
             if (userId == null) {
                 result.setError("id not null");
@@ -172,6 +184,11 @@ public class UserModule extends BaseController {
                                       HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long initId = RequestUtil.getLong(request, "dataId");
             Long selectedId = RequestUtil.getLong(request, "selectedId");
             Long uid = RequestUtil.getLong(request, "uid");
@@ -279,6 +296,11 @@ public class UserModule extends BaseController {
                                  HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long initId = RequestUtil.getLong(request, "dataId");
             Long selectedId = RequestUtil.getLong(request, "selectedId");
             Long uid = RequestUtil.getLong(request, "uid");
@@ -385,6 +407,11 @@ public class UserModule extends BaseController {
     public ApiResult hierarchySet(HttpServletRequest request, HttpServletResponse response, AclUserEntity aclUserEntity) {
         ApiResult result = new ApiResult();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long id = this.checkId(request);
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("hierarchyId", aclUserEntity.getHierarchyId());
@@ -407,7 +434,7 @@ public class UserModule extends BaseController {
      */
     @RequestMapping("/index")
     public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult apiResult = new ApiResult();
+
         String page = request.getParameter("page") == null ? "1" : request
                 .getParameter("page");
         ModelAndView modelAndView = new ModelAndView();
@@ -433,7 +460,8 @@ public class UserModule extends BaseController {
         }
         modelAndView.addObject("businessId", businessId);
         searchParamMap.put("businessId", businessId);
-        apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
+
+        ApiResult apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
 
         String message = this.checkApiResult(apiResult);
         if (message != null) {
@@ -450,7 +478,8 @@ public class UserModule extends BaseController {
             List<AclUserEntity> resultList = (List<AclUserEntity>) resultMap.get("data");
             modelAndView.addObject("basicVOList", resultList);
         }
-
+        boolean isUserManager = this.checkToken(user, userRoleAll);
+        modelAndView.addObject("isUserManager", isUserManager);
         modelAndView.addObject("curPage", pageNum);
         modelAndView.addObject("pageSize", pageSize);
         modelAndView.addObject("inSide", isInside);
@@ -460,7 +489,7 @@ public class UserModule extends BaseController {
     }
 
     /**
-     * 删除单个       --禁用
+     * 删除单个
      *
      * @param request
      * @param response
@@ -472,6 +501,11 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> delMap = new HashMap<>();
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             Long id = this.checkId(request);
             delMap.put("id", id);
             result = aclUserService.deleteAclUser(delMap);
@@ -495,6 +529,11 @@ public class UserModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> delMap = new HashMap<>();
         try {
+            AclUserEntity userEntity = this.getUser(request);
+            if (!this.hasUserAll(userEntity)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             UserStatusEnum userStatusEnum = !status.toLowerCase().equals("disable") ? UserStatusEnum.NORMAL : UserStatusEnum.DISABLE;
             Long id = this.checkId(request);
             delMap.put("id", id);
@@ -524,6 +563,11 @@ public class UserModule extends BaseController {
         String[] ids = request.getParameterValues("ids[]");
         List<String> idsList = Arrays.asList(ids);
         try {
+            AclUserEntity user = this.getUser(request);
+            if (!this.hasUserAll(user)) {
+                result.setError("您没有权限操作用户！");
+                return result;
+            }
             delMap.put("inIds", idsList);
             result = aclUserService.deleteAclUser(delMap);
         } catch (Exception e) {
@@ -596,6 +640,7 @@ public class UserModule extends BaseController {
      * @param response
      * @return
      */
+    @AuthorityToken(needToken = {"meiren.acl.user.all"})
     @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
     @ResponseBody
     public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {

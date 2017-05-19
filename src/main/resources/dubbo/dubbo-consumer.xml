@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
-	   ">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
+       default-autowire="byName">
 
-   <dubbo:application name="${dubbo.application.name}" owner="programmer" organization="dubbox"/>
-   <dubbo:registry address="${dubbo.registry.address}" timeout="20000"/>
-
-	<!-- 权限审批 -->
+    <!-- 权限审批 -->
     <dubbo:reference id="aclApiService" interface="com.meiren.acl.api.AclApiService" check="false"/>
     <dubbo:reference id="aclApplyService"   interface="com.meiren.acl.service.AclApplyService" check="false"/>
     <dubbo:reference id="aclProcessService" interface="com.meiren.acl.service.AclProcessService" check="false"/>
     <dubbo:reference id="aclProcessModelService" interface="com.meiren.acl.service.AclProcessModelService" check="false"/>
-	<dubbo:reference id="aclGroupLeaderService" interface="com.meiren.acl.service.AclGroupLeaderService" check="false"/>
+    <dubbo:reference id="aclGroupLeaderService" interface="com.meiren.acl.service.AclGroupLeaderService" check="false"/>
     <dubbo:reference id="aclHierarchyService" interface="com.meiren.acl.service.AclHierarchyService" check="false"/>
-	<dubbo:reference id="aclApprovalService" interface="com.meiren.acl.service.AclApprovalService" check="false"/>
-	<dubbo:reference id="aclPrivilegeProcessService" interface="com.meiren.acl.service.AclPrivilegeProcessService" check="false"/>
-	<dubbo:reference id="aclRoleProcessService" interface="com.meiren.acl.service.AclRoleProcessService" check="false"/>
-	<dubbo:reference id="aclGroupHasRoleService" interface="com.meiren.acl.service.AclGroupHasRoleService" check="false"/>
-    
+    <dubbo:reference id="aclApprovalService" interface="com.meiren.acl.service.AclApprovalService" check="false"/>
+    <dubbo:reference id="aclPrivilegeProcessService" interface="com.meiren.acl.service.AclPrivilegeProcessService" check="false"/>
+    <dubbo:reference id="aclRoleProcessService" interface="com.meiren.acl.service.AclRoleProcessService" check="false"/>
+    <dubbo:reference id="aclGroupHasRoleService" interface="com.meiren.acl.service.AclGroupHasRoleService" check="false"/>
+
     <!--用户-权限-->
     <dubbo:reference id="aclUserService" interface="com.meiren.acl.service.AclUserService"  check="false"/>
     <dubbo:reference id="aclPrivilegeService" interface="com.meiren.acl.service.AclPrivilegeService" check="false"/>
@@ -31,22 +27,15 @@
     <dubbo:reference id="aclGroupService" interface="com.meiren.acl.service.AclGroupService" check="false"/>
     <dubbo:reference id="aclGroupHasPrivilegeService" interface="com.meiren.acl.service.AclGroupHasPrivilegeService" check="false"/>
     <dubbo:reference id="aclGroupHasUserService" interface="com.meiren.acl.service.AclGroupHasUserService" check="false"/>
- 	<dubbo:reference id="aclPrivilegeOwnerService" interface="com.meiren.acl.service.AclPrivilegeOwnerService" check="false"/>
- 	<dubbo:reference id="aclSignedService" interface="com.meiren.acl.service.AclSignedService" check="false"/>
- 	<dubbo:reference id="aclBizService" interface="com.meiren.acl.service.AclBizService" check="false"/>
- 	<dubbo:reference id="aclBizHasRoleService" interface="com.meiren.acl.service.AclBizHasRoleService" check="false"/>
- 	<dubbo:reference id="aclRoleOwnerService" interface="com.meiren.acl.service.AclRoleOwnerService" check="false"/>
- 	<dubbo:reference id="aclBizOwnerService" interface="com.meiren.acl.service.AclBizOwnerService" check="false"/>
- 	<dubbo:reference id="aclBizHasPrivilegeService" interface="com.meiren.acl.service.AclBizHasPrivilegeService" check="false"/>
+    <dubbo:reference id="aclPrivilegeOwnerService" interface="com.meiren.acl.service.AclPrivilegeOwnerService" check="false"/>
+    <dubbo:reference id="aclSignedService" interface="com.meiren.acl.service.AclSignedService" check="false"/>
+    <dubbo:reference id="aclBizService" interface="com.meiren.acl.service.AclBizService" check="false"/>
+    <dubbo:reference id="aclBizHasRoleService" interface="com.meiren.acl.service.AclBizHasRoleService" check="false"/>
+    <dubbo:reference id="aclRoleOwnerService" interface="com.meiren.acl.service.AclRoleOwnerService" check="false"/>
+    <dubbo:reference id="aclBizOwnerService" interface="com.meiren.acl.service.AclBizOwnerService" check="false"/>
+    <dubbo:reference id="aclBizHasPrivilegeService" interface="com.meiren.acl.service.AclBizHasPrivilegeService" check="false"/>
     <dubbo:reference id="aclBusinessService" interface="com.meiren.acl.service.AclBusinessService"  check="false"/>
     <dubbo:reference id="aclBusinessHasPrivilegeService" interface="com.meiren.acl.service.AclBusinessHasPrivilegeService" check="false"/>
 
-    <!-- 监控 -->
-    <dubbo:reference id="pavepawsMonitorConfigService" interface="com.meiren.monitor.service.PavepawsMonitorConfigService" check="false"/>
-    <dubbo:reference id="pavepawsMonitorResultService" interface="com.meiren.monitor.service.PavepawsMonitorResultService" check="false"/>
-    <dubbo:reference id="notifyTemplateService" interface="com.meiren.monitor.service.NotifyTemplateService" check="false"/>
-    <dubbo:reference id="notifyService" interface="com.meiren.monitor.service.NotifyService" check="false"/>
-    <dubbo:reference id="notifyLogService" interface="com.meiren.monitor.service.NotifyLogService" check="false"/>
-    <dubbo:reference id="pavepawsMonitorConfigHasUserService" interface="com.meiren.monitor.service.PavepawsMonitorConfigHasUserService" check="false"/>
 
 </beans>

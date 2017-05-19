@@ -1,7 +1,8 @@
 package com.meiren.vo;
 
 /**
- * Created by zouli on 17/2/17.
+ * author:zouli
+ * 2017/05/15 10:27
  */
 public class SelectVO {
     private Long id;
