@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.index"})
-@Controller
+@Controller("UserModule2")
 @RequestMapping("acl/user")
 public class UserModule extends BaseController {
 

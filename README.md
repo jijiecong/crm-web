@@ -60,6 +60,8 @@ npm run dev
 npm run build
 ```
 所有的views页面,都会被打包压缩,默认打包路径src/main/webapp/dist下
+发布后页面浏览路径是
+http://crm.backend.adnonstop.com/dist/index.html#/
 
 ### 配置修改
 

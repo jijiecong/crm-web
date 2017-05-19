@@ -33,7 +33,7 @@ import java.util.*;
  */
 
 @AuthorityToken(needToken = {"meiren.acl.all.superAdmin", "meiren.acl.mbc.crm.acl.business.index"})
-@Controller
+@Controller("BusinessModule2")
 @RequestMapping("acl/business")
 public class BusinessModule extends BaseController {
 
