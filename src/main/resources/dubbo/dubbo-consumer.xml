@@ -38,7 +38,7 @@
  	<dubbo:reference id="aclRoleOwnerService" interface="com.meiren.acl.service.AclRoleOwnerService" check="false"/>
  	<dubbo:reference id="aclBizOwnerService" interface="com.meiren.acl.service.AclBizOwnerService" check="false"/>
  	<dubbo:reference id="aclBizHasPrivilegeService" interface="com.meiren.acl.service.AclBizHasPrivilegeService" check="false"/>
-    <dubbo:reference id="aclBusinessService" interface="com.meiren.acl.service.AclBusinessService"  check="false"/>
+    <dubbo:reference id="aclBusinessService" interface="com.meiren.acl.service.AclBusinessService"  check="false" />
     <dubbo:reference id="aclBusinessHasPrivilegeService" interface="com.meiren.acl.service.AclBusinessHasPrivilegeService" check="false"/>
 
     <!-- 监控 -->

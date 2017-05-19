@@ -5,9 +5,9 @@
         background-color: #1ab394;
         border-color: #1ab394;
         color: #fff;
-        height:33px;
-        width:100px;
-        border:none;
+        height: 33px;
+        width: 100px;
+        border: none;
     }
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -33,7 +33,8 @@
                         <span class="help-inline">用户昵称：</span>
                         <input type="text" class="m-wrap small" name="nickname" id="nickname" value=$!nickname>
                         <button type="submit" class="search-btn btns">搜 索</button>
-                        <a href="/acl/user/goTo/add" class="btn add" style="background-color:#E0E0E0;color: #1a1a1a;margin-left:30px;border-radius: 6px !important; ">
+                        <a href="/acl/user/goTo/add" class="btn add"
+                           style="background-color:#E0E0E0;color: #1a1a1a;margin-left:30px;border-radius: 6px !important; ">
                             <i class="icon-pencil"></i> 添 加</a>
                     </div>
                 </form>
@@ -61,8 +62,15 @@
                             <td>$!basicVO.email</td>
                             <td>
                                 <div class="btn-group roll-nav roll-right">
-                                     <a href="/acl/user/goTo/modify?id=${basicVO.id}" data-uid="$!basicVO.id"
-                                       class="btn edit" style="border-radius:6px !important;margin-right: 10px;height:18px"> 修改</a>
+                                    <a href="/acl/user/goTo/modify?id=${basicVO.id}" data-uid="$!basicVO.id"
+                                       class="btn edit"
+                                       style="border-radius:6px !important;margin-right: 10px;height:18px"> 修改</a>
+                                    #if($!isUserManager)
+                                        <a href="#myModal3" data-toggle="modal" data-uid="$!basicVO.id"
+                                           class="btn del"
+                                           style="border-radius:6px !important;margin-right: 10px;height:18px">
+                                            <i class="icon-trash"></i> 删除</a>
+                                    #end
                                     <button class="dropdown J_tabClose btns" data-toggle="dropdown">用户操作<span
                                             class="caret"></span>
                                     </button>
