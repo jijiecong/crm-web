@@ -30,8 +30,6 @@ public class MonitorConfigModule extends BaseController {
     @Autowired
     protected PavepawsMonitorConfigService configService;
     @Autowired
-    protected PavepawsMonitorResultService resultService;
-    @Autowired
     protected PavepawsMonitorConfigHasUserService configHasUserService;
 
     private String[] necessaryParam = {

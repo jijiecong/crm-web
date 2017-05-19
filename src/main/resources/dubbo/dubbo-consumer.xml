@@ -37,5 +37,11 @@
     <dubbo:reference id="aclBusinessService" interface="com.meiren.acl.service.AclBusinessService"  check="false"/>
     <dubbo:reference id="aclBusinessHasPrivilegeService" interface="com.meiren.acl.service.AclBusinessHasPrivilegeService" check="false"/>
 
-
+    <!-- 监控 -->
+    <dubbo:reference id="pavepawsMonitorConfigService" interface="com.meiren.monitor.service.PavepawsMonitorConfigService" check="false"/>
+    <dubbo:reference id="pavepawsMonitorResultService" interface="com.meiren.monitor.service.PavepawsMonitorResultService" check="false"/>
+    <dubbo:reference id="pavepawsMonitorConfigHasUserService" interface="com.meiren.monitor.service.PavepawsMonitorConfigHasUserService" check="false"/>
+    <dubbo:reference id="notifyTemplateService" interface="com.meiren.monitor.service.NotifyTemplateService" check="false"/>
+    <dubbo:reference id="notifyService" interface="com.meiren.monitor.service.NotifyService" check="false"/>
+    <dubbo:reference id="notifyLogService" interface="com.meiren.monitor.service.NotifyLogService" check="false"/>
 </beans>

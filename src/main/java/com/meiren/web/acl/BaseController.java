@@ -8,6 +8,7 @@ import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.sso.web.SsoHelper;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,10 +31,14 @@ public class BaseController {
     @Autowired
     protected AclBusinessService aclBusinessService;
 
+    SessionUserVO getUser(HttpServletRequest request) {
+        return com.meiren.utils.RequestUtil.getSessionUser(request);
+    }
+
     /**
      * 查询当前是否是应用owner,并返回应用id
      */
-    public List<Long> getBizIdsByBizOwner(AclUserEntity user) {
+    public List<Long> getBizIdsByBizOwner(SessionUserVO user) {
         List<Long> inBizIds = new ArrayList<>();
         Map<String, Object> whereBiz = new HashMap<>();
         whereBiz.put("ownerId", user.getId());
@@ -51,7 +56,7 @@ public class BaseController {
      * @param user
      * @return
      */
-    public List<Long> getBizHasRoleIdsByBizOwner(AclUserEntity user) {
+    public List<Long> getBizHasRoleIdsByBizOwner(SessionUserVO user) {
         List<Long> roleIds = new ArrayList<>();
         List<Long> bizIds = this.getBizIdsByBizOwner(user);
         Map<String, Object> whereBiz = new HashMap<>();
@@ -72,7 +77,7 @@ public class BaseController {
      * @param user
      * @return
      */
-    public List<Long> getRoleIdsByRoleOwner(AclUserEntity user) {
+    public List<Long> getRoleIdsByRoleOwner(SessionUserVO user) {
         List<Long> ids = new ArrayList<>();
         Map<String, Object> wherOwner = new HashMap<String, Object>();
         wherOwner.put("ownerId", user.getId());
@@ -90,7 +95,7 @@ public class BaseController {
      * @param user
      * @return
      */
-    public List<Long> getAllRoleIdsByRoleOwner(AclUserEntity user) {
+    public List<Long> getAllRoleIdsByRoleOwner(SessionUserVO user) {
         //获取该用户是角色owner的角色id
         List<Long> roleIds = this.getRoleIdsByRoleOwner(user);  //角色owner
         //获取该用户如果是bizOwner的时候,biz下的所有角色id
@@ -100,7 +105,7 @@ public class BaseController {
         return roleIds;
     }
 
-    public boolean checkToken(AclUserEntity user, String token) {
+    public boolean checkToken(SessionUserVO user, String token) {
         if (user == null || StringUtils.isBlank(token)) {
             return false;
         }
@@ -108,9 +113,9 @@ public class BaseController {
         return !StringUtils.isBlank(tokenMap.get(token));
     }
 
-    public AclUserEntity getUser(HttpServletRequest request) {
-        return (AclUserEntity) request.getSession().getAttribute("user");
-    }
+/*    public SessionUserVO getUser(HttpServletRequest request) {
+        return (SessionUserVO) request.getSession().getAttribute("user");
+    }*/
 
     public Map<String, Object> converRequestMap(Map<String, String[]> paramMap) {
         return this.converRequestMap(paramMap, new String[]{});
@@ -206,7 +211,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-    public Boolean hasPrivilegeAuthorized(AclUserEntity user){
+    public Boolean hasPrivilegeAuthorized(SessionUserVO user){
     	return this.checkToken(user, PrivilegeTokenEnum.PRIVILEGE_AUTHORIZED.typeName);
     }
 
@@ -215,7 +220,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasPrivilegeAll(AclUserEntity user) {
+	public Boolean hasPrivilegeAll(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.PRIVILEGE_ALL.typeName);
 	}
 
@@ -224,7 +229,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasRoleAuthorized(AclUserEntity user) {
+	public Boolean hasRoleAuthorized(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.ROLE_AUTHORIZED.typeName);
 	}
 
@@ -233,7 +238,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasRoleAll(AclUserEntity user) {
+	public Boolean hasRoleAll(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.ROLE_ALL.typeName);
 	}
 
@@ -242,7 +247,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasSuperAdmin(AclUserEntity user) {
+	public Boolean hasSuperAdmin(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.SUPERADMIN.typeName);
 	}
 
@@ -251,7 +256,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasUserAll(AclUserEntity user) {
+	public Boolean hasUserAll(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.USER_ALL.typeName);
 	}
 
@@ -260,7 +265,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-	public Boolean hasGroupAll(AclUserEntity user) {
+	public Boolean hasGroupAll(SessionUserVO user) {
 		return this.checkToken(user, PrivilegeTokenEnum.GROUP_ALL.typeName);
 	}
 
@@ -269,7 +274,7 @@ public class BaseController {
      * TODO JIJC
      *
      * */
-    public Boolean isMeiren(AclUserEntity user) {
+    public Boolean isMeiren(SessionUserVO user) {
         AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(user.getBusinessId()).getData();
         return aclBusinessEntity.getToken().equals(BusinessEnum.INSIDE.name);
     }
