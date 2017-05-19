@@ -83,23 +83,23 @@ const routes = [{
     components: {default: resolve => require(['pages/hierarchy/save'], resolve)},
   },
   // 层级管理路由   结束
-
-  // 商家管理路由   开始
-  {
-    path: '/business/base', name: 'businessBase',
-    meta: {title: "商家列表"},
-    components: {default: resolve => require(['pages/business/base'], resolve)},
-  }, {
-    path: '/business/add', name: 'businessAdd',
-    meta: {title: "添加商家"},
-    components: {default: resolve => require(['pages/business/save'], resolve)},
-  },
-  {
-    path: '/business/update/:id', name: 'businessUpdate',
-    meta: {title: "修改商家"},
-    components: {default: resolve => require(['pages/business/save'], resolve)},
-  },
-  // 商家管理路由   结束
+  //
+  // // 商家管理路由   开始
+  // {
+  //   path: '/business/base', name: 'businessBase',
+  //   meta: {title: "商家列表"},
+  //   components: {default: resolve => require(['pages/business/base'], resolve)},
+  // }, {
+  //   path: '/business/add', name: 'businessAdd',
+  //   meta: {title: "添加商家"},
+  //   components: {default: resolve => require(['pages/business/save'], resolve)},
+  // },
+  // {
+  //   path: '/business/update/:id', name: 'businessUpdate',
+  //   meta: {title: "修改商家"},
+  //   components: {default: resolve => require(['pages/business/save'], resolve)},
+  // },
+  // // 商家管理路由   结束
 
   {
     path: '/table/base', name: 'tableBase',
@@ -121,22 +121,6 @@ const routes = [{
     components: {fullView: resolve => require(['pages/error/404'], resolve)}
   },
 
-  // 商家管理路由   开始
-  {
-    path: '/business/base', name: 'businessBase',
-    meta: {title: "商家列表"},
-    components: {default: resolve => require(['pages/business/base'], resolve)},
-  }, {
-    path: '/business/update/:id', name: 'businessUpdate',
-    meta: {title: "商家修改"},
-    components: {default: resolve => require(['pages/business/save'], resolve)},
-  }, {
-    path: '/business/add', name: 'businessAdd',
-    meta: {title: "添加用户"},
-    components: {default: resolve => require(['pages/business/save'], resolve)},
-  },
-
-// 商家管理路由   结束
 ]
 
 
