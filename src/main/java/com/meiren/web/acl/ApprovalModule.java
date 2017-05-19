@@ -7,12 +7,12 @@ import com.meiren.acl.service.AclApprovalService;
 import com.meiren.acl.service.AclPrivilegeService;
 import com.meiren.acl.service.AclSignedService;
 import com.meiren.acl.service.entity.AclSignedEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.acl.service.entity.ApprovalJoinApplyEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,7 +62,7 @@ public class ApprovalModule extends BaseController {
         int pageSize = DEFAULT_ROWS;
         Map<String, Object> searchParamMap = new HashMap<>();
 
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
         if (user.getId() != null) {
             searchParamMap.put("approverId", user.getId());
         } else {
@@ -151,7 +151,7 @@ public class ApprovalModule extends BaseController {
     public ApiResult agentFind(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("userId", user.getId());
             List<AclSignedEntity> list = (List<AclSignedEntity>)
@@ -177,7 +177,7 @@ public class ApprovalModule extends BaseController {
     public ApiResult signedSet(HttpServletRequest request, HttpServletResponse response) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             String toUserId = request.getParameter("toUserId");
             Integer isUsed = RequestUtil.getInteger(request, "isUsed");
             if (toUserId==null||StringUtils.isBlank(toUserId)){
@@ -213,7 +213,7 @@ public class ApprovalModule extends BaseController {
             Long id = RequestUtil.getLong(request, "id");
             ApprovalResultEnum resultEnum = Objects.equals(type, "pass") ? ApprovalResultEnum.PASS : ApprovalResultEnum.NOT_PASS;
             //需要事物处理,放入一个service
-            
+
             result = aclApplyService.updateAclApprovalResult(id, resultEnum,this.getUser(request).getId());
         } catch (Exception e) {
             result.setError(e.getMessage());

@@ -2,9 +2,9 @@ package com.meiren.web.acl;
 
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.AclGroupEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.RequestUtil;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,7 +87,7 @@ public class SearchModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> map = new HashMap<String, Object>();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             switch (type) {
                 case "notUsed":
                     map.put("nicknameLike", RequestUtil.getStringTrans(request, "q"));
@@ -128,7 +128,7 @@ public class SearchModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             if (Objects.equals(type, "init")) {
                 Long id = this.checkId(request);
                 if (id == 0) {
@@ -166,7 +166,7 @@ public class SearchModule extends BaseController {
     public ApiResult select2biz(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "init":
@@ -197,7 +197,7 @@ public class SearchModule extends BaseController {
     public ApiResult role(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "query":

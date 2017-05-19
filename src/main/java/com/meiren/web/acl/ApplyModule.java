@@ -3,10 +3,10 @@ package com.meiren.web.acl;
 import com.meiren.acl.enums.ApplyTypeEnum;
 import com.meiren.acl.service.AclApplyService;
 import com.meiren.acl.service.entity.AclApplyEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,7 +54,7 @@ public class ApplyModule extends BaseController {
             modelAndView.addObject("searchTitle", request.getParameter("searchTitle"));
         }
 
-        AclUserEntity user = this.getUser(request);
+        SessionUserVO user = this.getUser(request);
         if (user.getId() != null) {
             searchParamMap.put("userId", user.getId());
         } else {
@@ -119,7 +119,7 @@ public class ApplyModule extends BaseController {
     public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclApplyEntity aclApplyEntity, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity user = this.getUser(request);
+            SessionUserVO user = this.getUser(request);
             aclApplyEntity.setUserId(user.getId());
             switch (type) {
                 case "add":
