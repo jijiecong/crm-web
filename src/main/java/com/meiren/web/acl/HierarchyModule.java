@@ -2,197 +2,123 @@ package com.meiren.web.acl;
 
 import com.meiren.acl.service.AclHierarchyService;
 import com.meiren.acl.service.entity.AclHierarchyEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
-import com.meiren.common.utils.StringUtils;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.HierarchyVO;
+import com.meiren.vo.SessionUserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
-@Controller("HierarchyModule2")
-@RequestMapping("/acl/hierarchy")
+@Controller
+@RequestMapping("{uuid}/acl/hierarchy")
+@ResponseBody
 public class HierarchyModule extends BaseController {
 
     @Autowired
     protected AclHierarchyService aclHierarchyService;
 
-    private String[] necessaryParam = {
-            "hierarchyName",
-            "hierarchyValue",
-            "sort",
-    };
-
     /**
      * 列表
      * @param request
-     * @param response
      * @return
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request,HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/hierarchy/index");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        AclUserEntity user = this.getUser(request);
+        searchParamMap.put("hierarchyNameLike", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        ApiResult apiResult = aclHierarchyService.searchAclHierarchy(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+    }
+
+    /**
+     * 查找用户
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/find", method = RequestMethod.GET)
+    public VueResult find(HttpServletRequest request) {
+        VueResult result = new VueResult();
+        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
         //搜索名称和对应值
-        Map<String, String> mapPrams = new HashMap<>();
-        mapPrams.put("hierarchyNameLike", "hierarchyName"); //模糊查询
-        this.mapPrams(request,mapPrams,searchParamMap,modelAndView);
+        ApiResult apiResult = aclHierarchyService.findAclHierarchy(id);
+        AclHierarchyEntity hierarchyEntity = (AclHierarchyEntity) apiResult.getData();
+        HierarchyVO vo = this.entityToVo(hierarchyEntity);
+        result.setData(vo);
+        return result;
+    }
 
-        ApiResult apiResult = aclHierarchyService.searchAclHierarchy(searchParamMap, pageNum, pageSize);
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
+    /**
+     * 添加编辑层级
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public VueResult save(HttpServletRequest request, HierarchyVO vo) throws Exception {
+        VueResult result = new VueResult();
+        Long id = RequestUtil.getLong(request, "id");
+        if (id != null) {
+            aclHierarchyService.updateAclHierarchy(id, ObjectUtils.entityToMap(vo));
+        } else {
+            aclHierarchyService.createAclHierarchy(this.voToEntity(vo));
         }
+        result.setData("操作成功！");
+        return result;
+    }
 
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
+    private HierarchyVO entityToVo(AclHierarchyEntity entity) {
+        HierarchyVO vo = new HierarchyVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
+    }
 
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-
-        if (resultMap.get("data") != null) {
-            List<AclHierarchyEntity> resultList = (List<AclHierarchyEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
+    private AclHierarchyEntity voToEntity(HierarchyVO vo) {
+        AclHierarchyEntity entity = new AclHierarchyEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
     }
 
     /**
      * 删除单个
      * @param request
-     * @param response
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        AclUserEntity user = this.getUser(request);
+    public VueResult delete(HttpServletRequest request) {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
         if(!this.hasSuperAdmin(user)){
             result.setError("您没有权限操作层级！");
             return result;
         }
         Map<String, Object> delMap = new HashMap<>();
-        try {
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            result = aclHierarchyService.deleteAclHierarchy(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        Long id = com.meiren.utils.RequestUtil.getLong(request,"id");
+        delMap.put("id", id);
+        aclHierarchyService.deleteAclHierarchy(delMap);
+        result.setData("操作成功！");
         return result;
-    }
-
-    /**
-     * 查找单个
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclHierarchyService.findAclHierarchy(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 添加/修改
-     * @param request
-     * @param response
-     * @param aclHierarchyEntity
-     * @return
-     */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclHierarchyEntity aclHierarchyEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if(!this.hasSuperAdmin(user)){
-                result.setError("您没有权限操作层级！");
-                return result;
-            }
-            String id = request.getParameter("id");
-            this.checkParamMiss(request, this.necessaryParam);
-            if (!StringUtils.isBlank(id)) {
-                Map<String, Object> paramMap = this.converRequestMap(request.getParameterMap());
-                result = aclHierarchyService.updateAclHierarchy(Long.valueOf(id), paramMap);
-            } else {
-                if(!this.isMeiren(user)){
-                    aclHierarchyEntity.setBusinessId(user.getBusinessId());
-                }
-                result = aclHierarchyService.createAclHierarchy(aclHierarchyEntity);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 跳转添加/修改页面
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @AuthorityToken(needToken = {"meiren.acl.all.superAdmin"})
-    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-    @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
-        ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity user = this.getUser(request);
-        switch (type) {
-            case "add":
-                modelAndView.addObject("title","添加层级");
-                modelAndView.addObject("id", "");
-                modelAndView.setViewName("acl/hierarchy/edit");
-                break;
-            case "modify":
-                modelAndView.addObject("title", "编辑层级");
-                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                modelAndView.setViewName("acl/hierarchy/edit");
-                break;
-        }
-        return modelAndView;
     }
 }
