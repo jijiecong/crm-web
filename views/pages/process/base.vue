@@ -21,7 +21,7 @@
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'privilegeAdd'}" tag="span">
+            <router-link :to="{name: 'processAdd'}" tag="span">
               <el-button type="primary" icon="plus" size="small">添加数据</el-button>
             </router-link>
           </div>
@@ -50,12 +50,12 @@
           label="名称">
         </el-table-column>
         <el-table-column
-          prop="token"
-          label="token">
+          prop="approvalLevel"
+          label="审核级别">
         </el-table-column>
         <el-table-column
-          prop="riskLevel"
-          label="风险等级">
+          prop="hierarchyId"
+          label="最高层级">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -66,21 +66,9 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
               <el-col :span="13">
-                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)">
+                <el-button type="info" size="small" icon="edit" @click="to_router('processUpdate',props.row)">
                   修改
-                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
-                    <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeProcess',props.row)">
-                        <span>设置审核流程</span>
-                      </a>
-                    </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a @click="to_router('setPrivilegeOwner',props.row)">
-                      <span>设置权限owner</span>
-                    </a>
-                  </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
+                </el-button>
               </el-col>
             </el-row>
           </template>
@@ -111,7 +99,7 @@
 </template>
 <script type="text/javascript">
   import {panelTitle, bottomToolBar} from 'components'
-  import {request_privilege as request_uri} from 'common/request_api'
+  import {request_process} from 'common/request_api'
 
   export default{
     data(){
@@ -148,7 +136,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_uri.list, {
+        this.$http.get(request_process.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -169,7 +157,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.del, {id: item.id})
+          let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_process.del, param)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
@@ -192,7 +181,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.batch_del, this.batch_select)
+          this.$http.post(request_process.batch_del, this.batch_select)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")

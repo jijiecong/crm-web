@@ -10,8 +10,9 @@ import com.meiren.acl.service.entity.AclSignedEntity;
 import com.meiren.acl.service.entity.ApprovalJoinApplyEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,7 +31,8 @@ import java.util.Objects;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.approval.index"})
 @Controller
-@RequestMapping("/acl/approval")
+@RequestMapping("{uuid}/acl/approval")
+@ResponseBody
 public class ApprovalModule extends BaseController {
 
     @Autowired
@@ -43,56 +45,27 @@ public class ApprovalModule extends BaseController {
     protected AclSignedService aclSignedService;
 
     /**
-     * 个人审核管理列表
-     * @param request
-     * @param response
-     * @return
+     * 列表
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/approval/index");
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-        Map<String, Object> searchParamMap = new HashMap<>();
-
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
         SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
         if (user.getId() != null) {
             searchParamMap.put("approverId", user.getId());
         } else {
-            modelAndView.addObject("message", "没有登录不能使用此功能");
-            return modelAndView;
+            return new VueResult("没有登录不能使用此功能");
+
         }
 
-        ApiResult apiResult = aclApprovalService.searchAclApprovalJoinApply(searchParamMap, pageNum, pageSize);
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
+        ApiResult apiResult = aclApprovalService.searchAclApprovalJoinApply(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
         }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-        if (resultMap.get("data") != null) {
-            List<ApprovalJoinApplyEntity> resultList = (List<ApprovalJoinApplyEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
+        return new VueResult(rMap);
     }
 
     /**
@@ -128,10 +101,11 @@ public class ApprovalModule extends BaseController {
         try {
             Long id = RequestUtil.getLong(request, "id");
             Long toUserId = RequestUtil.getLong(request, "toUserId");
+            Long userId = this.getUser(request).getId();
             if (Objects.equals(type, "add")) {
-                result = aclApprovalService.updateAclApprovalDoAdd(id, toUserId,this.getUser(request).getId());  //加签
+                result = aclApprovalService.updateAclApprovalDoAdd(id, toUserId,userId);  //加签
             } else {
-                result = aclApprovalService.updateAclApprovalDoChange(id, toUserId,this.getUser(request).getId());  //转签
+                result = aclApprovalService.updateAclApprovalDoChange(id, toUserId,userId);  //转签
             }
         } catch (Exception e) {
             result.setError(e.getMessage());

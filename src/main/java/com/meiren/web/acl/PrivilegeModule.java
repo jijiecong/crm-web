@@ -36,7 +36,6 @@ public class PrivilegeModule extends BaseController {
     @Autowired
     private AclPrivilegeOwnerService aclPrivilegeOwnerService;
 
-    public String privilegeAll = "meiren.acl.privilege.all";
     private String[] necessaryParam = {"name", "token",};
 
     private PrivilegeVO entityToVo(AclPrivilegeEntity entity) {
@@ -92,7 +91,7 @@ public class PrivilegeModule extends BaseController {
         SessionUserVO user = this.getUser(request);
         HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
         searchParamMap.put("userId", user.getId());
-        if (StringUtils.isBlank(id)) {
+        if (!StringUtils.isBlank(id)) {
             searchParamMap.put("privilegeId", Long.valueOf(id));
         }
         boolean canDo = false;
@@ -225,5 +224,109 @@ public class PrivilegeModule extends BaseController {
             result.setData(1);*/
         }
         return result;
+    }
+
+    /**
+     * 设置owner
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+        VueResult result = new VueResult();
+        try {
+            SessionUserVO user = this.getUser(request);
+            if(!this.hasPrivilegeAll(user)){
+                result.setError("您没有权限操作权限！");
+                return result;
+            }
+            Long initId = RequestUtil.getLong(request, "initId");
+            String selectedIds = RequestUtil.getString(request,"selectedIds");
+            String [] selectedIds_arr = null;
+            if(selectedIds != null){
+                selectedIds_arr = selectedIds.split(",");
+            }
+            switch (type) {
+                case "init":
+                    Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
+                    result.setData(data);
+                    break;
+                case "right":
+                    result = this.setOwnerAdd(initId, selectedIds_arr);
+                    break;
+                case "left":
+                    result = this.setOwnerDel(initId, selectedIds_arr);
+                    break;
+                default:
+                    throw new Exception("type not find");
+            }
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
+        for(String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("userId", Long.parseLong(id));
+            delMap.put("privilegeId", initId);
+            aclPrivilegeOwnerService.deleteAclPrivilegeOwner(delMap);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
+        for(String id : selectedIds_arr) {
+            AclPrivilegeOwnerEntity entity = new AclPrivilegeOwnerEntity();
+            entity.setUserId(Long.parseLong(id));
+            entity.setPrivilegeId(initId);
+            aclPrivilegeOwnerService.createAclPrivilegeOwner(entity);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    /**
+     * 查询权限属于某个用户及全部用户
+     *
+     * @param dataId
+     * @return
+     */
+    private Map<String, Object> setOwnerInit(Long dataId, Long businessId) {
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("privilegeId", dataId);
+        List<AclUserEntity> selected = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinPrivilegeOwner(searchParamMap).getData(); // 根据查询权限Id查询用户
+
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("businessId", businessId);
+        List<AclUserEntity> all = (List<AclUserEntity>)
+            aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
+
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        List<SelectVO> selectDataVOs = new ArrayList<>();
+
+        for (AclUserEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId()); // 将信息转换为id name 类型
+            vo.setName(entity.getUserName());
+            selectedVOs.add(vo);
+        }
+        for (AclUserEntity entity : all) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getUserName());
+            selectDataVOs.add(vo);
+        }
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        dataMap.put("selectData", selectDataVOs);
+        return dataMap;
     }
 }

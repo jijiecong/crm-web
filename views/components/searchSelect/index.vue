@@ -2,16 +2,17 @@
   <el-row>
     <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText" v-if="title"></label>
     <el-select class="select-div" :class="{'no-title':title===null}"
-               :value="currentValue"
-               :multiple="multiple"
-               filterable
+               v-model="value9"
                :clearable="clearable"
-               :placeholder="placeholder"
-               :loading="load_data"
+               :multiple="multiple"
                :size="size"
+               filterable
+               remote
+               :placeholder="placeholder"
+               :remote-method="remoteMethod"
                @input="handleInput">
       <el-option
-        v-for="item in options"
+        v-for="item in options4"
         :key="item.id"
         :label="item.name"
         :value="item.id">
@@ -41,13 +42,13 @@
         type: String,
         default: null
       },
-      placeholder: {
-        type: String,
-        default: '请选择'
-      },
       multiple: {
         type: Boolean,
         default: false
+      },
+      placeholder: {
+        type: String,
+        default: '请选择'
       },
       title: {
         type: String,
@@ -60,24 +61,25 @@
     },
     data() {
       return {
-        options: [],
+        options4: [],
+        value9: [],
         load_data: false,
         currentValue: this.value,
       }
     },
-    created(){
-      this.options = this.selectData
-      this.selectUrl && this.get_select_data()
-    },
-    watch: {
-      value(val) {
-        this.setCurrentValue(val)
-      },
-    },
+
     computed: {
       titleText(){
         return this.title + '：'
       }
+    },
+    watch: {
+      currentValue(val) {
+          console.log(val)
+      },
+      value(val) {
+        this.setCurrentValue(val)
+      },
     },
     methods: {
       handleInput(val) {
@@ -90,17 +92,23 @@
         if (value === this.currentValue) return;
         this.currentValue = value;
       },
-      get_select_data(){
-        this.load_data = true
-        this.$http.get(this.selectUrl, {
-          params: this.params
-        }).then(({data}) => {
-          this.options = data
-          this.load_data = false
-        }).catch(() => {
-          this.load_data = false
-        })
-      },
+      remoteMethod(query) {
+        if (query !== '') {
+          this.loading = false;
+          this.$http.get(this.selectUrl, {
+            params: {
+              query: query
+            }
+          }).then(({data}) => {
+            this.options4 = data
+            this.load_data = false
+          }).catch(() => {
+            this.load_data = false
+          });
+        } else {
+          this.options4 = [];
+        }
+      }
     }
   }
 </script>
