@@ -65,7 +65,42 @@ const routes = [{
     meta: {title: "设置审核流程"},
     components: {default: resolve => require(['pages/privilege/setProcess'], resolve)},
   },
+  {
+    path: '/privilege/setOwner/:id', name: 'setPrivilegeOwner',
+    meta: {title: "设置权限owner"},
+    components: {default: resolve => require(['pages/privilege/setOwner'], resolve)},
+  },
   // 权限管理路由   结束
+
+  // 角色管理路由   开始
+  {
+    path: '/role/base', name: 'roleBase',
+    meta: {title: "角色列表"},
+    components: {default: resolve => require(['pages/role/base'], resolve)},
+  }, {
+    path: '/role/update/:id', name: 'roleUpdate',
+    meta: {title: "角色修改"},
+    components: {default: resolve => require(['pages/role/save'], resolve)},
+  }, {
+    path: '/role/add', name: 'roleAdd',
+    meta: {title: "添加角色"},
+    components: {default: resolve => require(['pages/role/save'], resolve)},
+  }, {
+    path: '/role/setProcess/:id', name: 'setroleProcess',
+    meta: {title: "设置审核流程"},
+    components: {default: resolve => require(['pages/role/setProcess'], resolve)},
+  },
+  {
+    path: '/role/setOwner/:id', name: 'setRoleOwner',
+    meta: {title: "设置角色owner"},
+    components: {default: resolve => require(['pages/role/setOwner'], resolve)},
+  },
+  {
+    path: '/role/setRoleHasPrivilege/:id', name: 'setRoleHasPrivilege',
+    meta: {title: "设置角色拥有权限"},
+    components: {default: resolve => require(['pages/role/setRoleHasPrivilege'], resolve)},
+  },
+  // 角色管理路由   结束
 
   // 层级管理路由   开始
   {
@@ -105,6 +140,7 @@ const routes = [{
   },
   // 商家管理路由   结束
 
+<<<<<<< HEAD
   // 部门管理路由   开始
   {
     path: '/group/base', name: 'groupBase',
@@ -146,6 +182,56 @@ const routes = [{
   },
   // 权限查询路由  结束
 
+=======
+  // 审核流程管理路由   开始
+  {
+    path: '/process/base', name: 'processBase',
+    meta: {title: "审核流程列表"},
+    components: {default: resolve => require(['pages/process/base'], resolve)},
+  }, {
+    path: '/process/add', name: 'processAdd',
+    meta: {title: "添加审核流程"},
+    components: {default: resolve => require(['pages/process/save'], resolve)},
+  },
+  {
+    path: '/process/update/:id', name: 'processUpdate',
+    meta: {title: "修改审核流程"},
+    components: {default: resolve => require(['pages/process/save'], resolve)},
+  },
+  // 审核流程管理路由   结束
+
+  // 审核管理路由   开始
+  {
+    path: '/approval/base', name: 'approvalBase',
+    meta: {title: "审核列表"},
+    components: {default: resolve => require(['pages/approval/base'], resolve)},
+  },{
+    path: '/approval/agentEdit', name: 'agentEdit',
+    meta: {title: "设置代签"},
+    components: {default: resolve => require(['pages/approval/agentEdit'], resolve)},
+  },{
+    path: '/approval/changeSign/:id', name: 'changeSign',
+    meta: {title: "转签"},
+    components: {default: resolve => require(['pages/approval/changeSign'], resolve)},
+  },{
+    path: '/approval/addSign/:id', name: 'addSign',
+    meta: {title: "加签"},
+    components: {default: resolve => require(['pages/approval/addSign'], resolve)},
+  },
+  // 审核管理路由   结束
+
+  // 用户角色授权管理路由   开始
+  {
+    path: '/userAndRole/base', name: 'userAndRoleBase',
+    meta: {title: "用户角色授权列表"},
+    components: {default: resolve => require(['pages/userAndRole/base'], resolve)},
+  },{
+    path: '/userAndRole/userRoleEdit/:id', name: 'userRoleEdit',
+    meta: {title: "用户角色授权"},
+    components: {default: resolve => require(['pages/userAndRole/userRoleEdit'], resolve)},
+  },
+  // 用户角色授权管理路由   结束
+>>>>>>> 3ff0b3b60b6eb04fe8aeb1da581fda95f38bcc63
 
   {
     path: '/table/base', name: 'tableBase',

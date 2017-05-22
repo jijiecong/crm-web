@@ -76,6 +76,12 @@
         },{
           title: "商家列表",
           path: "/business/base",
+        }, {
+          title: "审核流程列表",
+          path: "/process/base",
+        },{
+          title: "审核列表",
+          path: "/approval/base",
         },
 //          {
 //            title: "表格管理",

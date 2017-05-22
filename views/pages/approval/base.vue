@@ -21,8 +21,8 @@
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'privilegeAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">添加数据</el-button>
+            <router-link :to="{name: 'agentEdit'}" tag="span">
+              <el-button type="primary" icon="plus" size="small">设置代签</el-button>
             </router-link>
           </div>
         </el-col>
@@ -46,16 +46,36 @@
           width="80">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="名称">
+          prop="approverName"
+          label="审核人">
         </el-table-column>
         <el-table-column
-          prop="token"
-          label="token">
+          prop="userName"
+          label="申请人">
         </el-table-column>
         <el-table-column
-          prop="riskLevel"
-          label="风险等级">
+          prop="applyContent"
+          label="申请描述">
+        </el-table-column>
+        <el-table-column
+          prop="wantName"
+          label="被申请角色/权限">
+        </el-table-column>
+        <el-table-column
+          prop="approvalLevel"
+          label="审核级别">
+        </el-table-column>
+        <el-table-column
+          prop="approvalResultName"
+          label="审核结果">
+        </el-table-column>
+        <el-table-column
+          prop="applyTime"
+          label="申请时间">
+        </el-table-column>
+        <el-table-column
+          prop="approvalTime"
+          label="审核时间">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -66,17 +86,27 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
               <el-col :span="13">
-                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)">
-                  修改
+                <el-dropdown split-button type="info" size="small">
+                  操作
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeProcess',props.row)">
-                        <span>设置审核流程</span>
+                      <a @click="pass(props.row)">
+                        <span>审核通过</span>
                       </a>
                     </el-dropdown-item>
                   <el-dropdown-item>
-                    <a @click="to_router('setPrivilegeOwner',props.row)">
-                      <span>设置权限owner</span>
+                    <a @click="not_pass(props.row)">
+                      <span>审核退回</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('changeSign',props.row)">
+                      <span>转签</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('addSign',props.row)">
+                      <span>加签</span>
                     </a>
                   </el-dropdown-item>
                   </el-dropdown-menu>
@@ -111,7 +141,7 @@
 </template>
 <script type="text/javascript">
   import {panelTitle, bottomToolBar} from 'components'
-  import {request_privilege as request_uri} from 'common/request_api'
+  import {request_approval} from 'common/request_api'
 
   export default{
     data(){
@@ -148,7 +178,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_uri.list, {
+        this.$http.get(request_approval.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -162,14 +192,28 @@
           this.load_data = false
         })
       },
-      //单个删除
-      delete_data(item){
-        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
+      //审核通过
+      pass(item){
+        this.$confirm('审核通过, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.del, {id: item.id})
+          this.$http.post(request_approval.pass, {id: item.id})
+            .then(({data: responseData}) => {
+              this.get_table_data()
+              this.$message.success("操作成功")
+            })
+        })
+      },
+      //审核退回
+      not_pass(item){
+        this.$confirm('审核退回, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http.post(request_approval.notPass, {id: item.id})
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
@@ -185,20 +229,6 @@
       on_batch_select(val){
         this.batch_select = val
       },
-      //批量删除
-      on_batch_del(){
-        this.$confirm('此操作将批量删除选择数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http.post(request_uri.batch_del, this.batch_select)
-            .then(({data: responseData}) => {
-              this.get_table_data()
-              this.$message.success("操作成功")
-            })
-        })
-      }
     }
   }
 </script>

@@ -208,22 +208,22 @@ public class GroupModule extends BaseController {
     private Map<String, Object> setUserInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
-        List<AclUserEntity> selected = (List<AclUserEntity>)
+        List<SessionUserVO> selected = (List<SessionUserVO>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
-        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
+        List<SessionUserVO> all = (List<SessionUserVO>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
-        for (AclUserEntity entity : selected) {
+        for (SessionUserVO entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
             selectedVOs.add(vo);
         }
-        for (AclUserEntity entity : all) {
+        for (SessionUserVO entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
@@ -296,21 +296,21 @@ public class GroupModule extends BaseController {
     private Map<String, Object> setLeaderInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
-        List<AclUserEntity> selected = (List<AclUserEntity>)
+        List<SessionUserVO> selected = (List<SessionUserVO>)
                 aclUserService.loadAclUserJoinGroupLeader(searchParamMap).getData();
-        List<AclUserEntity> all = (List<AclUserEntity>)
+        List<SessionUserVO> all = (List<SessionUserVO>)
                 aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
-        for (AclUserEntity entity : selected) {
+        for (SessionUserVO entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
             selectedVOs.add(vo);
         }
-        for (AclUserEntity entity : all) {
+        for (SessionUserVO entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());

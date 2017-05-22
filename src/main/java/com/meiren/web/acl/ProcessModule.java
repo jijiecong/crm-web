@@ -1,14 +1,23 @@
 package com.meiren.web.acl;
 
 import com.meiren.acl.enums.ApprovalConditionEnum;
+import com.meiren.acl.enums.RiskLevelEnum;
+import com.meiren.acl.enums.RoleStatusEnum;
 import com.meiren.acl.service.AclProcessModelService;
 import com.meiren.acl.service.AclProcessService;
 import com.meiren.acl.service.entity.AclProcessEntity;
 import com.meiren.acl.service.entity.AclProcessModelEntity;
+import com.meiren.acl.service.entity.AclRoleEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.ProcessVO;
+import com.meiren.vo.RoleVO;
+import com.meiren.vo.SessionUserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +32,8 @@ import java.util.Objects;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.process.index","meiren.acl.all.superAdmin"})
 @Controller
-@RequestMapping("/acl/process")
+@RequestMapping("{uuid}/acl/process")
+@ResponseBody
 public class ProcessModule extends BaseController {
 
     @Autowired
@@ -36,56 +46,63 @@ public class ProcessModule extends BaseController {
             "hierarchyId",
             "approvalLevel",
     };
+    private ProcessVO entityToVo(AclProcessEntity entity) {
+        ProcessVO vo = new ProcessVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
+    }
+
+    private AclProcessEntity voToEntity(ProcessVO vo) {
+        AclProcessEntity entity = new AclProcessEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
 
     /**
      * 列表
-     * @param request
-     * @param response
-     * @return
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request,
-                              HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/process/index");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-
-        Map<String, Object> searchParamMap = new HashMap<>();
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索名称和对应值
-        Map<String, String> mapPrams = new HashMap<>();
-        mapPrams.put("processNameLike", "processName");
-        this.mapPrams(request,mapPrams,searchParamMap,modelAndView);
-        ApiResult apiResult = aclProcessService.searchAclProcess(searchParamMap, pageNum, pageSize);
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("processNameLike", RequestUtil.getStringTrans(request, "name"));
+        ApiResult apiResult = aclProcessService.searchAclProcess(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
         }
+        return new VueResult(rMap);
+    }
 
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
+    /**
+     * 查询
+     */
+    @RequestMapping("/find")
+    public VueResult find(HttpServletRequest request) {
+        Long id = RequestUtil.getLong(request, "id");
+        AclProcessEntity entity = (AclProcessEntity) aclProcessService.findAclProcess(id).getData();
+        ProcessVO vo = this.entityToVo(entity);
+        return new VueResult(vo);
+    }
 
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
+    /**
+     * 添加编辑
+     */
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public VueResult save(HttpServletRequest request, ProcessVO vo) throws Exception {
+        VueResult result = new VueResult();
+        this.checkParamMiss(request, this.necessaryParam);
+        String id = request.getParameter("id");
+        if (!StringUtils.isBlank(id)) {
+            Map<String, Object> paramMap = this.converRequestMap(request.getParameterMap());
+            aclProcessService.updateAclProcess(Long.valueOf(id), paramMap);
+        } else {
+            aclProcessService.createAclProcess(this.voToEntity(vo));
         }
-
-        if (resultMap.get("data") != null) {
-            List<AclProcessEntity> resultList = (List<AclProcessEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
+        result.setData("操作成功！");
+        return result;
     }
 
     /**
@@ -94,15 +111,16 @@ public class ProcessModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @RequestMapping(value = "del", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
+    public VueResult delete(HttpServletRequest request, HttpServletResponse response) {
+        VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         try {
             Long id = this.checkId(request);
             delMap.put("id", id);
-            result = aclProcessService.deleteAclProcess(delMap);
+            aclProcessService.deleteAclProcess(delMap);
+            result.setData("操作成功！");
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
@@ -110,54 +128,6 @@ public class ProcessModule extends BaseController {
         return result;
     }
 
-
-    /**
-     * 查找单个
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclProcessService.findAclProcess(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 添加/修改
-     * @param request
-     * @param response
-     * @param aclProcessEntity
-     * @return
-     */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclProcessEntity aclProcessEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            String id = request.getParameter("id");
-            this.checkParamMiss(request, this.necessaryParam);
-            if (!StringUtils.isBlank(id)) {
-                Map<String, Object> paramMap = this.converRequestMap(request.getParameterMap());
-                result = aclProcessService.updateAclProcess(Long.valueOf(id), paramMap);
-            } else {
-                result = aclProcessService.createAclProcess(aclProcessEntity);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-    
     /**
      * 设置权限审核流程模板
      * TODO jijc
@@ -198,7 +168,7 @@ public class ProcessModule extends BaseController {
         }
         return result;
     }
-    
+
     /**
      * 跳转添加/修改页面
      *
@@ -214,27 +184,27 @@ public class ProcessModule extends BaseController {
     	case "add":
     		modelAndView.addObject("title","添加");
     		modelAndView.addObject("id", "");
-    		modelAndView.setViewName("acl/process/edit");     
+    		modelAndView.setViewName("acl/process/edit");
             break;
         case "modify":
         	modelAndView.addObject("title", "编辑");
         	modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-        	modelAndView.setViewName("acl/process/edit");     
+        	modelAndView.setViewName("acl/process/edit");
             break;
         case "modify-low":
         	modelAndView.addObject("title", "编辑低风险模板");
         	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");     
+        	modelAndView.setViewName("acl/process/editModel");
             break;
         case "modify-middle":
         	modelAndView.addObject("title", "编辑中风险模板");
         	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");     
+        	modelAndView.setViewName("acl/process/editModel");
             break;
         case "modify-high":
         	modelAndView.addObject("title", "编辑高风险模板");
         	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");     
+        	modelAndView.setViewName("acl/process/editModel");
             break;
     	}
     	return modelAndView;

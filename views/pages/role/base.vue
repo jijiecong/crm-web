@@ -7,6 +7,10 @@
         <el-col :span="20">
           <form @submit.prevent="on_refresh">
             <el-row :gutter="10">
+              <el-col :span="6" v-if="getUserInfo.inSide">
+                <simple-select :selectUrl="select_url" v-model="search_data.businessId" title="商家"
+                               size="small"></simple-select>
+              </el-col>
               <el-col :span="6">
                 <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
               </el-col>
@@ -21,7 +25,7 @@
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'privilegeAdd'}" tag="span">
+            <router-link :to="{name: 'roleAdd'}" tag="span">
               <el-button type="primary" icon="plus" size="small">添加数据</el-button>
             </router-link>
           </div>
@@ -50,8 +54,8 @@
           label="名称">
         </el-table-column>
         <el-table-column
-          prop="token"
-          label="token">
+          prop="description"
+          label="角色描述">
         </el-table-column>
         <el-table-column
           prop="riskLevel"
@@ -66,17 +70,22 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
               <el-col :span="13">
-                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)">
+                <el-dropdown split-button type="info" size="small" @click="to_router('roleUpdate',props.row)">
                   修改
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeProcess',props.row)">
+                      <a @click="to_router('setRoleProcess',props.row)">
                         <span>设置审核流程</span>
                       </a>
                     </el-dropdown-item>
                   <el-dropdown-item>
-                    <a @click="to_router('setPrivilegeOwner',props.row)">
-                      <span>设置权限owner</span>
+                    <a @click="to_router('setRoleOwner',props.row)">
+                      <span>设置角色owner</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('setRoleHasPrivilege',props.row)">
+                      <span>设置角色权限</span>
                     </a>
                   </el-dropdown-item>
                   </el-dropdown-menu>
@@ -110,12 +119,14 @@
   </div>
 </template>
 <script type="text/javascript">
-  import {panelTitle, bottomToolBar} from 'components'
-  import {request_privilege as request_uri} from 'common/request_api'
+  import {simpleSelect, panelTitle, bottomToolBar} from 'components'
+  import {request_role, request_business} from 'common/request_api'
+  import {mapGetters} from 'vuex'
 
   export default{
     data(){
       return {
+        select_url: request_business.search,
         table_data: null,
         //当前页码
         currentPage: 1,
@@ -127,14 +138,23 @@
         load_data: true,
         //批量选择数组
         batch_select: [],
-        search_data: {},
+        search_data: {
+          businessId: ''
+        },
       }
     },
     components: {
       panelTitle,
-      bottomToolBar
+      bottomToolBar,
+      simpleSelect
+    },
+    computed: {
+      ...mapGetters(['getUserInfo'])
     },
     created(){
+      if (this.getUserInfo.businessId) {
+        this.search_data.businessId = this.getUserInfo.businessId;
+      }
       this.get_table_data()
     },
     methods: {
@@ -148,7 +168,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_uri.list, {
+        this.$http.get(request_role.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -169,7 +189,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.del, {id: item.id})
+          let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_role.del, param)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
@@ -192,7 +213,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.batch_del, this.batch_select)
+          this.$http.post(request_role.batch_del, this.batch_select)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")

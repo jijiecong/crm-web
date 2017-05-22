@@ -378,7 +378,7 @@ public class UserModule extends BaseController {
             entity.setStatus(UserRoleStatusEnum.DELETE.name());
             entity.setUserId(uid);
             entity.setRoleId(Long.parseLong(id));
-            aclUserHasRoleService.deleteAclUserHasRole(com.meiren.common.utils.ObjectUtils.entityToMap(entity));
+            aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.entityToMap(entity));
         }
         return result;
     }
