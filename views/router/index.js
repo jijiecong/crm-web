@@ -98,8 +98,54 @@ const routes = [{
     path: '/business/update/:id', name: 'businessUpdate',
     meta: {title: "修改商家"},
     components: {default: resolve => require(['pages/business/save'], resolve)},
+  }, {
+    path: '/business/businessHasPrivilege/:id', name: 'businessHasPrivilege',
+    meta: {title: "设置部门角色"},
+    components: {default: resolve => require(['pages/business/businessHasPrivilege'], resolve)},
   },
   // 商家管理路由   结束
+
+  // 部门管理路由   开始
+  {
+    path: '/group/base', name: 'groupBase',
+    meta: {title: "部门列表"},
+    components: {default: resolve => require(['pages/group/base'], resolve)},
+  }, {
+    path: '/group/add', name: 'groupAdd',
+    meta: {title: "添加部门"},
+    components: {default: resolve => require(['pages/group/save'], resolve)},
+  },
+  {
+    path: '/group/update/:id', name: 'groupUpdate',
+    meta: {title: "修改部门"},
+    components: {default: resolve => require(['pages/group/save'], resolve)},
+  }, {
+    path: '/group/groupHasUser/:id', name: 'groupHasUser',
+    meta: {title: "设置部门成员"},
+    components: {default: resolve => require(['pages/group/groupHasUser'], resolve)},
+  }, {
+    path: '/group/groupHasLeader/:id', name: 'groupHasLeader',
+    meta: {title: "设置部门Leader"},
+    components: {default: resolve => require(['pages/group/groupHasLeader'], resolve)},
+  }, {
+    path: '/group/groupHasRole/:id', name: 'groupHasRole',
+    meta: {title: "设置部门角色"},
+    components: {default: resolve => require(['pages/group/groupHasRole'], resolve)},
+  },
+  // 部门管理路由   结束
+
+  // 权限查询路由  开始
+  {
+    path: '/searchPrivilege/base', name: 'searchPrivilegeBase',
+    meta: {title: "基本表格"},
+    components: {default: resolve => require(['pages/searchPrivilege/base'], resolve)},
+  }, {
+    path: '/searchPrivilege/add', name: 'searchPrivilegeAdd',
+    meta: {title: "数据修改"},
+    components: {default: resolve => require(['pages/searchPrivilege/save'], resolve)},
+  },
+  // 权限查询路由  结束
+
 
   {
     path: '/table/base', name: 'tableBase',

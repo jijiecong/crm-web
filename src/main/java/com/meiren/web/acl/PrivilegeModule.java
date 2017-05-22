@@ -60,7 +60,7 @@ public class PrivilegeModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索名称和对应值
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("nameOrToken", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("nameOrToken", RequestUtil.getStringTrans(request, "name"));
         ApiResult apiResult = aclPrivilegeService.searchAclPrivilege(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {

@@ -9,6 +9,7 @@ import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.result.VueResultCode;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -23,7 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.index"})
 @Controller
@@ -75,7 +79,27 @@ public class UserModule extends BaseController {
         return new VueResult(rMap);
 
     }
-
+    /**
+     * 删除单个
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public ApiResult delete(HttpServletRequest request) {
+        ApiResult result = new ApiResult();
+        Map<String, Object> delMap = new HashMap<>();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasGroupAll(user)) {
+            result.setError("您没有权限操作用户！");
+            return result;
+        }
+        Long id = RequestUtil.getLong(request, "id");
+        delMap.put("id", id);
+        result = aclUserService.deleteAclUser(delMap);
+        return result;
+    }
     /**
      * 查找用户
      *
@@ -112,7 +136,7 @@ public class UserModule extends BaseController {
         Long id = RequestUtil.getLong(request, "id");
         ApiResult apiResult;
         if (id != null) {
-            apiResult = aclUserService.updateAclUserByPassword(id, com.meiren.common.utils.ObjectUtils.entityToMap(vo));
+            apiResult = aclUserService.updateAclUserByPassword(id, ObjectUtils.entityToMap(vo));
         } else {
             if (vo.getPassword() == null) {
                 return result.setResultCode(VueResultCode.NO_PASSWORD);

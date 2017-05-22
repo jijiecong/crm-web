@@ -69,7 +69,24 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
               <el-col :span="13">
-                <el-button split-button type="info" icon="edit" size="small" @click="to_router('businessUpdate',props.row)">修改</el-button>
+                <el-dropdown
+                  trigger="click"
+                  split-button type="info" size="small"
+                  @click="to_router('businessUpdate',props.row)">
+                  修改
+                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
+                    <el-dropdown-item>
+                      <a @click="to_router('businessHasPrivilege',props.row)">
+                        <span>设置商家权限</span>
+                      </a>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a @click="resign_data(props.row)">
+                        <span>导入角色权限</span>
+                      </a>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </el-col>
             </el-row>
           </template>

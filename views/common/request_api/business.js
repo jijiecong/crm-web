@@ -13,6 +13,8 @@ exports.find = "/acl/business/find"
 exports.del = "/acl/business/del"
 //添加或修改数据
 exports.save = "/acl/business/save"
+//获取商家拥有的权限
+exports.businessHasPrivilege = "/acl/business/businessHasPrivilege"
 
 
 

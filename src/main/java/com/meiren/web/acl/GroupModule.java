@@ -4,17 +4,19 @@ import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
-import com.meiren.common.utils.StringUtils;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.GroupVO;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +27,8 @@ import java.util.Map;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.group.index"})
 @Controller
-@RequestMapping("/acl/group")
+@RequestMapping("{uuid}/acl/group")
+@ResponseBody
 public class GroupModule extends BaseController {
 
     @Autowired
@@ -43,7 +46,7 @@ public class GroupModule extends BaseController {
     @Autowired
     protected AclBusinessService aclBusinessService;
     private String[] necessaryParam = {
-            "name",
+        "name",
     };
 
     /**
@@ -53,58 +56,20 @@ public class GroupModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request,
-                              HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/group/index");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-        SessionUserVO userEntity = this.getUser(request);
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        //搜索名称和对应值
-        Map<String, String> mapPrams = new HashMap<>();
-        mapPrams.put("nameLike", "deptName");
-        this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
-
-        Long businessId = RequestUtil.getLong(request, "businessId");
-        if (businessId == null) {
-            businessId = userEntity.getBusinessId();
+        searchParamMap.put("nicknameLike", RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
+        ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
         }
-        searchParamMap.put("businessId", businessId);
-        modelAndView.addObject("businessId", businessId);
-
-        ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, pageSize);
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
-        }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-
-        if (resultMap.get("data") != null) {
-            List<AclGroupEntity> resultList = (List<AclGroupEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide",this.isMeiren(userEntity));
-
-        return modelAndView;
-
+        return new VueResult(rMap);
     }
 
     /**
@@ -114,24 +79,18 @@ public class GroupModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public ApiResult delete(HttpServletRequest request) {
         ApiResult result = new ApiResult();
         Map<String, Object> delMap = new HashMap<>();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasGroupAll(user)){
-                result.setError("您没有权限操作部门！");
-                return result;
-            }
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            result = aclGroupService.deleteAclGroup(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasGroupAll(user)) {
+            result.setError("您没有权限操作部门！");
             return result;
         }
+        Long id = RequestUtil.getLong(request, "id");
+        delMap.put("id", id);
+        result = aclGroupService.deleteAclGroup(delMap);
         return result;
     }
 
@@ -142,18 +101,20 @@ public class GroupModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclGroupService.findAclGroup(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
+    @RequestMapping(value = "find", method = RequestMethod.GET)
+    public VueResult find(HttpServletRequest request) {
+        Long id = RequestUtil.getLong(request, "id");
+        //搜索名称和对应值
+        ApiResult apiResult = aclGroupService.findAclGroup(id);
+        AclGroupEntity aclGroupEntity = (AclGroupEntity) apiResult.getData();
+        GroupVO vo = this.entityToVo(aclGroupEntity);
+        return new VueResult(vo);
+    }
+
+    private GroupVO entityToVo(AclGroupEntity entity) {
+        GroupVO vo = new GroupVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
     }
 
     /**
@@ -164,60 +125,27 @@ public class GroupModule extends BaseController {
      * @param aclGroupEntity
      * @return
      */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclGroupEntity aclGroupEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            String id = request.getParameter("id");
-            this.checkParamMiss(request, this.necessaryParam);
-            if (!StringUtils.isBlank(id)) {
-                Map<String, Object> paramMap = this.converRequestMap(request.getParameterMap());
-                result = aclGroupService.updateAclGroup(Long.valueOf(id), paramMap);
-            } else {
-                aclGroupEntity.setStatus("NORMAL");
-                if (aclGroupEntity.getPid() == null) {
-                    aclGroupEntity.setPid(0L);
-                }
-                result = aclGroupService.createAclGroup(aclGroupEntity);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    @RequestMapping(value = "save", method = RequestMethod.POST)
+    public VueResult add(HttpServletRequest request, GroupVO vo) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
         }
-        return result;
-    }
-
-    /**
-     * 跳转添加/修改页面
-     * TODO zhangw
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @AuthorityToken(needToken = {"meiren.acl.group.all"})
-    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-    @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
-        ModelAndView modelAndView = new ModelAndView();
-        SessionUserVO userEntity = this.getUser(request);
-        boolean isInside = isMeiren(userEntity);
-        modelAndView.addObject("isInside", isInside);
-        switch (type) {
-            case "add":
-                modelAndView.addObject("title","添加部门");
-                modelAndView.addObject("id", "");
-                modelAndView.addObject("add", "add");
-                modelAndView.addObject("businessId", userEntity.getBusinessId());
-                break;
-            case "modify":
-                modelAndView.addObject("title", "编辑部门");
-                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                break;
+        Long id = RequestUtil.getLong(request, "id");
+        ApiResult apiResult;
+        if (id != null) {
+            apiResult = aclGroupService.updateAclGroup(id, ObjectUtils.entityToMap(vo));
+        } else {
+            apiResult = aclGroupService.createAclGroup(this.voToEntity(vo));
         }
-        modelAndView.setViewName("acl/group/edit");
-        return modelAndView;
+        return new VueResult(apiResult.getData());
+    }
+    private AclGroupEntity voToEntity(GroupVO vo) {
+        AclGroupEntity entity = new AclGroupEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
     }
 
     /**

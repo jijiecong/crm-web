@@ -6,7 +6,6 @@ package com.meiren.vo;
 public class GroupVO {
     private static final long serialVersionUID = 1;
 
-
     /**
      * id.
      */

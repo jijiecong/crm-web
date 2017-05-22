@@ -55,6 +55,9 @@
         }, {
           title: "用户列表",
           path: "/user/base",
+        },{
+          title: "权限查询列表",
+          path: "/searchPrivilege/base",
         }, {
           title: "权限列表",
           path: "/privilege/base",

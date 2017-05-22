@@ -13,4 +13,5 @@ module.exports = {
   request_business: require("./business"),
   request_group: require("./group"),
   request_hierarchy: require("./hierarchy"),
+  request_searchPrivilege: require("./searchPrivilege"),
 }
