@@ -508,7 +508,6 @@ import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.BusinessVO;
-import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -531,6 +530,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 列表
+     *
      * @param request
      * @return
      */
@@ -576,17 +576,11 @@ public class BusinessModule extends BaseController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, BusinessVO vo) throws Exception {
         VueResult result = new VueResult();
-        try {
-            Long id = RequestUtil.getLong(request, "id");
-            if (id != null) {
-                aclBusinessService.updateAclBusiness(id, ObjectUtils.entityToMap(vo));
-            } else {
-                aclBusinessService.createAclBusiness(this.voToEntity(vo));
-            }
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+        Long id = RequestUtil.getLong(request, "id");
+        if (id != null) {
+            aclBusinessService.updateAclBusiness(id, ObjectUtils.entityToMap(vo));
+        } else {
+            aclBusinessService.createAclBusiness(this.voToEntity(vo));
         }
         return result;
     }
@@ -605,6 +599,7 @@ public class BusinessModule extends BaseController {
 
     /**
      * 删除单个
+     *
      * @param request
      * @return
      */
@@ -612,20 +607,12 @@ public class BusinessModule extends BaseController {
     @ResponseBody
     public VueResult delete(HttpServletRequest request) {
         VueResult result = new VueResult();
-        SessionUserVO user = this.getUser(request);
-        Map<String, Object> delMap = new HashMap<>();
-        try {
-            Long id = RequestUtil.getLong(request,"id");
-            if(id == null){
-                result.setError("请选择要删除的商家！");
-                return result;
-            }
-            aclBusinessService.deleteById(id);
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        Long id = RequestUtil.getLong(request, "id");
+        if (id == null) {
+            result.setError("请选择要删除的商家！");
             return result;
         }
+        aclBusinessService.deleteById(id);
         return result;
     }
 }

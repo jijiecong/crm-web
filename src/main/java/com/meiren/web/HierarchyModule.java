@@ -2,7 +2,6 @@ package com.meiren.web;
 
 import com.meiren.acl.service.AclHierarchyService;
 import com.meiren.acl.service.entity.AclHierarchyEntity;
-import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -11,7 +10,6 @@ import com.meiren.vo.HierarchyVO;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,10 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
-@Controller
-@RequestMapping("{uuid}/acl/hierarchy")
-@ResponseBody
+//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
+//@Controller
+//@RequestMapping("{uuid}/acl/hierarchy")
+//@ResponseBody
 public class HierarchyModule extends BaseController {
 
     @Autowired
