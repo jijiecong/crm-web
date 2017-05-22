@@ -9,6 +9,7 @@ import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.result.VueResultCode;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -354,7 +355,7 @@ public class UserModule extends BaseController {
             entity.setStatus(UserRoleStatusEnum.DELETE.name());
             entity.setUserId(uid);
             entity.setRoleId(Long.parseLong(id));
-            aclUserHasRoleService.deleteAclUserHasRole(com.meiren.common.utils.ObjectUtils.entityToMap(entity));
+            aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.entityToMap(entity));
         }
         return result;
     }

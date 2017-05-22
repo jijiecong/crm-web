@@ -21,9 +21,6 @@
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'privilegeAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">添加数据</el-button>
-            </router-link>
           </div>
         </el-col>
       </el-row>
@@ -46,16 +43,8 @@
           width="80">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="名称">
-        </el-table-column>
-        <el-table-column
-          prop="token"
-          label="token">
-        </el-table-column>
-        <el-table-column
-          prop="riskLevel"
-          label="风险等级">
+          prop="userName"
+          label="姓名">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -63,24 +52,7 @@
           <template scope="props">
             <el-row>
               <el-col :span="11">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
-              </el-col>
-              <el-col :span="13">
-                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)">
-                  修改
-                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
-                    <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeProcess',props.row)">
-                        <span>设置审核流程</span>
-                      </a>
-                    </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a @click="to_router('setPrivilegeOwner',props.row)">
-                      <span>设置权限owner</span>
-                    </a>
-                  </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
+                <el-button type="danger" size="small" icon="delete" @click="to_router('userRoleEdit',props.row)">编辑</el-button>
               </el-col>
             </el-row>
           </template>
@@ -111,7 +83,7 @@
 </template>
 <script type="text/javascript">
   import {panelTitle, bottomToolBar} from 'components'
-  import {request_privilege as request_uri} from 'common/request_api'
+  import {request_userAndRole} from 'common/request_api'
 
   export default{
     data(){
@@ -148,7 +120,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_uri.list, {
+        this.$http.get(request_userAndRole.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -162,20 +134,6 @@
           this.load_data = false
         })
       },
-      //单个删除
-      delete_data(item){
-        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http.post(request_uri.del, {id: item.id})
-            .then(({data: responseData}) => {
-              this.get_table_data()
-              this.$message.success("操作成功")
-            })
-        })
-      },
       //页码选择
       handleCurrentChange(val) {
         this.currentPage = val
@@ -185,20 +143,6 @@
       on_batch_select(val){
         this.batch_select = val
       },
-      //批量删除
-      on_batch_del(){
-        this.$confirm('此操作将批量删除选择数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http.post(request_uri.batch_del, this.batch_select)
-            .then(({data: responseData}) => {
-              this.get_table_data()
-              this.$message.success("操作成功")
-            })
-        })
-      }
     }
   }
 </script>

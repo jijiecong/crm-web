@@ -16,3 +16,5 @@ exports.save = "/acl/privilege/save"
 exports.batch_del = "/acl/privilege/batch/del"
 //权限审核流程
 exports.setProcess = "/acl/privilege/process"
+//设置owner
+exports.setOwner = "/acl/privilege/setOwner"

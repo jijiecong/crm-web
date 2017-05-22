@@ -26,3 +26,5 @@ exports.setHierarchy = "/acl/user/setHierarchy"
 exports.roleControl = "/acl/user/role/control"
 //用户权限控制
 exports.privilegeControl = "/acl/user/privilege/control"
+//用户查询select
+exports.search = "/acl/search/user"

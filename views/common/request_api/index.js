@@ -13,4 +13,8 @@ module.exports = {
   request_business: require("./business"),
   request_group: require("./group"),
   request_hierarchy: require("./hierarchy"),
+  request_role: require("./role"),
+  request_process: require("./process"),
+  request_approval: require("./approval"),
+  request_userAndRole: require("./userAndRole"),
 }

@@ -20,6 +20,8 @@ import bottomToolBar from 'components/bottomToolBar'
 import simpleSelect from 'components/simpleSelect'
 //穿梭框
 import transferMeiren from 'components/transferMeiren'
+//可查询的select封装
+import searchSelect from 'components/searchSelect'
 export {
   simpleSelect,
   mainContent,
@@ -28,5 +30,6 @@ export {
   panelTitle,
   simpleImageUpload,
   bottomToolBar,
-  transferMeiren
+  transferMeiren,
+  searchSelect
 }
