@@ -8,7 +8,7 @@
           <form @submit.prevent="on_refresh">
             <el-row :gutter="10">
               <el-col :span="6" v-if="getUserInfo.inSide">
-                <simple-select :selectUrl="select_url" v-model="search_data.businessId" title="商家"
+                <simple-select :selectUrl="select_url" v-model="getBid" title="商家"
                                size="small"></simple-select>
               </el-col>
               <el-col :span="6">
@@ -117,7 +117,7 @@
 <script type="text/javascript">
   import {simpleSelect, panelTitle, bottomToolBar} from 'components'
   import {request_user, request_group, request_business} from 'common/request_api'
-  import {mapGetters} from 'vuex'
+  import {mapGetters,mapActions} from 'vuex'
 
   export default{
     data(){
@@ -135,7 +135,6 @@
         //批量选择数组
         batch_select: [],
         search_data: {
-          businessId: ''
         },
       }
     },
@@ -146,15 +145,21 @@
       bottomToolBar
     },
     created(){
-      if (this.getUserInfo.businessId) {
-        this.search_data.businessId = this.getUserInfo.businessId;
-      }
       this.get_table_data()
     },
     computed: {
-      ...mapGetters(['getUserInfo'])
+      ...mapGetters(['getUserInfo','getBusinessId']),
+      getBid: {
+        get(){
+          return this.getBusinessId
+        },
+        set(val){
+          this.setBusinessId(val)
+        }
+      },
     },
     methods: {
+      ...mapActions(['setBusinessId']),
       on_command(a, b, c){
         console.log(a)
         console.log(b)
@@ -177,6 +182,7 @@
           params: {
             page: this.currentPage,
             rows: this.rows,
+            businessId: this.getBid,
             ...this.search_data
           }
         }).then(({data}) => {

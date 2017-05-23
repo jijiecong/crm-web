@@ -21,17 +21,17 @@
             <el-row :gutter="8">
               <el-col :span="8">
                 <router-link :to="{name: 'lowRisk'}" tag="span">
-                  <el-button type="primary" size="small" >低风险模板</el-button>
+                  <el-button type="success" size="small" >低风险模板</el-button>
                 </router-link>
               </el-col>
               <el-col :span="8">
                 <router-link :to="{name: 'middleRisk'}" tag="span">
-                  <el-button type="primary" size="small" >中风险模板</el-button>
+                  <el-button type="warning" size="small" >中风险模板</el-button>
                 </router-link>
               </el-col>
               <el-col :span="8">
                 <router-link :to="{name: 'highRisk'}" tag="span">
-                  <el-button type="primary" size="small" >高风险模板</el-button>
+                  <el-button type="danger" size="small" >高风险模板</el-button>
                 </router-link>
               </el-col>
             </el-row>

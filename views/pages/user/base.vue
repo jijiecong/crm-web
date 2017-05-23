@@ -63,13 +63,16 @@
         </el-table-column >
         <el-table-column
           label="操作"
-          width="180" >
-          <template scope="props" >
-            <el-row >
-              <el-col :span="11" >
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" >删除</el-button >
-              </el-col >
-              <el-col :span="13" >
+          width="280">
+          <template scope="props">
+            <el-row>
+              <el-col :span="7">
+                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
+              </el-col>
+              <el-col :span="9">
+                <el-button type="success" size="small" icon="edit" @click="to_router('userRoleEdit',props.row)">角色授权</el-button>
+              </el-col>
+              <el-col :span="8">
                 <el-dropdown
                   trigger="click"
                   split-button type="info" size="small"

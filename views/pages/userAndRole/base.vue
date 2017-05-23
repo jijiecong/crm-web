@@ -43,8 +43,12 @@
           width="80">
         </el-table-column>
         <el-table-column
+          prop="nickname"
+          label="昵称">
+        </el-table-column>
+        <el-table-column
           prop="userName"
-          label="姓名">
+          label="用户名">
         </el-table-column>
         <el-table-column
           label="操作"
