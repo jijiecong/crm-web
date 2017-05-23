@@ -1,5 +1,7 @@
 package com.meiren.web.acl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.meiren.acl.enums.ApprovalConditionEnum;
 import com.meiren.acl.enums.PrivilegeStatusEnum;
 import com.meiren.acl.enums.RiskLevelEnum;
 import com.meiren.acl.service.*;
@@ -192,36 +194,44 @@ public class PrivilegeModule extends BaseController {
             return result;
         }
         Map<String, Object> searchParamMap = new HashMap<>();
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+        Long id = RequestUtil.getLong(request, "id");
         searchParamMap.put("privilegeId", id);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
             List<AclPrivilegeProcessEntity> have = (List<AclPrivilegeProcessEntity>) aclPrivilegeProcessService.loadAclPrivilegeProcess(searchParamMap).getData();
             List<AclProcessEntity> all = (List<AclProcessEntity>) aclProcessService.loadAclProcess(null).getData();
-            List<PrivilegeProcessVO> haveVOs = new ArrayList<>();
             List<ProcessVO> allVOs = new ArrayList<>();
-            for (AclPrivilegeProcessEntity entity : have) {
-                PrivilegeProcessVO vo = new PrivilegeProcessVO();
-                BeanUtils.copyProperties(entity, vo);
-                haveVOs.add(vo);
-            }
+
             for (AclProcessEntity entity : all) {
                 ProcessVO vo = new ProcessVO();
                 BeanUtils.copyProperties(entity, vo);
+                vo.setChecked(false);
+                vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
+                for (AclPrivilegeProcessEntity privilegeProcessEntity : have) {
+                    if(privilegeProcessEntity.getProcessId() == vo.getId()){
+                        vo.setChecked(true);
+                        vo.setHierarchyId(privilegeProcessEntity.getHierarchyId());
+                        vo.setApprovalCondition(privilegeProcessEntity.getApprovalCondition());
+                    }
+                }
                 allVOs.add(vo);
             }
-            map.put("have", haveVOs); // 当前审核流程状态
             map.put("all", allVOs); // 查询全部审核流程
             result.setData(map);
         } else {
-            /*aclPrivilegeProcessService.deleteAclPrivilegeProcess(searchParamMap); // 删除原来的再重新添加
+            //
+            String process = RequestUtil.getString(request,"process");
+            List<AclPrivilegeProcessEntity> list = new ArrayList<>();
+            list = JSONArray.parseArray(process,AclPrivilegeProcessEntity.class);
+            aclPrivilegeProcessService.deleteAclPrivilegeProcess(searchParamMap); // 删除原来的再重新添加
             for (AclPrivilegeProcessEntity entity : list) {
-                entity.setPrivilegeId(id);
-                entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
-                    ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
-                aclPrivilegeProcessService.createAclPrivilegeProcess(entity);
+                if(entity.getChecked()){
+                    entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
+                        ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
+                    aclPrivilegeProcessService.createAclPrivilegeProcess(entity);
+                }
             }
-            result.setData(1);*/
+            result.setData("操作成功！");
         }
         return result;
     }

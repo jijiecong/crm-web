@@ -4,17 +4,37 @@
     </panel-title>
     <div class="panel-title-down">
       <el-row>
-        <el-col :span="20">
+        <el-col :span="14">
           <form @submit.prevent="on_refresh">
             <el-row :gutter="10">
-              <el-col :span="6">
+              <el-col :span="10">
                 <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
               </el-col>
               <el-col :span="1">
                 <el-button type="primary" size="small" native-type="submit">查询</el-button>
               </el-col>
+
             </el-row>
           </form>
+        </el-col>
+        <el-col :span="6">
+            <el-row :gutter="8">
+              <el-col :span="8">
+                <router-link :to="{name: 'lowRisk'}" tag="span">
+                  <el-button type="primary" size="small" >低风险模板</el-button>
+                </router-link>
+              </el-col>
+              <el-col :span="8">
+                <router-link :to="{name: 'middleRisk'}" tag="span">
+                  <el-button type="primary" size="small" >中风险模板</el-button>
+                </router-link>
+              </el-col>
+              <el-col :span="8">
+                <router-link :to="{name: 'highRisk'}" tag="span">
+                  <el-button type="primary" size="small" >高风险模板</el-button>
+                </router-link>
+              </el-col>
+            </el-row>
         </el-col>
         <el-col :span="4">
           <div class="fr">
@@ -68,6 +88,7 @@
               <el-col :span="13">
                 <el-button type="info" size="small" icon="edit" @click="to_router('processUpdate',props.row)">
                   修改
+
                 </el-button>
               </el-col>
             </el-row>

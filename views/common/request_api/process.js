@@ -14,3 +14,5 @@ exports.del = "/acl/process/del"
 exports.save = "/acl/process/save"
 //批量删除
 exports.batch_del = "/acl/process/batch/del"
+//低风险模板
+exports.setProcess = "/acl/process/setModel"

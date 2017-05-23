@@ -14,7 +14,7 @@ exports.del = "/acl/role/del"
 exports.save = "/acl/role/save"
 //批量删除
 exports.batch_del = "/acl/role/batch/del"
-//权限审核流程
+//角色审核流程
 exports.setProcess = "/acl/role/process"
 //设置owner
 exports.setOwner = "/acl/role/setOwner"
