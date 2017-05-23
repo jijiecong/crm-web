@@ -1,29 +1,30 @@
-<template>
-  <el-row>
-    <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText" v-if="title"></label>
+<template >
+  <el-row >
+    <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText"
+      v-if="title" ></label >
     <el-select class="select-div" :class="{'no-title':title===null}"
-               :value="currentValue"
-               :multiple="multiple"
-               filterable
-               :clearable="clearable"
-               :placeholder="placeholder"
-               :loading="load_data"
-               :size="size"
-               @input="handleInput">
+      :value="currentValue"
+      :multiple="multiple"
+      filterable
+      :clearable="clearable"
+      :placeholder="placeholder"
+      :loading="load_data"
+      :size="size"
+      @input="handleInput" >
       <el-option
         v-for="item in options"
         :key="item.id"
         :label="item.name"
-        :value="item.id">
-      </el-option>
-    </el-select>
-  </el-row>
-</template>
+        :value="item.id" >
+      </el-option >
+    </el-select >
+  </el-row >
+</template >
 
-<script>
+<script >
   export default {
     props: {
-      value: [String, Number],
+      value: [String, Number, Array],
       selectUrl: String,
       selectData: {
         type: Array,
@@ -60,13 +61,12 @@
     },
     data() {
       return {
-        options: [],
+        options: this.selectData,
         load_data: false,
         currentValue: this.value,
       }
     },
     created(){
-      this.options = this.selectData
       this.selectUrl && this.get_select_data()
     },
     watch: {
@@ -81,10 +81,8 @@
     },
     methods: {
       handleInput(val) {
-        const value = val;
-        this.$emit('input', value);
-        this.setCurrentValue(value);
-        this.$emit('change', value);
+        this.setCurrentValue(val);
+        this.$emit('input', val);
       },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
@@ -94,7 +92,7 @@
         this.load_data = true
         this.$http.get(this.selectUrl, {
           params: this.params
-        }).then(({data}) => {
+        }).then(({ data }) => {
           this.options = data
           this.load_data = false
         }).catch(() => {
@@ -103,8 +101,8 @@
       },
     }
   }
-</script>
-<style lang="scss" type="text/scss" rel="stylesheet/scss">
+</script >
+<style lang="scss" type="text/scss" rel="stylesheet/scss" >
   .select-div {
     width: 78%;
   }
@@ -127,4 +125,4 @@
     box-sizing: border-box;
     width: 22%;
   }
-</style>
+</style >

@@ -82,10 +82,7 @@
           width="180">
           <template scope="props">
             <el-row>
-              <el-col :span="11">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
-              </el-col>
-              <el-col :span="13">
+              <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
                 <el-dropdown split-button type="info" size="small">
                   操作
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
@@ -99,7 +96,7 @@
                       <span>审核退回</span>
                     </a>
                   </el-dropdown-item>
-                  <el-dropdown-item>
+                  <el-dropdown-item >
                     <a @click="to_router('changeSign',props.row)">
                       <span>转签</span>
                     </a>
@@ -199,7 +196,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_approval.pass, {id: item.id})
+          let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_approval.pass, param)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
@@ -213,7 +211,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_approval.notPass, {id: item.id})
+          let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_approval.notPass, param)
             .then(({data: responseData}) => {
               this.get_table_data()
               this.$message.success("操作成功")
