@@ -89,7 +89,7 @@
           <template scope="props">
             <el-row>
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
-                <el-dropdown>
+                <el-dropdown trigger="click" >
                   <el-button type="info" size="small">
                     操作<i class="el-icon-caret-bottom el-icon--right"></i>
                   </el-button>
