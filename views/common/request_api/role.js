@@ -20,3 +20,5 @@ exports.setProcess = "/acl/role/process"
 exports.setOwner = "/acl/role/setOwner"
 //设置角色拥有权限
 exports.setRoleHasPrivilege = "/acl/role/setRoleHasPrivilege"
+//角色查询select
+exports.search = "/acl/search/role"

@@ -1,10 +1,7 @@
 package com.meiren.web.acl;
 
 import com.meiren.acl.service.*;
-import com.meiren.acl.service.entity.AclBusinessEntity;
-import com.meiren.acl.service.entity.AclGroupEntity;
-import com.meiren.acl.service.entity.AclHierarchyEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
+import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.RequestUtil;
@@ -122,6 +119,32 @@ public class SearchModule extends BaseController {
             SelectVO selectVO = new SelectVO();
             selectVO.setId(userEntity.getId());
             selectVO.setName(userEntity.getUserName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询用户列表
+     */
+    @RequestMapping("/role")
+    public VueResult role(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        String query = RequestUtil.getStringTrans(request, "query");
+        String initId = RequestUtil.getStringTrans(request, "initId");
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (StringUtils.isBlank(initId)) {
+            map.put("nicknameLike", query);
+            map.put("businessId", user.getBusinessId());
+        } else {
+            map.put("id", initId);
+        }
+        List<AclRoleEntity> roleList = (List<AclRoleEntity>) aclRoleService.loadAclRole(map).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclRoleEntity roleEntity : roleList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(roleEntity.getId());
+            selectVO.setName(roleEntity.getName());
             all.add(selectVO);
         }
         return new VueResult(all);

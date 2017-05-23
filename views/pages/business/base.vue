@@ -7,9 +7,6 @@
         <el-col :span="20">
           <form @submit.prevent="on_refresh">
             <el-row :gutter="10">
-              <el-col :span="6" v-if="getUserInfo.inSide">
-                <simple-select :selectUrl="select_url" v-model="search_data.businessId" title="商家" size="small"></simple-select>
-              </el-col>
               <el-col :span="6">
                 <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
               </el-col>
@@ -81,7 +78,7 @@
                       </a>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <a @click="resign_data(props.row)">
+                      <a @click="to_router('setBusinessHasRole',props.row)">
                         <span>导入角色权限</span>
                       </a>
                     </el-dropdown-item>

@@ -93,11 +93,6 @@
             message: '请输入token',
             trigger: 'blur'
           },
-          ownerId: {
-            required: true,
-            message: '请输入owner',
-            trigger: 'blur'
-          }
         }
       }
     },
@@ -114,7 +109,9 @@
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
-          let param = this.$qs.stringify(this.form)
+          let paramtmp = this.form;
+          paramtmp.ownerId = paramtmp.ownerId.join(",")
+          let param = this.$qs.stringify(paramtmp)
           this.$http.post(request_searchPrivilege.save, param)
             .then(({ data: responseData }) => {
               this.$message.success("操作成功")

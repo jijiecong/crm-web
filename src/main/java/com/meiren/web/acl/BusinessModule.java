@@ -1,355 +1,7 @@
 package com.meiren.web.acl;
-//
-//import com.meiren.acl.enums.UserRoleStatusEnum;
-//import com.meiren.acl.service.*;
-//import com.meiren.acl.service.entity.AclBusinessEntity;
-//import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
-//import com.meiren.acl.service.entity.AclPrivilegeEntity;
-//import com.meiren.acl.service.entity.AclRoleHasPrivilegeEntity;
-//import com.meiren.common.annotation.AuthorityToken;
-//import com.meiren.common.result.ApiResult;
-//import com.meiren.common.utils.RequestUtil;
-//import com.meiren.common.utils.StringUtils;
-//import com.meiren.monitor.utils.ObjectUtils;
-//import com.meiren.vo.SelectVO;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.web.bind.annotation.PathVariable;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestMethod;
-//import org.springframework.web.bind.annotation.ResponseBody;
-//import org.springframework.web.servlet.ModelAndView;
-//
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
-//import java.util.*;
-//
-///**
-// * BusinessModule
-// *
-// * @author wangzai
-// * @date 2017-05-02 23:10
-// * 商家相关
-// */
-//
-//@AuthorityToken(needToken = {"meiren.acl.all.superAdmin", "meiren.acl.mbc.crm.acl.business.index"})
-//@Controller
-//@RequestMapping("acl/business")
-//public class BusinessModule extends BaseController {
-//
-//    @Autowired
-//    protected AclBusinessService aclBusinessService;
-//    @Autowired
-//    protected AclBusinessHasPrivilegeService aclBusinessHasPrivilegeService;
-//    @Autowired
-//    protected AclPrivilegeService aclPrivilegeService;
-//    @Autowired
-//    protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
-//    @Autowired
-//    protected AclRoleService aclRoleService;
-//
-//    private String[] necessaryParam = {"name",};
-//
-//    /**
-//     * 列表
-//     * TODO zhangw
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping("/index")
-//    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-//
-//        String page = request.getParameter("page") == null ? "1" : request.getParameter("page");
-//        ModelAndView modelAndView = new ModelAndView();
-//        modelAndView.setViewName("acl/business/index");
-//
-//        int pageNum = Integer.valueOf(page);
-//        if (pageNum <= 0) {
-//            pageNum = 1;
-//        }
-//        int pageSize = DEFAULT_ROWS;
-//
-//        Map<String, Object> searchParamMap = new HashMap<>();
-//        Map<String, String> userPrams = new HashMap<>();
-//        userPrams.put("nameLike", "businessName");
-//        this.mapPrams(request, userPrams, searchParamMap, modelAndView);
-//        ApiResult apiResult = aclBusinessService.searchAclBusiness(searchParamMap, pageNum, pageSize);
-//        String message = this.checkApiResult(apiResult);
-//        if (message != null) {
-//            modelAndView.addObject("message", message);
-//            return modelAndView;
-//        }
-//        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-//
-//        if (resultMap.get("totalCount") != null) {
-//            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-//        }
-//        if (resultMap.get("data") != null) {
-//            List<AclBusinessEntity> resultList = (List<AclBusinessEntity>) resultMap.get("data");
-//            modelAndView.addObject("basicVOList", resultList);
-//        }
-//        modelAndView.addObject("curPage", pageNum);
-//        modelAndView.addObject("pageSize", pageSize);
-//
-//        return modelAndView;
-//
-//    }
-//
-//    /**
-//     * 删除单个 -- 暂未使用
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "deleteMap", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult deleteMap(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        Map<String, Object> delMap = new HashMap<>();
-//        try {
-//            Long id = this.checkId(request);
-//            delMap.put("id", id);
-//            result = aclBusinessService.deleteAclBusiness(delMap);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * 删除单个
-//     * TODO zhangw
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "delete", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        try {
-//            Long id = this.checkId(request);
-//            result = aclBusinessService.deleteById(id);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * 批量删除
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult deleteBatch(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        Map<String, Object> delMap = new HashMap<>();
-//        String[] ids = request.getParameterValues("ids[]");
-//        List<String> idsList = Arrays.asList(ids);
-//        try {
-//            delMap.put("inIds", idsList);
-//            result = aclBusinessService.deleteAclBusiness(delMap);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * 查找单个
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "find", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult findById(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        try {
-//            Long id = this.checkId(request);
-//            ApiResult apiResult = aclBusinessService.findAclBusiness(id);
-//            AclBusinessEntity entity = (AclBusinessEntity) apiResult.getData();
-//            result.setData(entity);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * 添加/修改
-//     *
-//     * @param request
-//     * @param response
-//     * @param aclUserEntity
-//     * @return
-//     */
-//    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult addOrUpdate(HttpServletRequest request, HttpServletResponse response, AclBusinessEntity aclBusinessEntity) {
-//        ApiResult result = new ApiResult();
-//        try {
-//            String id = request.getParameter("id");
-//            this.checkParamMiss(request, this.necessaryParam);  //验证参数是否为空
-//            if (!StringUtils.isBlank(id)) {
-//                Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclBusinessEntity);
-//                result = aclBusinessService.updateAclBusiness(Long.valueOf(id), paramMap);
-//            } else {
-//                result = aclBusinessService.createAclBusiness(aclBusinessEntity);
-//            }
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//
-//    /**
-//     * 跳转添加/修改页面
-//     * TODO zhangw
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-//    @ResponseBody
-//    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-//        ModelAndView modelAndView = new ModelAndView();
-//        switch (type) {
-//            case "add":
-//                modelAndView.addObject("title", "添加商家");
-//                modelAndView.addObject("id", "");
-//                break;
-//            case "modify":
-//                modelAndView.addObject("title", "编辑商家");
-//                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-//                break;
-//        }
-//        modelAndView.setViewName("acl/business/edit");
-//        return modelAndView;
-//    }
-//
-//
-//    /**
-//     * 查询角色
-//     * TODO zhangw
-//     *
-//     * @param request
-//     * @param response
-//     * @param type
-//     * @return
-//     */
-//    //    @AuthorityToken(needToken = {"meiren.acl.role.authorized"})
-//    @RequestMapping("/searchRole/{type}")
-//    @ResponseBody
-//    public ApiResult select2(HttpServletRequest request,
-//                             HttpServletResponse response, @PathVariable String type) {
-//        ApiResult result = new ApiResult();
-//        try {
-//            result = this.initAndQuery(request, type);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * init  and Query
-//     * TODO zhangw
-//     *
-//     * @param request
-//     * @param userId
-//     * @param roleIds
-//     * @param type
-//     * @return
-//     * @throws Exception
-//     */
-//    private ApiResult initAndQuery(HttpServletRequest request, String type) throws Exception {
-//        ApiResult result = new ApiResult();
-//        if (Objects.equals(type, "init")) {
-//            Long userId = this.checkId(request);
-//            Map<String, Object> map = new HashMap<>();
-//            map.put("userId", userId);
-//            map.put("hasStatus", UserRoleStatusEnum.NORMAL.name());
-//            result = aclRoleService.loadAclRoleJoinUserHas(map);     //查询用户拥有的未被禁用的并且当前登录用户为owner的角色
-//        } else {
-//            Map<String, Object> map = new HashMap<>();
-//            map.put("roleNameLike", RequestUtil.getStringTrans(request, "q"));
-//            result = aclRoleService.loadAclRole(map);               //查询角色
-//        }
-//        return result;
-//    }
-//
-//
-//    /**
-//     * 批量导入权限
-//     * TODO　zhangw
-//     *
-//     * @param request
-//     * @param response
-//     * @param aclUserEntity
-//     * @return
-//     */
-//    @RequestMapping(value = {"addPrivilege"}, method = RequestMethod.POST)
-//    @ResponseBody
-//    public ApiResult addPrivilege(HttpServletRequest request, HttpServletResponse response) {
-//        ApiResult result = new ApiResult();
-//        try {
-//            List<Long> listOld = new ArrayList<>();
-//            List<Long> listNew = new ArrayList<>();
-//            Map<String, Object> map = new HashMap<String, Object>();
-//            String[] roleIds = request.getParameterValues("roleIds[]");
-//            List<String> idsList = Arrays.asList(roleIds);
-//            Long businessId = RequestUtil.getLong(request, "businessId");
-//            map.put("businessId", businessId);
-//            List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
-//            Map<String, Object> roleMap = new HashMap<String, Object>();
-//            roleMap.put("inRoleIds", idsList);
-//            List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
-//            for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
-//                if(!listNew.contains(a.getPrivilegeId())){
-//                    listNew.add(a.getPrivilegeId());
-//                }
-//            }
-//            for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
-//                listOld.add(b.getPrivilegeId());
-//            }
-//            listNew.removeAll(listOld);
-//            List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
-//            for (int i = 0; i < listNew.size(); ++i) {
-//                AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
-//                aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
-//                aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
-//                list.add(aclBusinessHasPrivilegeEntity);
-//            }
-//            if(listNew.size() > 0 ){
-//                result = aclBusinessHasPrivilegeService.createBatch(list);
-//            }else{
-//                result.setData("您选择导入的权限已经存在，无需重复添加！");
-//            }
-//
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
-//        return result;
-//    }
+
+
+
 //
 //    /**
 //     * 设置商家权限
@@ -505,6 +157,7 @@ import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.AclBusinessEntity;
 import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
 import com.meiren.acl.service.entity.AclPrivilegeEntity;
+import com.meiren.acl.service.entity.AclRoleHasPrivilegeEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -521,10 +174,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.business.index"})
 @Controller
@@ -630,6 +280,60 @@ public class BusinessModule extends BaseController {
         aclBusinessService.deleteById(id);
         return result;
     }
+
+    /**
+     * 批量导入权限
+     * TODO　zhangw
+     *
+     * @param request
+     * @param response
+     * @param aclUserEntity
+     * @return
+     */
+    @RequestMapping(value = "setBusinessHasRole", method = RequestMethod.POST)
+    public ApiResult setBusinessHasRole(HttpServletRequest request) {
+        ApiResult result = new ApiResult();
+        try {
+            List<Long> listOld = new ArrayList<>();
+            List<Long> listNew = new ArrayList<>();
+            Map<String, Object> map = new HashMap<String, Object>();
+            String[] roleIds = request.getParameterValues("roleIds[]");
+            List<String> idsList = Arrays.asList(roleIds);
+            Long businessId = RequestUtil.getLong(request, "businessId");
+            map.put("businessId", businessId);
+            List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
+            Map<String, Object> roleMap = new HashMap<String, Object>();
+            roleMap.put("inRoleIds", idsList);
+            List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
+            for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
+                if(!listNew.contains(a.getPrivilegeId())){
+                    listNew.add(a.getPrivilegeId());
+                }
+            }
+            for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
+                listOld.add(b.getPrivilegeId());
+            }
+            listNew.removeAll(listOld);
+            List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
+            for (int i = 0; i < listNew.size(); ++i) {
+                AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
+                aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
+                aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
+                list.add(aclBusinessHasPrivilegeEntity);
+            }
+            if(listNew.size() > 0 ){
+                result = aclBusinessHasPrivilegeService.createBatch(list);
+            }else{
+                result.setData("您选择导入的权限已经存在，无需重复添加！");
+            }
+
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
 
     /**
      * 设置商家权限，可以设置的权限为可管理的权限。

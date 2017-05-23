@@ -137,8 +137,12 @@ const routes = [{
     path: '/business/setBusinessHasPrivilege/:id', name: 'setBusinessHasPrivilege',
     meta: {title: "设置商家权限"},
     components: {default: resolve => require(['pages/business/setBusinessHasPrivilege'], resolve)},
+  }, {
+    path: '/business/setBusinessHasRole/:id', name: 'setBusinessHasRole',
+    meta: {title: "导入商家权限"},
+    components: {default: resolve => require(['pages/business/setBusinessHasRole'], resolve)},
   },
-  
+
   // 商家管理路由   结束
 
   // 部门管理路由   开始

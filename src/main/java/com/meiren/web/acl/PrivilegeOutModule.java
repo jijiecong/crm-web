@@ -8,6 +8,7 @@ import com.meiren.acl.service.entity.AclPrivilegeOwnerEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.utils.RequestUtil;
+import com.meiren.utils.StringUtils;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,20 +66,28 @@ public class PrivilegeOutModule extends BaseController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST)
-    @ResponseBody
-    public VueResult add(HttpServletRequest request, AclPrivilegeEntity aclPrivilegeEntity) throws Exception {
+    public VueResult add(HttpServletRequest request, AclPrivilegeEntity aclPrivilegeEntity) {
+        ApiResult result = new ApiResult();
         SessionUserVO user = this.getUser(request);
-        aclPrivilegeEntity.setCreateUserId(user.getId());
+        if (user != null) {
+            aclPrivilegeEntity.setCreateUserId(user.getId());
+        }
         aclPrivilegeEntity.setStatus(PrivilegeStatusEnum.NORMAL.name());
-
         Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
 
         //设置owner，另外添加
         AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
-        aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
-        aclPrivilegeOwnerEntity.setUserId(user.getId());
+        String userIds = RequestUtil.getString(request, "ownerId");
+        if (!StringUtils.isBlank(userIds)) {
+            String[] useridArr = userIds.split(",");
+            for (int i = 0; i < useridArr.length; i++) {
+                aclPrivilegeOwnerEntity.setUserId(Long.parseLong(useridArr[i]));
+                aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
+                result = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
+            }
+            }
+            return new VueResult(result.getData());
+        }
 
-        ApiResult apiResult = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
-        return new VueResult(apiResult.getData());
-    }
+
 }

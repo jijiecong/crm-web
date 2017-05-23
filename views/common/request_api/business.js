@@ -15,6 +15,8 @@ exports.del = "/acl/business/del"
 exports.save = "/acl/business/save"
 //设置商家拥有的权限
 exports.setBusinessHasPrivilege = "/acl/business/setBusinessHasPrivilege"
+//导入商家权限
+exports.setBusinessHasRole = "/acl/business/setBusinessHasRole"
 
 
 
