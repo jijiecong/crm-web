@@ -32,6 +32,12 @@
           return []
         }
       },
+      initData: {
+        type: Array,
+        default: () => {
+          return []
+        }
+      },
       params: {
         type: Object,
         default: () => {
@@ -62,21 +68,29 @@
     data() {
       return {
         options4: [],
-        value9: [],
+        value9: '',
         load_data: false,
-        currentValue: this.value,
+        currentValue: this.value9,
       }
     },
-
+    created(){
+      /*this.options4 = this.initData
+      console.log(this.initData)*/
+      //this.setCurrentValue(this.initData[0].id)
+    },
     computed: {
       titleText(){
         return this.title + '：'
       }
     },
     watch: {
-      currentValue(val) {
-          console.log(val)
+      initData(val){
+        this.options4 = val
+        this.value9 = val[0].id
       },
+/*      currentValue(val) {
+          console.log(val)
+      },*/
       value(val) {
         this.setCurrentValue(val)
       },

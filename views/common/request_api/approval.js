@@ -13,6 +13,10 @@ exports.notPass = "/acl/approval/result/not_pass"
 exports.addSign = "/acl/approval/signed/add"
 //转签
 exports.changeSign = "/acl/approval/signed/change"
+//设置代签
+exports.agent= "/acl/approval/agent/edit"
+//查找代签
+exports.agentFind= "/acl/approval/agent/find"
 
 
 
