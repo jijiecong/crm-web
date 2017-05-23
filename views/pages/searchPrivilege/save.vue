@@ -40,7 +40,7 @@
   </div >
 </template >
 <script type="text/javascript" >
-  import {mapGetters} from 'vuex'
+  import { mapGetters } from 'vuex'
   import { panelTitle, searchSelect } from 'components'
   import { request_searchPrivilege, request_user, result_code } from 'common/request_api'
   import { tools_verify } from 'common/tools'

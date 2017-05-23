@@ -77,19 +77,19 @@ public class ApprovalModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclApprovalService.findAclApproval(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
+//    @RequestMapping(value = "find", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
+//        ApiResult result = new ApiResult();
+//        try {
+//            Long id = this.checkId(request);
+//            result = aclApprovalService.findAclApproval(id);
+//        } catch (Exception e) {
+//            result.setError(e.getMessage());
+//            return result;
+//        }
+//        return result;
+//    }
 
     /**
      * 转,加签
@@ -150,7 +150,7 @@ public class ApprovalModule extends BaseController {
             vo.setToUserName(userEntity.getUserName());
             return new VueResult(vo);
         }
-        return new VueResult();
+        return new VueResult("操作成功！");
     }
 
     /**

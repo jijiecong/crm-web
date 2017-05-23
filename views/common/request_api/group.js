@@ -3,7 +3,7 @@
  */
 
 //select列表
-exports.search = "/acl/search/business"
+exports.search = "/acl/search/group"
 
 //数据列表
 exports.list = "/acl/group/list"
@@ -19,5 +19,7 @@ exports.groupHasUser = "/acl/group/groupHasUser"
 exports.groupHasLeader = "/acl/group/groupHasLeader"
 //设置部门角色
 exports.groupHasRole = "/acl/group/groupHasRole"
+//设置部门角色
+exports.findByUserId = "/acl/search/findByUserId"
 
 

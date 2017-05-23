@@ -86,9 +86,9 @@ const routes = [{
     meta: { title: "添加角色" },
     components: { default: resolve => require(['pages/role/save'], resolve) },
   }, {
-    path: '/role/setProcess/:id', name: 'setroleProcess',
-    meta: { title: "设置审核流程" },
-    components: { default: resolve => require(['pages/role/setProcess'], resolve) },
+    path: '/role/setProcess/:id', name: 'setRoleProcess',
+    meta: {title: "设置审核流程"},
+    components: {default: resolve => require(['pages/role/setProcess'], resolve)},
   },
   {
     path: '/role/setOwner/:id', name: 'setRoleOwner',
@@ -145,6 +145,7 @@ const routes = [{
 
   // 商家管理路由   结束
 
+
   // 部门管理路由   开始
   {
     path: '/group/base', name: 'groupBase',
@@ -186,6 +187,7 @@ const routes = [{
   },
   // 权限查询路由  结束
 
+
   // 审核流程管理路由   开始
   {
     path: '/process/base', name: 'processBase',
@@ -193,13 +195,24 @@ const routes = [{
     components: { default: resolve => require(['pages/process/base'], resolve) },
   }, {
     path: '/process/add', name: 'processAdd',
-    meta: { title: "添加审核流程" },
-    components: { default: resolve => require(['pages/process/save'], resolve) },
-  },
-  {
+    meta: {title: "添加审核流程"},
+    components: {default: resolve => require(['pages/process/save'], resolve)},
+  }, {
     path: '/process/update/:id', name: 'processUpdate',
-    meta: { title: "修改审核流程" },
-    components: { default: resolve => require(['pages/process/save'], resolve) },
+    meta: {title: "修改审核流程"},
+    components: {default: resolve => require(['pages/process/save'], resolve)},
+  }, {
+    path: '/process/lowRisk', name: 'lowRisk',
+    meta: {title: "低风险模板"},
+    components: {default: resolve => require(['pages/process/lowRisk'], resolve)},
+  },{
+    path: '/process/middleRisk', name: 'middleRisk',
+    meta: {title: "中风险模板"},
+    components: {default: resolve => require(['pages/process/middleRisk'], resolve)},
+  },{
+    path: '/process/highRisk', name: 'highRisk',
+    meta: {title: "高风险模板"},
+    components: {default: resolve => require(['pages/process/highRisk'], resolve)},
   },
   // 审核流程管理路由   结束
 
@@ -234,6 +247,7 @@ const routes = [{
     components: { default: resolve => require(['pages/userAndRole/userRoleEdit'], resolve) },
   },
   // 用户角色授权管理路由   结束
+
 
   {
     path: '/table/base', name: 'tableBase',
