@@ -17,13 +17,15 @@
  * @returns {string} 格式化后的字符串
  */
 export default (date, fmt) => {
+  if (date === null) {
+    return ''
+  }
   //如果是时间戳的话那么转换成Date类型
   if (typeof date === 'number') {
     date = new Date(date)
   } else if (typeof date === 'string') {
     date = new Date(parseInt(date))
   }
-
   let o = {
     //月份
     "M+": date.getMonth() + 1,
@@ -39,7 +41,7 @@ export default (date, fmt) => {
     "q+": Math.floor((date.getMonth() + 3) / 3),
     //毫秒
     "S": date.getMilliseconds()
-  };
+  }
   if (/(y+)/.test(fmt))
     fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length))
   for (let k in o)

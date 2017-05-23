@@ -13,7 +13,7 @@
                 :selectUrl="select_role_url"
                 v-model="form.roleId"
                 placeholder="请输入内容"
-                :initId="initId" ></search-select >
+                ></search-select >
             </el-form-item >
             <el-form-item >
               <el-button @click="$router.back()" >取消</el-button >

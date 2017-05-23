@@ -30,6 +30,8 @@ public class PrivilegeModule extends BaseController {
     @Autowired
     private AclPrivilegeService aclPrivilegeService;
     @Autowired
+    private AclUserService aclUserService;
+    @Autowired
     private AclPrivilegeProcessService aclPrivilegeProcessService;
     @Autowired
     private AclProcessModelService aclProcessModelService;

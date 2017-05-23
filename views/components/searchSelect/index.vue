@@ -104,7 +104,7 @@
       },
       initData() {
         let id = this.initId
-        if (this.options.length === 0) {
+        if (id !== null && this.options.length === 0) {
           this.$http.get(this.selectUrl, {
             params: {
               initId: id
