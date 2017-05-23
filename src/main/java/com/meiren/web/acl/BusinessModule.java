@@ -501,22 +501,29 @@ package com.meiren.web.acl;
 //}
 
 
-import com.meiren.acl.service.AclBusinessService;
+import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.AclBusinessEntity;
+import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
+import com.meiren.acl.service.entity.AclPrivilegeEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.BusinessVO;
+import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.business.index"})
@@ -527,6 +534,14 @@ public class BusinessModule extends BaseController {
 
     @Autowired
     protected AclBusinessService aclBusinessService;
+    @Autowired
+    protected AclBusinessHasPrivilegeService aclBusinessHasPrivilegeService;
+    @Autowired
+    protected AclPrivilegeService aclPrivilegeService;
+    @Autowired
+    protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
+    @Autowired
+    protected AclRoleService aclRoleService;
 
     /**
      * 列表
@@ -615,4 +630,121 @@ public class BusinessModule extends BaseController {
         aclBusinessService.deleteById(id);
         return result;
     }
+
+    /**
+     * 设置商家权限，可以设置的权限为可管理的权限。
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "/setBusinessHasPrivilege/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult setPrivilege(HttpServletRequest request, @PathVariable String type) {
+        VueResult result = new VueResult();
+        try {
+            SessionUserVO user = this.getUser(request);
+            if (!this.hasPrivilegeAuthorized(user)) {
+                result.setError("您没有权限授权权限！");
+                return result;
+            }
+            Long initId = RequestUtil.getLong(request, "initId");
+            String selectedIds = RequestUtil.getString(request,"selectedIds");
+            String [] selectedIds_arr = null;
+            if(selectedIds != null){
+                selectedIds_arr = selectedIds.split(",");
+            }
+            switch (type) {
+                case "init":
+                    Map<String, Object> data = this.setPrivilegeInit(initId);       //查询权限
+                    result.setData(data);
+                    break;
+                case "right":
+                    result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
+                    break;
+                case "left":
+                    result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
+                    break;
+                default:
+                    throw new Exception("type not find");
+            }
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * 删除角色权限
+     *
+     * @param privilegeId
+     * @param uid
+     * @return
+     */
+    private VueResult setPrivilegeDel(Long initId, String[] selectedIds_arr) {
+        for(String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("privilegeId", Long.parseLong(id));
+            delMap.put("businessId", initId);
+            aclBusinessHasPrivilegeService.deleteAclBusinessHasPrivilege(delMap);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    /**
+     * 为商家添加权限
+     *
+     * @param privilegeId
+     * @param uid
+     * @return
+     */
+    private VueResult setPrivilegeAdd(Long initId, String[] selectedIds_arr) {
+        for(String id : selectedIds_arr) {
+            AclBusinessHasPrivilegeEntity entity = new AclBusinessHasPrivilegeEntity();
+            entity.setPrivilegeId(Long.parseLong(id));
+            entity.setBusinessId(initId);
+            aclBusinessHasPrivilegeService.createAclBusinessHasPrivilege(entity);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    /**
+     * 查询已拥有的权限和全部可管理的权限
+     * 只能将角色所属商家下的权限赋予这个角色
+     *
+     * @param dataId
+     * @return
+     */
+    private Map<String, Object> setPrivilegeInit(Long initId) {
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", initId);
+        List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>) aclPrivilegeService.loadAclPrivilegeJoinBusinessHas(searchParamMap).getData(); //查询已拥有的权限
+        List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>) aclPrivilegeService.loadAclPrivilege(null).getData(); //查询全部权限
+
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        List<SelectVO> selectDataVOs = new ArrayList<>();
+
+        for (AclPrivilegeEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getName());
+            selectedVOs.add(vo);
+        }
+        for (AclPrivilegeEntity entity : all) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getName());
+            selectDataVOs.add(vo);
+        }
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        dataMap.put("selectData", selectDataVOs);
+        return dataMap;
+    }
+
+
+
 }

@@ -28,7 +28,7 @@
   export default {
     data() {
       return {
-        data_url: request_business.businessHasPrivilege,
+        data_url: request_business.setBusinessHasPrivilege,
         route_id: this.$route.params.id,
         load_data: false
       };

@@ -29,8 +29,8 @@ public class PrivilegeOutModule extends BaseController {
     @Autowired
     protected AclPrivilegeOwnerService aclPrivilegeOwnerService;
     private String[] necessaryParam = {
-            "name",
-            "token",
+        "name",
+        "token",
     };
 
     /**
@@ -68,18 +68,17 @@ public class PrivilegeOutModule extends BaseController {
     @ResponseBody
     public VueResult add(HttpServletRequest request, AclPrivilegeEntity aclPrivilegeEntity) throws Exception {
         SessionUserVO user = this.getUser(request);
-        if (user != null) {
-            aclPrivilegeEntity.setCreateUserId(user.getId());
-        }
+        aclPrivilegeEntity.setCreateUserId(user.getId());
         aclPrivilegeEntity.setStatus(PrivilegeStatusEnum.NORMAL.name());
+
         Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
-        ApiResult apiResult;
+
         //设置owner，另外添加
         AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
-        Long ownerId = RequestUtil.getLong(request, "ownerId");
         aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
         aclPrivilegeOwnerEntity.setUserId(user.getId());
-        apiResult = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
+
+        ApiResult apiResult = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
         return new VueResult(apiResult.getData());
     }
 }
