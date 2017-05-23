@@ -60,7 +60,6 @@
         <el-table-column
           prop="wantName"
           label="被申请角色/权限">
-
         </el-table-column>
         <el-table-column
           prop="approvalLevel"
@@ -92,8 +91,6 @@
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
                 <el-dropdown split-button type="info" size="small">
                   操作
-
-
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
                       <a @click="pass(props.row)">
