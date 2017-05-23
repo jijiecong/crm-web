@@ -13,12 +13,9 @@ module.exports = {
   request_business: require("./business"),
   request_group: require("./group"),
   request_hierarchy: require("./hierarchy"),
-<<<<<<< HEAD
   request_searchPrivilege: require("./searchPrivilege"),
-=======
   request_role: require("./role"),
   request_process: require("./process"),
   request_approval: require("./approval"),
   request_userAndRole: require("./userAndRole"),
->>>>>>> 3ff0b3b60b6eb04fe8aeb1da581fda95f38bcc63
 }

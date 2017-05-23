@@ -76,7 +76,7 @@
                   修改
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
-                      <a @click="to_router('businessHasPrivilege',props.row)">
+                      <a @click="to_router('setBusinessHasPrivilege',props.row)">
                         <span>设置商家权限</span>
                       </a>
                     </el-dropdown-item>

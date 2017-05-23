@@ -134,13 +134,12 @@ const routes = [{
     meta: {title: "修改商家"},
     components: {default: resolve => require(['pages/business/save'], resolve)},
   }, {
-    path: '/business/businessHasPrivilege/:id', name: 'businessHasPrivilege',
+    path: '/business/setBusinessHasPrivilege/:id', name: 'setBusinessHasPrivilege',
     meta: {title: "设置部门角色"},
-    components: {default: resolve => require(['pages/business/businessHasPrivilege'], resolve)},
+    components: {default: resolve => require(['pages/business/setBusinessHasPrivilege'], resolve)},
   },
   // 商家管理路由   结束
 
-<<<<<<< HEAD
   // 部门管理路由   开始
   {
     path: '/group/base', name: 'groupBase',
@@ -182,7 +181,6 @@ const routes = [{
   },
   // 权限查询路由  结束
 
-=======
   // 审核流程管理路由   开始
   {
     path: '/process/base', name: 'processBase',
@@ -231,7 +229,6 @@ const routes = [{
     components: {default: resolve => require(['pages/userAndRole/userRoleEdit'], resolve)},
   },
   // 用户角色授权管理路由   结束
->>>>>>> 3ff0b3b60b6eb04fe8aeb1da581fda95f38bcc63
 
   {
     path: '/table/base', name: 'tableBase',
