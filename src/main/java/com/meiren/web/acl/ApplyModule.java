@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.apply.index"})
+//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.apply.index"})
 @Controller
 @RequestMapping("/acl/apply")
 public class ApplyModule extends BaseController {
