@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.approval.index"})
+//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.approval.index"})
 @Controller
 @RequestMapping("{uuid}/acl/approval")
 @ResponseBody

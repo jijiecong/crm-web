@@ -519,10 +519,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.business.index"})
+@AuthorityToken(needToken = {"meiren.acl.all.superAdmin", "meiren.acl.mbc.crm.acl.business.index"})
 @Controller
-@RequestMapping("{uuid}/acl/business")
-@ResponseBody
+@RequestMapping("acl/business")
 public class BusinessModule extends BaseController {
 
     @Autowired
@@ -570,6 +569,7 @@ public class BusinessModule extends BaseController {
      * 添加编辑用户
      *
      * @param request
+     * @param type
      * @return
      * @throws Exception
      */
@@ -585,10 +585,116 @@ public class BusinessModule extends BaseController {
         return result;
     }
 
-    private BusinessVO entityToVo(AclBusinessEntity entity) {
-        BusinessVO vo = new BusinessVO();
-        BeanUtils.copyProperties(entity, vo);
-        return vo;
+
+    /**
+     * 批量导入权限
+     * TODO　zhangw
+     *
+     * @param request
+     * @param response
+     * @param aclUserEntity
+     * @return
+     */
+    @RequestMapping(value = {"addPrivilege"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResult addPrivilege(HttpServletRequest request, HttpServletResponse response) {
+        ApiResult result = new ApiResult();
+        try {
+            List<Long> listOld = new ArrayList<>();
+            List<Long> listNew = new ArrayList<>();
+            Map<String, Object> map = new HashMap<String, Object>();
+            String[] roleIds = request.getParameterValues("roleIds[]");
+            List<String> idsList = Arrays.asList(roleIds);
+            Long businessId = RequestUtil.getLong(request, "businessId");
+            map.put("businessId", businessId);
+            List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
+            Map<String, Object> roleMap = new HashMap<String, Object>();
+            roleMap.put("inRoleIds", idsList);
+            List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
+            //对不同角色拥有同一权限，去重处理
+            for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
+                if(!listNew.contains(a.getPrivilegeId())){
+                    listNew.add(a.getPrivilegeId());
+                }
+            }
+            for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
+                listOld.add(b.getPrivilegeId());
+            }
+            //对新加的权限商家之前已经拥有的，去重处理
+            listNew.removeAll(listOld);
+
+            List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
+            for (int i = 0; i < listNew.size(); ++i) {
+                AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
+                aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
+                aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
+                list.add(aclBusinessHasPrivilegeEntity);
+            }
+            if(listNew.size() > 0 ){
+                result = aclBusinessHasPrivilegeService.createBatch(list);
+            }else{
+                result.setData("您选择导入的权限已经存在，无需重复添加！");
+            }
+
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * 设置商家权限
+     * TODO zhangw
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "/setPrivilege/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public ApiResult setBusinessPrivilege(HttpServletRequest request,
+                                          HttpServletResponse response, @PathVariable String type) {
+        ApiResult apiResult = new ApiResult();
+        try {
+            Long initId = RequestUtil.getLong(request, "dataId");
+            Long selectedId = RequestUtil.getLong(request, "selectedId");
+            Long uid = RequestUtil.getLong(request, "uid");
+            switch (type) {
+                case "init":
+                    Map<String, Object> data = this.setPrivilegeInit(initId);       //查询权限
+                    apiResult.setData(data);
+                    break;
+                case "add":
+                    apiResult = this.setPrivilegeAdd(selectedId, uid);         //添加权限
+                    break;
+                case "del":
+                    apiResult = this.setPrivilegeDel(selectedId, uid);        //删除权限
+                    break;
+                default:
+                    throw new Exception("type not find");
+            }
+        } catch (Exception e) {
+            apiResult.setError(e.getMessage());
+            return apiResult;
+        }
+        return apiResult;
+    }
+
+    /**
+     * 删除商家权限
+     * TODO zhangw
+     *
+     * @param privilegeId
+     * @param uid
+     * @return
+     */
+    private ApiResult setPrivilegeDel(Long privilegeId, Long uid) {
+        Map<String, Object> delMap = new HashMap<>();
+        delMap.put("privilegeId", privilegeId);
+        delMap.put("businessId", uid);
+        return aclBusinessHasPrivilegeService.deleteAclBusinessHasPrivilege(delMap);
     }
 
     private AclBusinessEntity voToEntity(BusinessVO vo) {
