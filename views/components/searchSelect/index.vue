@@ -33,12 +33,6 @@
           return []
         }
       },
-      initData: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
       params: {
         type: Object,
         default: () => {
@@ -65,6 +59,10 @@
         type: Boolean,
         default: false
       },
+      initId: {
+        type: Number,
+        default: null
+      },
     },
     data() {
       return {
@@ -74,6 +72,7 @@
       }
     },
     created(){
+      this.initData()
     },
     computed: {
       titleText(){
@@ -81,8 +80,8 @@
       }
     },
     watch: {
-      selectData(val) {
-        this.setOptions(val)
+      initId(val) {
+        this.initData()
       },
       value(val) {
         this.setCurrentValue(val)
@@ -93,13 +92,31 @@
         this.setCurrentValue(value);
         this.$emit('input', value);
       },
-      setOptions(value) {
-        if (value === this.options) return;
-        this.options = value;
-      },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
-        this.currentValue = value;
+        if (this.multiple && !Array.isArray(value)) {
+          if (this.currentValue.indexOf(value) < 0) {
+            this.currentValue.push(value);
+          }
+        } else {
+          this.currentValue = value;
+        }
+      },
+      initData() {
+        let id = this.initId
+        if (this.options.length === 0) {
+          this.$http.get(this.selectUrl, {
+            params: {
+              initId: id
+            }
+          }).then(({ data }) => {
+            this.options = data
+            this.setCurrentValue(id)
+            this.load_data = false
+          }).catch(() => {
+            this.load_data = false
+          });
+        }
       },
       remoteMethod(query) {
         if (query !== '') {

@@ -8,6 +8,7 @@ import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.utils.StringUtils;
 import com.meiren.vo.GroupVO;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -88,7 +89,7 @@ public class SearchModule extends BaseController {
     @RequestMapping("/hierarchy")
     public VueResult hierarchy(HttpServletRequest request) {
         SessionUserVO user = this.getUser(request);
-        List<AclHierarchyEntity> groupList = (List< AclHierarchyEntity>)
+        List<AclHierarchyEntity> groupList = (List<AclHierarchyEntity>)
             aclHierarchyService.loadAclHierarchy(null).getData();
         List<SelectVO> all = new ArrayList<>();
         for (AclHierarchyEntity entity : groupList) {
@@ -107,9 +108,14 @@ public class SearchModule extends BaseController {
     public VueResult user(HttpServletRequest request) {
         SessionUserVO user = this.getUser(request);
         String query = RequestUtil.getStringTrans(request, "query");
+        String initId = RequestUtil.getStringTrans(request, "initId");
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("nicknameLike", query);
-        map.put("businessId", user.getBusinessId());
+        if (StringUtils.isBlank(initId)) {
+            map.put("nicknameLike", query);
+            map.put("businessId", user.getBusinessId());
+        } else {
+            map.put("id", initId);
+        }
         List<AclUserEntity> userList = (List<AclUserEntity>) aclUserService.loadAclUser(map).getData();
         List<SelectVO> all = new ArrayList<>();
         for (AclUserEntity userEntity : userList) {
@@ -126,13 +132,13 @@ public class SearchModule extends BaseController {
      */
     @RequestMapping("/findByUserId")
     public VueResult findByUserId(HttpServletRequest request) {
-        AclGroupEntity  groupEntity = (AclGroupEntity)
-            aclGroupService.findAclGroupJoinHasUser(com.meiren.utils.RequestUtil.getLong(request,"userId")).getData();
+        AclGroupEntity groupEntity = (AclGroupEntity)
+            aclGroupService.findAclGroupJoinHasUser(com.meiren.utils.RequestUtil.getLong(request, "userId")).getData();
         GroupVO vo = new GroupVO();
-        if(groupEntity == null){
+        if (groupEntity == null) {
             return new VueResult();
         }
-        BeanUtils.copyProperties(groupEntity,vo);
+        BeanUtils.copyProperties(groupEntity, vo);
         return new VueResult(vo);
     }
 
@@ -330,16 +336,17 @@ public class SearchModule extends BaseController {
 
     /**
      * 查找单个
+     *
      * @param request
      * @param response
      * @return
      */
     @RequestMapping(value = "/business/findByName/{type}")
     @ResponseBody
-    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String  type) {
+    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            switch (type){
+            switch (type) {
                 case "query":
                     result = aclBusinessService.loadAclBusinessLikeName(RequestUtil.getStringTrans(request, "q"));
                     break;

@@ -7,7 +7,7 @@
         <el-col >
           <el-form ref="form" :model="form" :rules="rules" label-width="150px" >
             <el-form-item prop="toUserId" label="请选择代签人:" >
-              <search-select :selectUrl="select_url" v-model="form.toUserId" :selectData="init_data" ></search-select >
+              <search-select :selectUrl="select_url" v-model="form.toUserId" :initId="initId" ></search-select >
             </el-form-item >
             <el-form-item label="请选择是否启用:" prop="isUsed" >
               <el-radio-group size="small" v-model="form.isUsed" >
@@ -34,10 +34,10 @@
     data() {
       return {
         select_url: request_user.search,
-        init_data: [],
+        initId: null,
         form: {
           toUserId: null,
-          isUsed: 1
+          isUsed: "1"
         },
         rules: {
           toUserId: {
@@ -60,7 +60,7 @@
           .then(({ data: responseData }) => {
             this.form.isUsed = responseData.isUsed
             this.form.toUserId = responseData.toUserId
-            this.init_data = [{ id: responseData.toUserId, name: responseData.toUserName }]
+            this.initId = responseData.toUserId
             this.load_data = false
           })
           .catch(() => {
