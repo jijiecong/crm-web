@@ -89,8 +89,10 @@
           <template scope="props">
             <el-row>
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
-                <el-dropdown split-button type="info" size="small">
-                  操作
+                <el-dropdown>
+                  <el-button type="info" size="small">
+                    操作<i class="el-icon-caret-bottom el-icon--right"></i>
+                  </el-button>
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
                       <a @click="pass(props.row)">
