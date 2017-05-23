@@ -59,7 +59,7 @@
 </template>
 <script type="text/javascript">
   import {panelTitle, simpleSelect} from 'components'
-  import {request_role, request_hierarchy} from 'common/request_api'
+  import {request_process, request_hierarchy} from 'common/request_api'
 
   export default{
     data(){
@@ -67,14 +67,14 @@
         select_options: [],
         hierarchy_url: request_hierarchy.search,
         all_process: [],
-        route_id: this.$route.params.id,
+        riskLevel: 2,
         load_data: false,
         on_submit_loading: false,
       }
     },
     created(){
       this.hierarchy_url && this.get_select_data()
-      this.route_id && this.get_form_data()
+      this.get_form_data()
     },
     methods: {
       //获取数据
@@ -85,15 +85,15 @@
       },
       get_form_data(){
         this.load_data = true
-        let roleId = this.route_id
-        let param = this.$qs.stringify({id: this.route_id})
-        this.$http.post(request_role.setProcess + '/init', param)
+        let riskLevel = this.riskLevel
+        let param = this.$qs.stringify({riskLevel: riskLevel})
+        this.$http.post(request_process.setProcess + '/init', param)
           .then(({data: responseData}) => {
             let all = responseData.all;
             let data = [];
             all.forEach(function (element, index) {
               data.push({
-                  roleId: roleId,
+                  riskLevel: riskLevel,
                   checked: element.checked,
                   approvalCondition: element.approvalCondition,
                   approvalLevel: element.approvalLevel,
@@ -113,8 +113,8 @@
       //提交
       on_submit_form(){
         this.on_submit_loading = true
-        let param = this.$qs.stringify({id:this.route_id,process: JSON.stringify(this.all_process)})
-        this.$http.post(request_role.setProcess + '/update', param)
+        let param = this.$qs.stringify({riskLevel:this.riskLevel,process: JSON.stringify(this.all_process)})
+        this.$http.post(request_process.setProcess + '/update', param)
           .then(({data: responseData}) => {
             this.$message.success("操作成功")
             setTimeout(() => {

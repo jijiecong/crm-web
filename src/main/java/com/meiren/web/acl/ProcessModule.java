@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.meiren.acl.enums.ApprovalConditionEnum;
 import com.meiren.acl.enums.RiskLevelEnum;
 import com.meiren.acl.enums.RoleStatusEnum;
@@ -25,10 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.process.index","meiren.acl.all.superAdmin"})
 @Controller
@@ -139,74 +137,50 @@ public class ProcessModule extends BaseController {
      */
     @RequestMapping(value = "/setModel/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult process(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type, @RequestBody List<AclProcessModelEntity> list) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> searchParamMap = new HashMap<>();
-            int riskLevel = RequestUtil.getInteger(request, "riskLevel");
-            searchParamMap.put("riskLevel", riskLevel);
-            if (Objects.equals(type, "init")) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("have", aclProcessModelService.loadAclProcessModel(searchParamMap).getData());  //当前审核流程状态
-                map.put("all", aclProcessService.loadAclProcess(null).getData());      //查询全部审核流程
-                result.setData(map);
-            } else {
-            	aclProcessModelService.deleteAclProcessModel(searchParamMap);   //删除原来的再重新添加
-                for (AclProcessModelEntity entity : list) {
+    public VueResult process(HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable String type) {
+        VueResult result = new VueResult();
+
+        Map<String, Object> searchParamMap = new HashMap<>();
+        int riskLevel = RequestUtil.getInteger(request, "riskLevel");
+        searchParamMap.put("riskLevel", riskLevel);
+        if (Objects.equals(type, "init")) {
+            Map<String, Object> map = new HashMap<>();
+            List<AclProcessModelEntity> have = (List<AclProcessModelEntity>) aclProcessModelService.loadAclProcessModel(searchParamMap).getData();
+            List<AclProcessEntity> all = (List<AclProcessEntity>) aclProcessService.loadAclProcess(null).getData();
+            List<ProcessVO> allVOs = new ArrayList<>();
+
+            for (AclProcessEntity entity : all) {
+                ProcessVO vo = new ProcessVO();
+                BeanUtils.copyProperties(entity, vo);
+                vo.setChecked(false);
+                vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
+                for (AclProcessModelEntity processModelEntity : have) {
+                    if(processModelEntity.getProcessId() == vo.getId()){
+                        vo.setChecked(true);
+                        vo.setHierarchyId(processModelEntity.getHierarchyId());
+                        vo.setApprovalCondition(processModelEntity.getApprovalCondition());
+                    }
+                }
+                allVOs.add(vo);
+            }
+            map.put("all", allVOs); // 查询全部审核流程
+            result.setData(map);
+        } else {
+            String process = RequestUtil.getString(request,"process");
+            List<AclProcessModelEntity> list = new ArrayList<>();
+            list = JSONArray.parseArray(process,AclProcessModelEntity.class);
+            aclProcessModelService.deleteAclProcessModel(searchParamMap);   //删除原来的再重新添加
+            for (AclProcessModelEntity entity : list) {
+                if(entity.getChecked()) {
                     entity.setRiskLevel(riskLevel);
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
-                            ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
+                        ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
                     aclProcessModelService.createAclProcessModel(entity);
                 }
-                result.setData(1);
             }
-            result.setData(result.getData());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+            result.setData("操作成功！");
         }
         return result;
-    }
-
-    /**
-     * 跳转添加/修改页面
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-    @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response,@PathVariable String type) {
-    	ModelAndView modelAndView = new ModelAndView();
-    	switch (type) {
-    	case "add":
-    		modelAndView.addObject("title","添加");
-    		modelAndView.addObject("id", "");
-    		modelAndView.setViewName("acl/process/edit");
-            break;
-        case "modify":
-        	modelAndView.addObject("title", "编辑");
-        	modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-        	modelAndView.setViewName("acl/process/edit");
-            break;
-        case "modify-low":
-        	modelAndView.addObject("title", "编辑低风险模板");
-        	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");
-            break;
-        case "modify-middle":
-        	modelAndView.addObject("title", "编辑中风险模板");
-        	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");
-            break;
-        case "modify-high":
-        	modelAndView.addObject("title", "编辑高风险模板");
-        	modelAndView.addObject("riskLevel", RequestUtil.getInteger(request, "riskLevel"));
-        	modelAndView.setViewName("acl/process/editModel");
-            break;
-    	}
-    	return modelAndView;
     }
 }

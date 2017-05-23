@@ -25,7 +25,7 @@
                 <span>审核条件：</span>
               </el-col>
               <el-col :span="16">
-                <el-radio-group size="small" v-model="process.radioVal" class="process-radio">
+                <el-radio-group size="small" v-model="process.approvalCondition" class="process-radio">
                   <el-radio label="AND"></el-radio>
                   <el-radio label="OR"></el-radio>
                 </el-radio-group>
@@ -85,17 +85,19 @@
       },
       get_form_data(){
         this.load_data = true
+        let privilegeId = this.route_id
         let param = this.$qs.stringify({id: this.route_id})
         this.$http.post(request_privilege.setProcess + '/init', param)
           .then(({data: responseData}) => {
-            let have = responseData.have;
             let all = responseData.all;
             let data = [];
             all.forEach(function (element, index) {
               data.push({
-                  checked: false,
-                  radioVal: 'AND',
-                  id: element.id,
+                  privilegeId: privilegeId,
+                  checked: element.checked,
+                  approvalCondition: element.approvalCondition,
+                  approvalLevel: element.approvalLevel,
+                  processId: element.id,
                   name: element.name,
                   hierarchyId: element.hierarchyId
                 }
@@ -110,22 +112,19 @@
       },
       //提交
       on_submit_form(){
-        this.$refs.form.validate((valid) => {
-          if (!valid) return false
-          this.on_submit_loading = true
-          let param = this.$qs.stringify(this.form)
-          this.$http.post(request_privilege.save, param)
-            .then(({data: responseData}) => {
-              this.$message.success("操作成功")
-              setTimeout(() => {
-                this.$router.back()
-              }, 500)
-              this.on_submit_loading = false
-            })
-            .catch(() => {
-              this.on_submit_loading = false
-            })
-        })
+        this.on_submit_loading = true
+        let param = this.$qs.stringify({id:this.route_id,process: JSON.stringify(this.all_process)})
+        this.$http.post(request_privilege.setProcess + '/update', param)
+          .then(({data: responseData}) => {
+            this.$message.success("操作成功")
+            setTimeout(() => {
+              this.$router.back()
+            }, 500)
+            this.on_submit_loading = false
+          })
+          .catch(() => {
+            this.on_submit_loading = false
+          })
       }
     },
     components: {

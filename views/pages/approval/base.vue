@@ -60,6 +60,7 @@
         <el-table-column
           prop="wantName"
           label="被申请角色/权限">
+
         </el-table-column>
         <el-table-column
           prop="approvalLevel"
@@ -72,10 +73,16 @@
         <el-table-column
           prop="applyTime"
           label="申请时间">
+          <template scope="props">
+            <label v-text="to_date(props.row.applyTime)" ></label>
+          </template>
         </el-table-column>
         <el-table-column
           prop="approvalTime"
           label="审核时间">
+          <template scope="props">
+            <label v-text="to_date(props.row.approvalTime)" ></label>
+          </template>
         </el-table-column>
         <el-table-column
           label="操作"
@@ -85,27 +92,29 @@
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
                 <el-dropdown split-button type="info" size="small">
                   操作
+
+
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
                       <a @click="pass(props.row)">
                         <span>审核通过</span>
                       </a>
                     </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a @click="not_pass(props.row)">
-                      <span>审核退回</span>
-                    </a>
-                  </el-dropdown-item>
-                  <el-dropdown-item >
-                    <a @click="to_router('changeSign',props.row)">
-                      <span>转签</span>
-                    </a>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a @click="to_router('addSign',props.row)">
-                      <span>加签</span>
-                    </a>
-                  </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a @click="not_pass(props.row)">
+                        <span>审核退回</span>
+                      </a>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a @click="to_router('changeSign',props.row)">
+                        <span>转签</span>
+                      </a>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a @click="to_router('addSign',props.row)">
+                        <span>加签</span>
+                      </a>
+                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-col>
@@ -165,6 +174,9 @@
       this.get_table_data()
     },
     methods: {
+      to_date(time){
+         return this.$dateFormat(time,'yyyy-MM-dd hh:mm')
+      },
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
       },

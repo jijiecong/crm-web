@@ -27,6 +27,26 @@ public class ProcessVO {
      */
     private String processDescribe;
 
+    private String approvalCondition;
+
+    private Boolean checked;
+
+    public String getApprovalCondition() {
+        return approvalCondition;
+    }
+
+    public void setApprovalCondition(String approvalCondition) {
+        this.approvalCondition = approvalCondition;
+    }
+
+    public Boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
+    }
+
     public Long getId() {
         return id;
     }

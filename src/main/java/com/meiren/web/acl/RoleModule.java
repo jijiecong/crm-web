@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.meiren.acl.enums.ApprovalConditionEnum;
 import com.meiren.acl.enums.RiskLevelEnum;
 import com.meiren.acl.enums.RoleStatusEnum;
@@ -11,6 +12,7 @@ import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.utils.RequestUtil;
+import com.meiren.vo.ProcessVO;
 import com.meiren.vo.RoleVO;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -495,37 +497,60 @@ public class RoleModule extends BaseController {
         dataMap.put("selectData", selectDataVOs);
         return dataMap;
     }
- /*   @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
+
+    @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult process(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type, @RequestBody List<AclRoleProcessEntity> list) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> searchParamMap = new HashMap<>();
-            Long id = RequestUtil.getLong(request, "id");
-            searchParamMap.put("roleId", id);
-            if (Objects.equals(type, "init")) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("have", aclRoleProcessService.loadAclRoleProcess(searchParamMap).getData());  //已拥有的流程
-                map.put("all", aclProcessService.loadAclProcess(null).getData());  //全部流程
-                result.setData(map);
-            } else {
-                aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
-                for (AclRoleProcessEntity entity : list) {
-                    entity.setRoleId(id);
-                    entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
-                            ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
-                    aclRoleProcessService.createAclRoleProcess(entity);
-                }
-                result.setData(1);
-            }
-            result.setData(result.getData());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult process(HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable String type) {
+
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasRoleAll(user)) {
+            result.setError("您没有权限操作角色！");
             return result;
         }
+        Map<String, Object> searchParamMap = new HashMap<>();
+        Long id = RequestUtil.getLong(request, "id");
+        searchParamMap.put("roleId", id);
+        if (Objects.equals(type, "init")) {
+            Map<String, Object> map = new HashMap<>();
+            List<AclRoleProcessEntity> have = (List<AclRoleProcessEntity>) aclRoleProcessService.loadAclRoleProcess(searchParamMap).getData();
+            List<AclProcessEntity> all = (List<AclProcessEntity>) aclProcessService.loadAclProcess(null).getData();
+            List<ProcessVO> allVOs = new ArrayList<>();
+
+            for (AclProcessEntity entity : all) {
+                ProcessVO vo = new ProcessVO();
+                BeanUtils.copyProperties(entity, vo);
+                vo.setChecked(false);
+                vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
+                for (AclRoleProcessEntity roleProcessEntity : have) {
+                    if(roleProcessEntity.getProcessId() == vo.getId()){
+                        vo.setChecked(true);
+                        vo.setHierarchyId(roleProcessEntity.getHierarchyId());
+                        vo.setApprovalCondition(roleProcessEntity.getApprovalCondition());
+                    }
+                }
+                allVOs.add(vo);
+            }
+            map.put("all", allVOs); // 查询全部审核流程
+            result.setData(map);
+        } else {
+            String process = RequestUtil.getString(request,"process");
+            List<AclRoleProcessEntity> list = new ArrayList<>();
+            list = JSONArray.parseArray(process,AclRoleProcessEntity.class);
+            aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
+            for (AclRoleProcessEntity entity : list) {
+                if(entity.getChecked()) {
+                    entity.setRoleId(id);
+                    entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
+                        ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
+                    aclRoleProcessService.createAclRoleProcess(entity);
+                }
+            }
+            result.setData("操作成功！");
+        }
         return result;
-    }*/
+    }
 
 
 
