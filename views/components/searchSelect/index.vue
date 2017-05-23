@@ -1,30 +1,31 @@
-<template>
-  <el-row>
-    <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText" v-if="title"></label>
+<template >
+  <el-row >
+    <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText"
+      v-if="title" ></label >
     <el-select class="select-div" :class="{'no-title':title===null}"
-               v-model="value9"
-               :clearable="clearable"
-               :multiple="multiple"
-               :size="size"
-               filterable
-               remote
-               :placeholder="placeholder"
-               :remote-method="remoteMethod"
-               @input="handleInput">
+      :value="currentValue"
+      :clearable="clearable"
+      :multiple="multiple"
+      :size="size"
+      filterable
+      remote
+      :placeholder="placeholder"
+      :remote-method="remoteMethod"
+      @input="handleInput" >
       <el-option
-        v-for="item in options4"
+        v-for="item in options"
         :key="item.id"
         :label="item.name"
-        :value="item.id">
-      </el-option>
-    </el-select>
-  </el-row>
-</template>
+        :value="item.id" >
+      </el-option >
+    </el-select >
+  </el-row >
+</template >
 
-<script>
+<script >
   export default {
     props: {
-      value: [String, Number],
+      value: [String, Number, Array],
       selectUrl: String,
       selectData: {
         type: Array,
@@ -67,16 +68,12 @@
     },
     data() {
       return {
-        options4: [],
-        value9: '',
+        options: this.selectData,
         load_data: false,
-        currentValue: this.value9,
+        currentValue: this.value,
       }
     },
     created(){
-      /*this.options4 = this.initData
-      console.log(this.initData)*/
-      //this.setCurrentValue(this.initData[0].id)
     },
     computed: {
       titleText(){
@@ -84,23 +81,21 @@
       }
     },
     watch: {
-      initData(val){
-        this.options4 = val
-        this.value9 = val[0].id
+      selectData(val) {
+        this.setOptions(val)
       },
-/*      currentValue(val) {
-          console.log(val)
-      },*/
       value(val) {
         this.setCurrentValue(val)
       },
     },
     methods: {
-      handleInput(val) {
-        const value = val;
-        this.$emit('input', value);
+      handleInput(value) {
         this.setCurrentValue(value);
-        this.$emit('change', value);
+        this.$emit('input', value);
+      },
+      setOptions(value) {
+        if (value === this.options) return;
+        this.options = value;
       },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
@@ -113,20 +108,20 @@
             params: {
               query: query
             }
-          }).then(({data}) => {
-            this.options4 = data
+          }).then(({ data }) => {
+            this.options = data
             this.load_data = false
           }).catch(() => {
             this.load_data = false
           });
         } else {
-          this.options4 = [];
+          this.options = [];
         }
       }
     }
   }
-</script>
-<style lang="scss" type="text/scss" rel="stylesheet/scss">
+</script >
+<style lang="scss" type="text/scss" rel="stylesheet/scss" >
   .select-div {
     width: 78%;
   }
@@ -149,4 +144,4 @@
     box-sizing: border-box;
     width: 22%;
   }
-</style>
+</style >
