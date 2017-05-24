@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,11 +141,117 @@ public class GroupModule extends BaseController {
         }
         return new VueResult(apiResult.getData());
     }
+
     private AclGroupEntity voToEntity(GroupVO vo) {
         AclGroupEntity entity = new AclGroupEntity();
         BeanUtils.copyProperties(vo, entity);
         return entity;
     }
+
+
+//    /**
+//     * 设置owner
+//     *
+//     * @param request
+//     * @param response
+//     * @param type
+//     * @return
+//     */
+//    @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
+//    @ResponseBody
+//    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+//        VueResult result = new VueResult();
+//        try {
+//            SessionUserVO user = this.getUser(request);
+//            if(!this.hasPrivilegeAll(user)){
+//                result.setError("您没有权限操作权限！");
+//                return result;
+//            }
+//            Long initId = RequestUtil.getLong(request, "initId");
+//            String selectedIds = RequestUtil.getString(request,"selectedIds");
+//            String [] selectedIds_arr = null;
+//            if(selectedIds != null){
+//                selectedIds_arr = selectedIds.split(",");
+//            }
+//            switch (type) {
+//                case "init":
+//                    Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
+//                    result.setData(data);
+//                    break;
+//                case "right":
+//                    result = this.setOwnerAdd(initId, selectedIds_arr);
+//                    break;
+//                case "left":
+//                    result = this.setOwnerDel(initId, selectedIds_arr);
+//                    break;
+//                default:
+//                    throw new Exception("type not find");
+//            }
+//        } catch (Exception e) {
+//            result.setError(e.getMessage());
+//            return result;
+//        }
+//        return result;
+//    }
+//
+//    private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
+//        for(String id : selectedIds_arr) {
+//            Map<String, Object> delMap = new HashMap<>();
+//            delMap.put("userId", Long.parseLong(id));
+//            delMap.put("privilegeId", initId);
+//            aclPrivilegeOwnerService.deleteAclPrivilegeOwner(delMap);
+//        }
+//        return new VueResult("操作成功！");
+//    }
+//
+//    private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
+//        for(String id : selectedIds_arr) {
+//            AclPrivilegeOwnerEntity entity = new AclPrivilegeOwnerEntity();
+//            entity.setUserId(Long.parseLong(id));
+//            entity.setPrivilegeId(initId);
+//            aclPrivilegeOwnerService.createAclPrivilegeOwner(entity);
+//        }
+//        return new VueResult("操作成功！");
+//    }
+//
+//    /**
+//     * 查询权限属于某个用户及全部用户
+//     *
+//     * @param dataId
+//     * @return
+//     */
+//    private Map<String, Object> setOwnerInit(Long dataId, Long businessId) {
+//        Map<String, Object> searchParamMap = new HashMap<>();
+//        searchParamMap.put("privilegeId", dataId);
+//        List<AclUserEntity> selected = (List<AclUserEntity>)
+//            aclUserService.loadAclUserJoinPrivilegeOwner(searchParamMap).getData(); // 根据查询权限Id查询用户
+//
+//        Map<String, Object> paramMap = new HashMap<>();
+//        paramMap.put("businessId", businessId);
+//        List<AclUserEntity> all = (List<AclUserEntity>)
+//            aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
+//
+//        List<SelectVO> selectedVOs = new ArrayList<>();
+//        List<SelectVO> selectDataVOs = new ArrayList<>();
+//
+//        for (AclUserEntity entity : selected) {
+//            SelectVO vo = new SelectVO();
+//            vo.setId(entity.getId()); // 将信息转换为id name 类型
+//            vo.setName(entity.getUserName());
+//            selectedVOs.add(vo);
+//        }
+//        for (AclUserEntity entity : all) {
+//            SelectVO vo = new SelectVO();
+//            vo.setId(entity.getId());
+//            vo.setName(entity.getUserName());
+//            selectDataVOs.add(vo);
+//        }
+//
+//        Map<String, Object> dataMap = new HashMap<>();
+//        dataMap.put("selected", selectedVOs);
+//        dataMap.put("selectData", selectDataVOs);
+//        return dataMap;
+//    }
 
     /**
      * 设置user
@@ -156,74 +261,76 @@ public class GroupModule extends BaseController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "/setUser/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult setUser(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasGroupAll(user)){
-                result.setError("您没有权限操作部门！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long userId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setUserInit(initId);
-                    result.setData(data);
-                    break;
-                case "add":
-                    result = this.setUserAdd(userId, uid);
-                    break;
-                case "del":
-                    result = this.setUserDel(userId, uid);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    @RequestMapping(value = "/groupHasUser/{type}", method = RequestMethod.POST)
+    public VueResult setUser(HttpServletRequest request, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasGroupAll(user)) {
+            result.setError("您没有权限操作部门！");
             return result;
+        }
+        Long initId = RequestUtil.getLong(request, "initId");  //部门id
+        String selectedIds = RequestUtil.getString(request, "selectedIds"); //用户id
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setUserInit(initId);
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setUserAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setUserDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
         }
         return result;
     }
 
-    private ApiResult setUserDel(Long userId, Long uid) {
-        Map<String, Object> delMap = new HashMap<>();
-        delMap.put("userId", userId);
-        delMap.put("groupId", uid);
-        return aclGroupHasUserService.deleteAclGroupHasUser(delMap);
+    private VueResult setUserDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("userId", Long.parseLong(id));
+            delMap.put("groupId", initId);
+            aclGroupHasUserService.deleteAclGroupHasUser(delMap);
+        }
+        return new VueResult("操作成功！");
     }
 
-    private ApiResult setUserAdd(Long userId, Long uid) {
-        AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
-        entity.setUserId(userId);
-        entity.setGroupId(uid);
-        return aclGroupHasUserService.createAclGroupHasUser(entity);
+    private VueResult setUserAdd(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
+            entity.setUserId(Long.parseLong(id));
+            entity.setGroupId(initId);
+            aclGroupHasUserService.createAclGroupHasUser(entity);
+        }
+        return new VueResult("操作成功！");
     }
 
     private Map<String, Object> setUserInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("groupId", dataId);
-        List<SessionUserVO> selected = (List<SessionUserVO>)
-                aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
+        searchParamMap.put("groupId", dataId);  //部门id
+        List<AclUserEntity> selected = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
-        List<SessionUserVO> all = (List<SessionUserVO>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
+        List<AclUserEntity> all = (List<AclUserEntity>) aclUserService.loadAclUserNotUsedWithGroupHas(group.getBusinessId()).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
-        for (SessionUserVO entity : selected) {
+        for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
             selectedVOs.add(vo);
         }
-        for (SessionUserVO entity : all) {
+        for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
@@ -244,30 +351,32 @@ public class GroupModule extends BaseController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "/setLeader/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/groupHasLeader/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult setLeader(HttpServletRequest request,
-                               HttpServletResponse response, @PathVariable String type) {
+    public ApiResult setLeader(HttpServletRequest request, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
             SessionUserVO user = this.getUser(request);
-            if(!this.hasGroupAll(user)){
+            if (!this.hasGroupAll(user)) {
                 result.setError("您没有权限操作部门！");
                 return result;
             }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long userId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
+            Long initId = RequestUtil.getLong(request, "initId");  //部门id
+            String selectedIds = RequestUtil.getString(request, "selectedIds"); //用户id
+            String[] selectedIds_arr = null;
+            if (selectedIds != null) {
+                selectedIds_arr = selectedIds.split(",");
+            }
             switch (type) {
                 case "init":
                     Map<String, Object> data = this.setLeaderInit(initId);
                     result.setData(data);
                     break;
-                case "add":
-                    result = this.setLeaderAdd(userId, uid);
+                case "right":
+                    result = this.setLeaderAdd(initId, selectedIds_arr);
                     break;
-                case "del":
-                    result = this.setLeaderDel(userId, uid);
+                case "left":
+                    result = this.setLeaderDel(initId, selectedIds_arr);
                     break;
                 default:
                     throw new Exception("type not find");
@@ -279,38 +388,44 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-    private ApiResult setLeaderDel(Long userId, Long uid) {
-        Map<String, Object> delMap = new HashMap<>();
-        delMap.put("leaderId", userId);
-        delMap.put("leaderDeptId", uid);
-        return aclGroupLeaderService.deleteAclGroupLeader(delMap);
+    private VueResult setLeaderDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("leaderId", Long.parseLong(id));
+            delMap.put("leaderDeptId", initId);
+            aclGroupLeaderService.deleteAclGroupLeader(delMap);
+        }
+        return new VueResult("操作成功！");
     }
 
-    private ApiResult setLeaderAdd(Long userId, Long uid) {
-        AclGroupLeaderEntity entity = new AclGroupLeaderEntity();
-        entity.setLeaderId(userId);
-        entity.setLeaderDeptId(uid);
-        return aclGroupLeaderService.createAclGroupLeader(entity);
+    private VueResult setLeaderAdd(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            AclGroupLeaderEntity entity = new AclGroupLeaderEntity();
+            entity.setLeaderId(Long.parseLong(id));
+            entity.setLeaderDeptId(initId);
+            aclGroupLeaderService.createAclGroupLeader(entity);
+        }
+        return new VueResult("操作成功！");
     }
 
     private Map<String, Object> setLeaderInit(Long dataId) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
-        List<SessionUserVO> selected = (List<SessionUserVO>)
-                aclUserService.loadAclUserJoinGroupLeader(searchParamMap).getData();
-        List<SessionUserVO> all = (List<SessionUserVO>)
-                aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
+        List<AclUserEntity> selected = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinGroupLeader(searchParamMap).getData();
+        List<AclUserEntity> all = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinGroupHas(searchParamMap).getData();
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
 
-        for (SessionUserVO entity : selected) {
+        for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
             selectedVOs.add(vo);
         }
-        for (SessionUserVO entity : all) {
+        for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getUserName());
@@ -331,34 +446,36 @@ public class GroupModule extends BaseController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "/setRole/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/groupHasRole/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult setRole(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+    public ApiResult setRole(HttpServletRequest request, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
             SessionUserVO user = this.getUser(request);
-            if(!this.hasGroupAll(user)){
+            if (!this.hasGroupAll(user)) {
                 result.setError("您没有权限操作部门！");
                 return result;
             }
-            if(!this.hasRoleAuthorized(user)){
+            if (!this.hasRoleAuthorized(user)) {
                 result.setError("您没有权限授予角色！");
                 return result;
             }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long roleId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
+            Long initId = RequestUtil.getLong(request, "initId");  //部门id
+            String selectedIds = RequestUtil.getString(request, "selectedIds"); //角色id
+            String[] selectedIds_arr = null;
+            if (selectedIds != null) {
+                selectedIds_arr = selectedIds.split(",");
+            }
             switch (type) {
                 case "init":
-                    Map<String, Object> data = this.setRoleInit(initId,request);
+                    Map<String, Object> data = this.setRoleInit(initId, request);
                     result.setData(data);
                     break;
-                case "add":
-                    result = this.setRoleAdd(roleId, uid);
+                case "right":
+                    result = this.setRoleAdd(initId, selectedIds_arr);
                     break;
-                case "del":
-                    result = this.setRoleDel(roleId, uid);
+                case "left":
+                    result = this.setRoleDel(initId, selectedIds_arr);
                     break;
                 default:
                     throw new Exception("type not find");
@@ -370,30 +487,36 @@ public class GroupModule extends BaseController {
         return result;
     }
 
-    private ApiResult setRoleDel(Long roleId, Long uid) {
-        Map<String, Object> delMap = new HashMap<>();
-        delMap.put("roleId", roleId);
-        delMap.put("groupId", uid);
-        return aclGroupHasRoleService.deleteAclGroupHasRole(delMap);
+    private VueResult setRoleDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("roleId", Long.parseLong(id));
+            delMap.put("groupId", initId);
+            aclGroupHasRoleService.deleteAclGroupHasRole(delMap);
+        }
+        return new VueResult("操作成功！");
     }
 
-    private ApiResult setRoleAdd(Long roleId, Long uid) {
-        AclGroupHasRoleEntity entity = new AclGroupHasRoleEntity();
-        entity.setRoleId(roleId);
-        entity.setGroupId(uid);
-        return aclGroupHasRoleService.createAclGroupHasRole(entity);
+    private VueResult setRoleAdd(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            AclGroupHasRoleEntity entity = new AclGroupHasRoleEntity();
+            entity.setRoleId(Long.parseLong(id));
+            entity.setGroupId(initId);
+            aclGroupHasRoleService.createAclGroupHasRole(entity);
+        }
+        return new VueResult("操作成功！");
     }
 
-    private Map<String, Object> setRoleInit(Long dataId ,HttpServletRequest request) {
+    private Map<String, Object> setRoleInit(Long dataId, HttpServletRequest request) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("groupId", dataId);
         SessionUserVO user = this.getUser(request);
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
-                aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
+            aclRoleService.loadAclRoleJoinGroupHas(searchParamMap).getData();
 
         AclGroupEntity group = (AclGroupEntity) aclGroupService.findAclGroup(dataId).getData();
         List<AclRoleEntity> all = (List<AclRoleEntity>)
-                aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下可管理的所有角色
+            aclRoleService.getManageableRole(user.getId(), group.getBusinessId()).getData(); //查询用户在该商家下可管理的所有角色
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();

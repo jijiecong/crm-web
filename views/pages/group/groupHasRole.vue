@@ -23,7 +23,7 @@
 </template>
 <script>
   import {panelTitle, transferMeiren} from 'components'
-  import {request_role} from 'common/request_api'
+  import {request_role, request_group} from 'common/request_api'
 
   export default {
     data() {

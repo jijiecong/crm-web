@@ -28,7 +28,7 @@
 <script type="text/javascript" >
   import {mapGetters} from 'vuex'
   import { panelTitle, searchSelect } from 'components'
-  import { request_searchPrivilege, request_role, request_user, result_code } from 'common/request_api'
+  import { request_business, request_role, request_user, result_code } from 'common/request_api'
   import { tools_verify } from 'common/tools'
 
   export default{
@@ -79,7 +79,7 @@
         let paramtmp = this.form;
         paramtmp.roleId = paramtmp.roleId.join(",")
           let param = this.$qs.stringify(this.form)
-          this.$http.post(request_searchPrivilege.save, param)
+          this.$http.post(request_business.setBusinessHasRole, param)
             .then(({ data: responseData }) => {
             this.$message.success("操作成功")
             setTimeout(() => {
