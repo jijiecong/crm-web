@@ -24,7 +24,7 @@
                 placeholder="请输入内容"
                 :initId="initId" ></search-select >
             </el-form-item >
-            <el-form-item class="width_100">
+            <el-form-item class="width_100" >
               <p style="" >* 命名规范:<br >
                 * 功能和菜单级别:meiren.acl.{appName}.{serviceName}.{funtionName}<br >
                 * 字段级别:meiren.acl.{appName}.{serviceName}.{funtionName}.{fieldName}</p >
