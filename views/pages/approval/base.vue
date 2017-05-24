@@ -37,10 +37,6 @@
         @selection-change="on_batch_select"
         style="width: 100%;">
         <el-table-column
-          type="selection"
-          width="42">
-        </el-table-column>
-        <el-table-column
           prop="id"
           label="id"
           width="80">
@@ -93,6 +89,7 @@
         </el-table-column>
         <el-table-column
           label="操作"
+          fixed="right"
           width="100">
           <template scope="props">
             <el-row>
