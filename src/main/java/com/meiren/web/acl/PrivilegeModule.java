@@ -77,13 +77,34 @@ public class PrivilegeModule extends BaseController {
      * 查询
      */
     @RequestMapping("/find")
-    public VueResult find(HttpServletRequest request) {
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+    public VueResult find(HttpServletRequest request) throws Exception {
+        Long id = this.checkId(request);
         AclPrivilegeEntity entity = (AclPrivilegeEntity) aclPrivilegeService.findAclPrivilege(id).getData();
         PrivilegeVO vo = this.entityToVo(entity);
         return new VueResult(vo);
     }
-
+//    /**
+//     * 删除单个
+//     *
+//     * @param request
+//     * @param response
+//     * @return
+//     */
+//    @RequestMapping(value = "del", method = RequestMethod.POST)
+//    public VueResult delete(HttpServletRequest request) throws Exception {
+//        VueResult result = new VueResult();
+//        Map<String, Object> delMap = new HashMap<>();
+//        SessionUserVO user = this.getUser(request);
+//        if (!this.hasPrivilegeAll(user)) {
+//            result.setError("您没有权限操作权限！");
+//            return result;
+//        }
+//        Long id = this.checkId(request);
+//        delMap.put("id", id);
+//        aclPrivilegeService.deleteAclPrivilege(delMap);
+//        result.setData("操作成功！");
+//        return result;
+//    }
     /**
      * 添加编辑
      */
@@ -106,7 +127,7 @@ public class PrivilegeModule extends BaseController {
         }
         if (canDo) {
             AclPrivilegeEntity entity = this.voToEntity(vo);
-            Integer riskLevel = com.meiren.utils.RequestUtil.getInteger(request, "riskLevel");
+            Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
             if (riskLevel == null) {
                 result.setError("请选择正确的风险等级！");
                 return result;
@@ -188,7 +209,7 @@ public class PrivilegeModule extends BaseController {
      */
     @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult process(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult process(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if (!this.hasPrivilegeAll(user)) {
@@ -196,7 +217,7 @@ public class PrivilegeModule extends BaseController {
             return result;
         }
         Map<String, Object> searchParamMap = new HashMap<>();
-        Long id = RequestUtil.getLong(request, "id");
+        Long id = this.checkId(request);
         searchParamMap.put("privilegeId", id);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
@@ -248,38 +269,39 @@ public class PrivilegeModule extends BaseController {
      */
     @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasPrivilegeAll(user)){
-                result.setError("您没有权限操作权限！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request,"selectedIds");
-            String [] selectedIds_arr = null;
-            if(selectedIds != null){
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setOwnerAdd(initId, selectedIds_arr);
-                    break;
-                case "left":
-                    result = this.setOwnerDel(initId, selectedIds_arr);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if(!this.hasPrivilegeAll(user)){
+            result.setError("您没有权限操作权限！");
             return result;
         }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if(initId == null){
+            throw new Exception("请选择要操作的权限！");
+        }
+        String selectedIds = RequestUtil.getString(request,"selectedIds");
+        String [] selectedIds_arr = null;
+        if(!StringUtils.isBlank(selectedIds)){
+            selectedIds_arr = selectedIds.split(",");
+        }else{
+            throw new Exception("请选择owner！");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setOwnerAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setOwnerDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        result.setData("操作成功！");
         return result;
     }
 

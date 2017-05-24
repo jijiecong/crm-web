@@ -99,22 +99,20 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = "signed/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult signed(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult signed(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            Long id = RequestUtil.getLong(request, "id");
-            Long toUserId = RequestUtil.getLong(request, "toUserId");
-            Long userId = this.getUser(request).getId();
-            if (Objects.equals(type, "add")) {
-                aclApprovalService.updateAclApprovalDoAdd(id, toUserId,userId);  //加签
-            } else {
-                aclApprovalService.updateAclApprovalDoChange(id, toUserId,userId);  //转签
-            }
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+        Long id = this.checkId(request);
+        Long toUserId = RequestUtil.getLong(request, "toUserId");
+        if(toUserId == null){
+            throw new Exception("请选择要转签或加签的用户！");
         }
+        Long userId = this.getUser(request).getId();
+        if (Objects.equals(type, "add")) {
+            aclApprovalService.updateAclApprovalDoAdd(id, toUserId,userId);  //加签
+        } else {
+            aclApprovalService.updateAclApprovalDoChange(id, toUserId,userId);  //转签
+        }
+        result.setData("操作成功！");
         return result;
     }
 
@@ -150,7 +148,7 @@ public class ApprovalModule extends BaseController {
             vo.setToUserName(userEntity.getUserName());
             return new VueResult(vo);
         }
-        return new VueResult("操作成功！");
+        return new VueResult("没有代签记录！");
     }
 
     /**
@@ -161,30 +159,24 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = {"agent/edit"}, method = RequestMethod.POST)
     @ResponseBody
-    public VueResult signedSet(HttpServletRequest request, HttpServletResponse response) {
+    public VueResult signedSet(HttpServletRequest request, HttpServletResponse response) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            String toUserId = request.getParameter("toUserId");
-            Integer isUsed = RequestUtil.getInteger(request, "isUsed");
-            if (toUserId==null||StringUtils.isBlank(toUserId)){
-                result.setError("请输入要代签的人！");
-                return result;
-            }
-            Map<String, Object> delMap = new HashMap<String, Object>();
-            delMap.put("userId", user.getId());
-            aclSignedService.deleteAclSigned(delMap);
-
-            AclSignedEntity entity = new AclSignedEntity();
-            entity.setIsUsed(String.valueOf(SignStatusEnum.getByTypeValue(isUsed).typeValue));
-            entity.setToUserId(Long.valueOf(toUserId));
-            entity.setUserId(user.getId());
-            aclSignedService.createAclSigned(entity);  //设置代签
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+        SessionUserVO user = this.getUser(request);
+        String toUserId = request.getParameter("toUserId");
+        Integer isUsed = RequestUtil.getInteger(request, "isUsed");
+        if (StringUtils.isBlank(toUserId)){
+            throw new Exception("请选择要代签的用户！");
         }
+        Map<String, Object> delMap = new HashMap<String, Object>();
+        delMap.put("userId", user.getId());
+        aclSignedService.deleteAclSigned(delMap);
+
+        AclSignedEntity entity = new AclSignedEntity();
+        entity.setIsUsed(String.valueOf(SignStatusEnum.getByTypeValue(isUsed).typeValue));
+        entity.setToUserId(Long.valueOf(toUserId));
+        entity.setUserId(user.getId());
+        aclSignedService.createAclSigned(entity);  //设置代签
+        result.setData("操作成功！");
         return result;
     }
 
@@ -196,19 +188,14 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = "result/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult result(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult result(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            Long id = RequestUtil.getLong(request, "id");
-            ApprovalResultEnum resultEnum = Objects.equals(type, "pass") ? ApprovalResultEnum.PASS : ApprovalResultEnum.NOT_PASS;
-            //需要事物处理,放入一个service
+        Long id = this.checkId(request);
+        ApprovalResultEnum resultEnum = Objects.equals(type, "pass") ? ApprovalResultEnum.PASS : ApprovalResultEnum.NOT_PASS;
+        //需要事物处理,放入一个service
 
-            aclApplyService.updateAclApprovalResult(id, resultEnum,this.getUser(request).getId());
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        aclApplyService.updateAclApprovalResult(id, resultEnum,this.getUser(request).getId());
+        result.setData("操作成功！");
         return result;
     }
 }

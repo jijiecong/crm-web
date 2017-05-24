@@ -16,7 +16,7 @@
             <el-form-item label="审核级别:" prop="approvalLevel">
               <el-input v-model="form.approvalLevel" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="最高层级:" prop="hierarchyId">
+            <el-form-item label="最高层级限定:" prop="hierarchyId">
               <simple-select :selectUrl="select_url" v-model="form.hierarchyId"></simple-select>
             </el-form-item>
             <el-form-item>
