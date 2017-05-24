@@ -63,7 +63,7 @@
           name: null,
           description: null,
           token: null,
-          riskLevel: null
+          riskLevel: 1
         },
         route_id: this.$route.params.id,
         load_data: false,
