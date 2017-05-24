@@ -62,7 +62,7 @@
           label="被申请角色/权限">
         </el-table-column>
         <el-table-column
-          prop="approvalLevel"
+          prop="approvalLevelName"
           width="200"
           label="审核级别">
         </el-table-column>
@@ -198,6 +198,7 @@
             ...this.search_data
           }
         }).then(({data}) => {
+            console.log(data)
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false
