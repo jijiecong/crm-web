@@ -1,12 +1,12 @@
 <template>
   <div>
     <el-transfer
+      v-loading.body="load_data"
       filterable ref="transfer"
       :filter-method="filterMethod"
       :titles="titles"
       :placeholder="placeholder"
       @change="handleChange"
-      :loading="load_data"
       v-model="selected"
       :data="selectData">
     </el-transfer>
@@ -88,6 +88,7 @@
         })
       },
       async sure(){
+        this.load_data = true
         let transfer = this.$refs.transfer;
         if (transfer.leftChecked.length !== 0) {
           await transfer.addToRight();
@@ -95,6 +96,7 @@
         if (transfer.rightChecked.length !== 0) {
           await transfer.addToLeft();
         }
+        this.load_data = false
       },
     },
   };
