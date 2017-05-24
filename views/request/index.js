@@ -69,7 +69,7 @@ const install = (Vue) => {
       //成功时
       let responseData = response.data
 
-      let isSuccess = responseData.isSuccess
+      let isSuccess = responseData.success
       let dataCode = responseData.code
       let dataError = responseData.error || null
       let dataResult = responseData.data
