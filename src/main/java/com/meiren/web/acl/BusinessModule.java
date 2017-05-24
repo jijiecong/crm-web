@@ -5,6 +5,7 @@ import com.meiren.acl.service.entity.AclBusinessEntity;
 import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
 import com.meiren.acl.service.entity.AclPrivilegeEntity;
 import com.meiren.acl.service.entity.AclRoleHasPrivilegeEntity;
+import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.business.index"})
+@AuthorityToken(needToken = {"meiren.acl.all.superAdmin", "meiren.acl.mbc.crm.acl.business.index"})
 @Controller
 @RequestMapping("{uuid}/acl/business")
 @ResponseBody
