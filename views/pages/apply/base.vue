@@ -21,8 +21,12 @@
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'businessAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">添加数据</el-button>
+            <router-link :to="{name: 'applyAdd'}" tag="span">
+              <el-button type="primary" icon="plus" size="small">申请权限</el-button>
+            </router-link>
+
+            <router-link :to="{name: 'applyRoleAdd'}" tag="span">
+              <el-button type="primary" icon="plus" size="small">申请角色</el-button>
             </router-link>
           </div>
         </el-col>
@@ -46,48 +50,34 @@
           width="80">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="商家名称">
+          prop="userName"
+          label="申请人">
         </el-table-column>
         <el-table-column
-          prop="description"
-          label="商家描述">
+          prop="applyContent"
+          label="申请描述">
         </el-table-column>
         <el-table-column
-          prop="token"
-          label="商家token">
+          prop="wantName"
+          label="被申请权限/角色">
         </el-table-column>
         <el-table-column
-          label="操作"
-          width="180">
-          <template scope="props">
-            <el-row>
-              <el-col :span="11">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
-              </el-col>
-              <el-col :span="13">
-                <el-dropdown
-                  trigger="click"
-                  split-button type="info" size="small"
-                  @click="to_router('businessUpdate',props.row)">
-                  修改
-                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
-                    <el-dropdown-item>
-                      <a @click="to_router('businessHasPrivilege',props.row)">
-                        <span>设置商家权限</span>
-                      </a>
-                    </el-dropdown-item>
-                    <el-dropdown-item>
-                      <a @click="resign_data(props.row)">
-                        <span>导入权限</span>
-                      </a>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </el-col>
-            </el-row>
-          </template>
+          prop="approvalState"
+          label="审核状态">
         </el-table-column>
+        <!--<el-table-column-->
+          <!--prop="applyTime"-->
+          <!--label="申请时间">-->
+        <!--</el-table-column>-->
+        <!--<el-table-column-->
+          <!--prop="applyTime"-->
+          <!--width="200"-->
+          <!--label="审请时间">-->
+          <!--<template scope="props">-->
+            <!--<label v-text="to_date(props.row.applyTime)" ></label>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
+
       </el-table>
       <bottom-tool-bar>
 
@@ -106,13 +96,12 @@
 </template>
 <script type="text/javascript">
   import {simpleSelect, panelTitle, bottomToolBar} from 'components'
-  import {request_user, request_business} from 'common/request_api'
+  import {request_user, request_apply} from 'common/request_api'
   import {mapGetters} from 'vuex'
 
   export default{
     data(){
       return {
-        select_url: request_business.search,
         table_data: null,
         //当前页码
         currentPage: 1,
@@ -136,9 +125,6 @@
       bottomToolBar
     },
     created(){
-      if (this.getUserInfo.businessId) {
-        this.search_data.businessId = this.getUserInfo.businessId;
-      }
       this.get_table_data()
     },
     computed: {
@@ -150,12 +136,7 @@
         console.log(b)
         console.log(c)
       },
-      to_router(routerName, row){
-        this.$router.push({name: routerName, params: {id: row.id}})
-      },
-      to_router_hierarchy(routerName, row){
-        this.$router.push({name: routerName, params: {id: row.id, hierarchyId: row.hierarchyId}})
-      },
+
       //刷新
       on_refresh(){
         this.get_table_data()
@@ -163,7 +144,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_business.list, {
+        this.$http.get(request_apply.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -178,21 +159,6 @@
         })
       },
 
-      //单个删除
-      delete_data(item){
-        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          let param = this.$qs.stringify({id: item.id})
-          this.$http.post(request_business.del,param)
-            .then(({data: responseData}) => {
-              this.get_table_data()
-              this.$message.success("操作成功")
-            })
-        })
-      },
       //页码选择
       handleCurrentChange(val) {
         this.currentPage = val
@@ -202,20 +168,6 @@
       on_batch_select(val){
         this.batch_select = val
       },
-      //批量删除
-      on_batch_del(){
-        this.$confirm('此操作将批量删除选择数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http.post(request_user.batch_del, this.batch_select)
-            .then(({data: responseData}) => {
-              this.get_table_data()
-              this.$message.success("操作成功")
-            })
-        })
-      }
     }
   }
 </script>

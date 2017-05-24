@@ -14,7 +14,7 @@
               <el-input v-model="form.description" placeholder="请输入内容"></el-input>
             </el-form-item>
             <el-form-item label="上级部门:" prop="pid">
-              <el-input v-model="form.pid" placeholder="请输入内容"></el-input>
+                <simple-select :selectUrl="select_group_url" v-model="form.pid"></simple-select>
             </el-form-item>
             <el-form-item label="选择商家:" prop="businessId" v-if="this.form.id === null && getUserInfo.inSide">
               <simple-select :selectUrl="select_url" v-model="form.businessId"></simple-select>
@@ -37,6 +37,7 @@
 
   export default{
     data(){
+
       let isEdit = !!this.$route.params.id;
       let checkPassword = (rule, value, callback) => {
         if (!isEdit && (value === null || value === '')) {
@@ -45,6 +46,7 @@
         callback();
       };
       return {
+        select_group_url: request_group.search,
         select_url: request_business.search,
         form: {
           id: null,

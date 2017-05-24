@@ -18,4 +18,5 @@ module.exports = {
   request_process: require("./process"),
   request_approval: require("./approval"),
   request_userAndRole: require("./userAndRole"),
+  request_apply: require("./apply"),
 }

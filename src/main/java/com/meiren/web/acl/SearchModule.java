@@ -79,6 +79,45 @@ public class SearchModule extends BaseController {
         }
         return new VueResult(all);
     }
+    /**
+     * 查询角色列表
+     */
+    @RequestMapping("/applyRole")
+    public VueResult applyRole(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", user.getBusinessId());
+        List<AclRoleEntity> roleList = (List<AclRoleEntity>)
+            aclRoleService.loadAclRole(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclRoleEntity entity : roleList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询权限列表
+     */
+    @RequestMapping("/privilege")
+    public VueResult privilege(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", user.getBusinessId());
+        List<AclPrivilegeEntity> privilegeList = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.loadAclPrivilege(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclPrivilegeEntity entity : privilegeList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
 
     /**
      * 查询层级列表
@@ -125,7 +164,7 @@ public class SearchModule extends BaseController {
     }
 
     /**
-     * 查询用户列表
+     * 查询角色列表
      */
     @RequestMapping("/role")
     public VueResult role(HttpServletRequest request) {
@@ -291,7 +330,7 @@ public class SearchModule extends BaseController {
      */
     @RequestMapping("/privilege/{type}")
     @ResponseBody
-    public ApiResult select2biz(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public ApiResult select2biz(HttpServletRequest request, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
             SessionUserVO userEntity = this.getUser(request);
@@ -301,11 +340,11 @@ public class SearchModule extends BaseController {
                     Long id = this.checkId(request);
                     result = aclPrivilegeService.findAclPrivilege(id);
                     break;
-                case "initBiz":
-                    Long initBizId = this.checkId(request);
-                    map.put("bizId", initBizId);
-                    result = aclPrivilegeService.loadAclPrivilegeJoinBizHas(map);
-                    break;
+//                case "initBiz":
+//                    Long initBizId = this.checkId(request);
+//                    map.put("bizId", initBizId);
+//                    result = aclPrivilegeService.loadAclPrivilegeJoinBizHas(map);
+//                    break;
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
                     map.put("businessId", userEntity.getBusinessId());

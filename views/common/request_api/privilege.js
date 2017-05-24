@@ -18,3 +18,5 @@ exports.batch_del = "/acl/privilege/batch/del"
 exports.setProcess = "/acl/privilege/process"
 //设置owner
 exports.setOwner = "/acl/privilege/setOwner"
+//查询权限
+exports.search = "/acl/search/privilege"

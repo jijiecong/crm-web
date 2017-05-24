@@ -82,6 +82,9 @@
         },{
           title: "审核列表",
           path: "/approval/base",
+        },{
+          title: "申请列表",
+          path: "/apply/base",
         },
 //          {
 //            title: "表格管理",

@@ -7,6 +7,9 @@
       <el-row >
         <el-col >
           <el-form ref="form" :model="form" :rules="rules" label-width="100px" >
+            <el-form-item label="商家名称:">
+              <el-input v-model="form.name" :readonly="true"></el-input>
+            </el-form-item>
             <el-form-item label="选择角色:" prop="roleId" >
               <search-select
                 multiple
@@ -66,19 +69,38 @@
         }
       }
     },
+    created(){
+      console.log('save')
+      this.route_id && this.get_form_data()
+    },
     watch: {},
     computed: {
       ...mapGetters(['getUserInfo']),
     },
     methods: {
+      //获取数据
+      get_form_data(){
+        this.load_data = true
+        this.axios.get(request_business.find, {
+          params: {
+            id: this.route_id
+          }
+        }).then(({data: responseData}) => {
+          this.form = responseData
+          this.load_data = false
+        }).catch(() => {
+          this.load_data = false
+        })
+      },
       //提交
       on_submit_form(){
+        let roleIds = this.form.roleId.join(',');
+        console.log(roleIds)
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
-        let paramtmp = this.form;
-        paramtmp.roleId = paramtmp.roleId.join(",")
-          let param = this.$qs.stringify(this.form)
+          let param = this.$qs.stringify({businessId:this.route_id, roleId:roleIds});
+        console.log(param)
           this.$http.post(request_business.setBusinessHasRole, param)
             .then(({ data: responseData }) => {
             this.$message.success("操作成功")

@@ -297,13 +297,19 @@ public class BusinessModule extends BaseController {
             List<Long> listOld = new ArrayList<>();
             List<Long> listNew = new ArrayList<>();
             Map<String, Object> map = new HashMap<String, Object>();
-            String[] roleIds = request.getParameterValues("roleIds[]");
-            List<String> idsList = Arrays.asList(roleIds);
-            Long businessId = RequestUtil.getLong(request, "businessId");
+            String roleIds = RequestUtil.getString(request, "roleId");
+
+            String[] roleIdArr = roleIds.split(","); //获取角色id
+
+            List<String> idsList = Arrays.asList(roleIdArr);//转换成list
+
+            Long businessId = RequestUtil.getLong(request, "businessId"); //获取商家id
             map.put("businessId", businessId);
+            //查询该商家拥有的权限
             List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
             Map<String, Object> roleMap = new HashMap<String, Object>();
             roleMap.put("inRoleIds", idsList);
+            //查询角色拥有的权限
             List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
             for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
                 if(!listNew.contains(a.getPrivilegeId())){

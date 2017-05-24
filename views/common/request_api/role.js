@@ -22,3 +22,6 @@ exports.setOwner = "/acl/role/setOwner"
 exports.setRoleHasPrivilege = "/acl/role/setRoleHasPrivilege"
 //角色查询select
 exports.search = "/acl/search/role"
+//角色查询下拉
+exports.applyRole = "/acl/search/applyRole"
+

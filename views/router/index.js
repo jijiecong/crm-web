@@ -248,6 +248,21 @@ const routes = [{
   },
   // 用户角色授权管理路由   结束
 
+  //申请管理路由 开始
+  {
+    path: '/apply/base', name: 'applyBase',
+    meta: { title: "申请列表" },
+    components: { default: resolve => require(['pages/apply/base'], resolve) },
+  }, {
+    path: '/apply/add', name: 'applyAdd',
+    meta: { title: "权限申请" },
+    components: { default: resolve => require(['pages/apply/privilegeSave'], resolve) },
+  }, {
+    path: '/apply/add', name: 'applyRoleAdd',
+    meta: { title: "角色申请" },
+    components: { default: resolve => require(['pages/apply/roleSave'], resolve) },
+  },
+  //申请管理路由 结束
 
   {
     path: '/table/base', name: 'tableBase',
