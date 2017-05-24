@@ -38,7 +38,7 @@
         style="width: 100%;">
         <el-table-column
           type="selection"
-          width="55">
+          width="45">
         </el-table-column>
         <el-table-column
           prop="id"
@@ -47,30 +47,37 @@
         </el-table-column>
         <el-table-column
           prop="approverName"
+          width="150"
           label="审核人">
         </el-table-column>
         <el-table-column
           prop="userName"
+          width="150"
           label="申请人">
         </el-table-column>
         <el-table-column
           prop="applyContent"
+          width="200"
           label="申请描述">
         </el-table-column>
         <el-table-column
           prop="wantName"
+          width="200"
           label="被申请角色/权限">
         </el-table-column>
         <el-table-column
           prop="approvalLevel"
+          width="200"
           label="审核级别">
         </el-table-column>
         <el-table-column
           prop="approvalResultName"
+          width="200"
           label="审核结果">
         </el-table-column>
         <el-table-column
           prop="applyTime"
+          width="200"
           label="申请时间">
           <template scope="props">
             <label v-text="to_date(props.row.applyTime)" ></label>
@@ -78,6 +85,7 @@
         </el-table-column>
         <el-table-column
           prop="approvalTime"
+          width="200"
           label="审核时间">
           <template scope="props">
             <label v-text="to_date(props.row.approvalTime)" ></label>
@@ -85,12 +93,14 @@
         </el-table-column>
         <el-table-column
           label="操作"
-          width="180">
+          width="100">
           <template scope="props">
             <el-row>
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
-                <el-dropdown split-button type="info" size="small">
-                  操作
+                <el-dropdown trigger="click" >
+                  <el-button type="info" size="small">
+                    操作<i class="el-icon-caret-bottom el-icon--right"></i>
+                  </el-button>
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
                     <el-dropdown-item>
                       <a @click="pass(props.row)">
