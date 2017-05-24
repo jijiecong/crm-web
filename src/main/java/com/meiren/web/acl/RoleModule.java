@@ -56,8 +56,9 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclProcessModelService aclProcessModelService;
     private String[] necessaryParam = {
-            "name",
+        "name",
     };
+
     private RoleVO entityToVo(AclRoleEntity entity) {
         RoleVO vo = new RoleVO();
         BeanUtils.copyProperties(entity, vo);
@@ -93,8 +94,8 @@ public class RoleModule extends BaseController {
      * 查询
      */
     @RequestMapping("/find")
-    public VueResult find(HttpServletRequest request) {
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+    public VueResult find(HttpServletRequest request) throws Exception {
+        Long id = this.checkId(request);
         AclRoleEntity entity = (AclRoleEntity) aclRoleService.findAclRole(id).getData();
         RoleVO vo = this.entityToVo(entity);
         return new VueResult(vo);
@@ -203,43 +204,44 @@ public class RoleModule extends BaseController {
      */
     @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasPrivilegeAll(user)){
-                result.setError("您没有权限操作角色！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request,"selectedIds");
-            String [] selectedIds_arr = null;
-            if(selectedIds != null){
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setOwnerAdd(initId, selectedIds_arr);
-                    break;
-                case "left":
-                    result = this.setOwnerDel(initId, selectedIds_arr);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAll(user)) {
+            result.setError("您没有权限操作角色！");
             return result;
         }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的角色！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        } else {
+            throw new Exception("请选择owner！");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setOwnerInit(initId, user.getBusinessId());
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setOwnerAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setOwnerDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        result.setData("操作成功！");
         return result;
     }
 
     private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             Map<String, Object> delMap = new HashMap<>();
             delMap.put("ownerId", Long.parseLong(id));
             delMap.put("roleId", initId);
@@ -249,7 +251,7 @@ public class RoleModule extends BaseController {
     }
 
     private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclRoleOwnerEntity entity = new AclRoleOwnerEntity();
             entity.setOwnerId(Long.parseLong(id));
             entity.setRoleId(initId);
@@ -341,17 +343,13 @@ public class RoleModule extends BaseController {
      */
     @RequestMapping(value = "del", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult delete(HttpServletRequest request, HttpServletResponse response) {
+    public VueResult delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
-        try {
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            aclRoleService.deleteAclRole(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        Long id = this.checkId(request);
+        delMap.put("id", id);
+        aclRoleService.deleteAclRole(delMap);
+        result.setData("操作成功！");
         return result;
     }
 
@@ -364,18 +362,17 @@ public class RoleModule extends BaseController {
      */
     @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult deleteBatch(HttpServletRequest request, HttpServletResponse response) {
+    public VueResult deleteBatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         String[] ids = request.getParameterValues("ids[]");
-        List<String> idsList = Arrays.asList(ids);
-        try {
-            delMap.put("inIds", idsList);
-            aclRoleService.deleteAclRole(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+        if (ids.length == 0 || ids == null) {
+            throw new Exception("请选择要删除的角色！");
         }
+        List<String> idsList = Arrays.asList(ids);
+        delMap.put("inIds", idsList);
+        aclRoleService.deleteAclRole(delMap);
+        result.setData("操作成功！");
         return result;
     }
 
@@ -390,38 +387,39 @@ public class RoleModule extends BaseController {
     @RequestMapping(value = "/setRoleHasPrivilege/{type}", method = RequestMethod.POST)
     @ResponseBody
     public VueResult setPrivilege(HttpServletRequest request,
-                                  HttpServletResponse response, @PathVariable String type) {
+                                  HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if (!this.hasPrivilegeAuthorized(user)) {
-                result.setError("您没有权限授权权限！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request,"selectedIds");
-            String [] selectedIds_arr = null;
-            if(selectedIds != null){
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setPrivilegeInit(initId, user.getId());       //查询权限
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
-                    break;
-                case "left":
-                    result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAuthorized(user)) {
+            result.setError("您没有权限授权权限！");
             return result;
         }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的角色！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        } else {
+            throw new Exception("请选择权限！");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setPrivilegeInit(initId, user.getId());       //查询权限
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
+                break;
+            case "left":
+                result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        result.setData("操作成功！");
         return result;
     }
 
@@ -433,7 +431,7 @@ public class RoleModule extends BaseController {
      * @return
      */
     private VueResult setPrivilegeDel(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             Map<String, Object> delMap = new HashMap<>();
             delMap.put("privilegeId", Long.parseLong(id));
             delMap.put("roleId", initId);
@@ -450,7 +448,7 @@ public class RoleModule extends BaseController {
      * @return
      */
     private VueResult setPrivilegeAdd(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclRoleHasPrivilegeEntity entity = new AclRoleHasPrivilegeEntity();
             entity.setPrivilegeId(Long.parseLong(id));
             entity.setRoleId(initId);
@@ -501,7 +499,7 @@ public class RoleModule extends BaseController {
     @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
     @ResponseBody
     public VueResult process(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+                             HttpServletResponse response, @PathVariable String type) throws Exception {
 
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
@@ -510,7 +508,7 @@ public class RoleModule extends BaseController {
             return result;
         }
         Map<String, Object> searchParamMap = new HashMap<>();
-        Long id = RequestUtil.getLong(request, "id");
+        Long id = this.checkId(request);
         searchParamMap.put("roleId", id);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
@@ -524,7 +522,7 @@ public class RoleModule extends BaseController {
                 vo.setChecked(false);
                 vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
                 for (AclRoleProcessEntity roleProcessEntity : have) {
-                    if(roleProcessEntity.getProcessId() == vo.getId()){
+                    if (roleProcessEntity.getProcessId() == vo.getId()) {
                         vo.setChecked(true);
                         vo.setHierarchyId(roleProcessEntity.getHierarchyId());
                         vo.setApprovalCondition(roleProcessEntity.getApprovalCondition());
@@ -535,12 +533,12 @@ public class RoleModule extends BaseController {
             map.put("all", allVOs); // 查询全部审核流程
             result.setData(map);
         } else {
-            String process = RequestUtil.getString(request,"process");
+            String process = RequestUtil.getString(request, "process");
             List<AclRoleProcessEntity> list = new ArrayList<>();
-            list = JSONArray.parseArray(process,AclRoleProcessEntity.class);
+            list = JSONArray.parseArray(process, AclRoleProcessEntity.class);
             aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
             for (AclRoleProcessEntity entity : list) {
-                if(entity.getChecked()) {
+                if (entity.getChecked()) {
                     entity.setRoleId(id);
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
                         ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
@@ -551,9 +549,6 @@ public class RoleModule extends BaseController {
         }
         return result;
     }
-
-
-
 
 
 }
