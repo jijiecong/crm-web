@@ -38,7 +38,7 @@
         style="width: 100%;">
         <el-table-column
           type="selection"
-          width="55">
+          width="42">
         </el-table-column>
         <el-table-column
           prop="id"

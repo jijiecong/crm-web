@@ -4,8 +4,8 @@ import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
-import com.meiren.common.utils.RequestUtil;
-import com.meiren.common.utils.StringUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.utils.StringUtils;
 import com.meiren.vo.GroupVO;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -85,7 +85,6 @@ public class SearchModule extends BaseController {
      */
     @RequestMapping("/hierarchy")
     public VueResult hierarchy(HttpServletRequest request) {
-        SessionUserVO user = this.getUser(request);
         List<AclHierarchyEntity> groupList = (List<AclHierarchyEntity>)
             aclHierarchyService.loadAclHierarchy(null).getData();
         List<SelectVO> all = new ArrayList<>();
@@ -156,55 +155,13 @@ public class SearchModule extends BaseController {
     @RequestMapping("/findByUserId")
     public VueResult findByUserId(HttpServletRequest request) {
         AclGroupEntity groupEntity = (AclGroupEntity)
-            aclGroupService.findAclGroupJoinHasUser(com.meiren.utils.RequestUtil.getLong(request, "userId")).getData();
-        GroupVO vo = new GroupVO();
+            aclGroupService.findAclGroupJoinHasUser(RequestUtil.getLong(request, "userId")).getData();
         if (groupEntity == null) {
-            return new VueResult();
+            return new VueResult(null);
         }
+        GroupVO vo = new GroupVO();
         BeanUtils.copyProperties(groupEntity, vo);
         return new VueResult(vo);
-    }
-
-    @RequestMapping("/hierarchy/{type}")
-    @ResponseBody
-    public ApiResult hierarchy(HttpServletRequest request,
-                               HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            if (Objects.equals(type, "init")) {
-                Long id = this.checkId(request);
-                result = aclHierarchyService.findAclHierarchy(id);
-            } else {
-                String q = RequestUtil.getStringTrans(request, "q");
-                Map<String, Object> paramMap = new HashMap<String, Object>();
-                paramMap.put("hierarchyNameLike", q);
-                result = aclHierarchyService.loadAclHierarchy(paramMap);
-            }
-            result.setData(result.getData());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    @RequestMapping("/biz/{type}")
-    @ResponseBody
-    public ApiResult select2(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            if (Objects.equals(type, "init")) {
-                Long id = this.checkId(request);
-                result = aclBizService.findAclBiz(id);
-            } else {
-                String q = RequestUtil.getStringTrans(request, "q");
-                result = aclBizService.loadAclBizLikeName(q);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
     }
 
 
