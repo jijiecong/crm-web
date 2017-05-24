@@ -8,7 +8,7 @@
       filterable
       :clearable="clearable"
       :placeholder="placeholder"
-      :loading="load_data"
+      v-loading="load_data"
       :size="size"
       @input="handleInput" >
       <el-option
@@ -86,7 +86,13 @@
       },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
-        this.currentValue = value;
+        if (this.multiple && !Array.isArray(value)) {
+          if (this.currentValue.indexOf(value) < 0) {
+            this.currentValue.push(value);
+          }
+        } else {
+          this.currentValue = value;
+        }
       },
       get_select_data(){
         this.load_data = true

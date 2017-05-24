@@ -65,14 +65,14 @@
           label="操作"
           width="280">
           <template scope="props">
-            <el-row>
-              <el-col :span="7">
+            <el-row class="operation-row">
+              <el-col class="operation-col">
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
               </el-col>
-              <el-col :span="9">
+              <el-col class="operation-col">
                 <el-button type="success" size="small" icon="edit" @click="to_router('userRoleEdit',props.row)">角色授权</el-button>
               </el-col>
-              <el-col :span="8">
+              <el-col class="operation-col">
                 <el-dropdown
                   trigger="click"
                   split-button type="info" size="small"

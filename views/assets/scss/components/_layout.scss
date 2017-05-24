@@ -156,11 +156,26 @@
       padding: 15px;
       overflow: hidden;
       font-weight: normal;
+      .el-table .cell, .el-table th>div{
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+      .cell {
+        .el-row{
+          .el-col{
+            width: inherit;
+            margin-left: 3px;
+            margin-right: 3px;
+          }
+        }
+      }
+
       .bottom-toolbar {
         margin-top: 15px;
         padding: 15px 0;
       }
     }
+
   }
   .footer {
     background: #fff;
@@ -209,7 +224,7 @@
     padding: 0;
     line-height: 25px;
     width: 100%;
-    a,div {
+    a, div {
       display: block;
       font-size: 14px;
       padding: 5px 10px;
