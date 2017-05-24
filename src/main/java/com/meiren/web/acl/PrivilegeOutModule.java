@@ -77,7 +77,7 @@ public class PrivilegeOutModule extends BaseController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public VueResult add(HttpServletRequest request, AclPrivilegeEntity aclPrivilegeEntity) throws Exception {
-        ApiResult result = new ApiResult();
+        VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if (user != null) {
             aclPrivilegeEntity.setCreateUserId(user.getId());
@@ -85,6 +85,12 @@ public class PrivilegeOutModule extends BaseController {
         aclPrivilegeEntity.setStatus(PrivilegeStatusEnum.NORMAL.name());
         Long privilegeId = (Long) aclPrivilegeService.createAclPrivilege(aclPrivilegeEntity).getData();
         Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
+        if (riskLevel == null) {
+            result.setError("请选择正确的风险等级！");
+            return result;
+        } else {
+            aclPrivilegeEntity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
+        }
         Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
         this.addPrivilegeProcess(privilegeId, riskLevel, oldRiskLevel);
         //设置owner，另外添加
@@ -95,11 +101,12 @@ public class PrivilegeOutModule extends BaseController {
             for (int i = 0; i < useridArr.length; i++) {
                 aclPrivilegeOwnerEntity.setUserId(Long.parseLong(useridArr[i]));
                 aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
-                result = aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
+                aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
             }
-            }
-            return new VueResult(result.getData());
         }
+        result.setData("操作成功！");
+        return result;
+    }
     /**
      * 根据风险等级添加默认审核流程
      *
