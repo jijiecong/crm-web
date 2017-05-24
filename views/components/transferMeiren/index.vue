@@ -1,6 +1,15 @@
-<template>
-  <div>
-    <el-transfer
+<style lang="scss" type="text/scss" rel="stylesheet/scss" >
+  .transfer-meiren {
+    .el-transfer-panel__filter .el-input__inner {
+      height: 30px
+    }
+  }
+
+</style >
+
+<template >
+  <div >
+    <el-transfer class="transfer-meiren"
       v-loading.body="load_data"
       filterable ref="transfer"
       :filter-method="filterMethod"
@@ -8,11 +17,11 @@
       :placeholder="placeholder"
       @change="handleChange"
       v-model="selected"
-      :data="selectData">
-    </el-transfer>
-  </div>
-</template>
-<script>
+      :data="selectData" >
+    </el-transfer >
+  </div >
+</template >
+<script >
   export default {
     props: {
       initUrl: String,
@@ -51,24 +60,24 @@
       //获取数据
       get_form_data(){
         this.load_data = true
-        let param = this.$qs.stringify({initId: this.initId})
+        let param = this.$qs.stringify({ initId: this.initId })
         this.axios.post(this.initUrl + '/init', param)
-          .then(({data: responseData}) => {
+          .then(({ data: responseData }) => {
             if (responseData !== null) {
               let selectData = responseData.selectData;
               let selected = responseData.selected;
               let data = [];
-              for (let i in selectData) {
+              selectData.forEach(function (element) {
                 data.push({
-                  label: selectData[i].name,
-                  key: selectData[i].id
+                  label: element.name,
+                  key: element.id
                 })
-              }
+              });
               this.selectData = data;
               let value = [];
-              for (let i in selected) {
-                value.push(selected[i].id)
-              }
+              selected.forEach(function (element) {
+                value.push(element.id)
+              });
               this.selected = value;
             }
             this.load_data = false
@@ -78,9 +87,9 @@
       },
       handleChange(value, direction, movedKeys) {
         this.load_data = true
-        let param = this.$qs.stringify({initId: this.initId, selectedIds: movedKeys.join(",")})
+        let param = this.$qs.stringify({ initId: this.initId, selectedIds: movedKeys.join(",") })
         this.axios.post(this.initUrl + '/' + direction, param)
-          .then(({data: responseData}) => {
+          .then(({ data: responseData }) => {
             this.$message.success("操作成功")
             this.load_data = false
           }).catch(() => {
@@ -100,4 +109,4 @@
       },
     },
   };
-</script>
+</script >
