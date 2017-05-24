@@ -86,13 +86,7 @@
       },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
-        if (this.multiple && !Array.isArray(value)) {
-          if (this.currentValue.indexOf(value) < 0) {
-            this.currentValue.push(value);
-          }
-        } else {
-          this.currentValue = value;
-        }
+        this.currentValue = value;
       },
       get_select_data(){
         this.load_data = true

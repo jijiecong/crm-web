@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.apply.index"})
 @Controller
 @RequestMapping("{uuid}/acl/apply")
 @ResponseBody

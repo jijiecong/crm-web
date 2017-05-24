@@ -4,7 +4,7 @@
     </panel-title>
     <div class="panel-title-down">
       <el-row>
-        <el-col :span="20">
+        <el-col :span="18">
           <form @submit.prevent="on_refresh">
             <el-row :gutter="10">
               <el-col :span="6">
@@ -16,7 +16,7 @@
             </el-row>
           </form>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="6">
           <div class="fr">
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
@@ -24,7 +24,6 @@
             <router-link :to="{name: 'applyAdd'}" tag="span">
               <el-button type="primary" icon="plus" size="small">申请权限</el-button>
             </router-link>
-
             <router-link :to="{name: 'applyRoleAdd'}" tag="span">
               <el-button type="primary" icon="plus" size="small">申请角色</el-button>
             </router-link>

@@ -5,7 +5,7 @@ import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.utils.RequestUtil;
-import com.meiren.utils.StringUtils;
+import com.meiren.common.utils.StringUtils;
 import com.meiren.vo.GroupVO;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -79,6 +79,7 @@ public class SearchModule extends BaseController {
         }
         return new VueResult(all);
     }
+
     /**
      * 查询角色列表
      */
@@ -142,14 +143,14 @@ public class SearchModule extends BaseController {
     @RequestMapping("/user")
     public VueResult user(HttpServletRequest request) {
         SessionUserVO user = this.getUser(request);
+        List<String> initId = RequestUtil.getArray(request, "initId");
         String query = RequestUtil.getStringTrans(request, "query");
-        String initId = RequestUtil.getStringTrans(request, "initId");
         Map<String, Object> map = new HashMap<String, Object>();
-        if (StringUtils.isBlank(initId)) {
+        if (initId.isEmpty()) {
             map.put("nicknameLike", query);
             map.put("businessId", user.getBusinessId());
         } else {
-            map.put("id", initId);
+            map.put("inIds", initId);
         }
         List<AclUserEntity> userList = (List<AclUserEntity>) aclUserService.loadAclUser(map).getData();
         List<SelectVO> all = new ArrayList<>();
@@ -169,14 +170,12 @@ public class SearchModule extends BaseController {
     public VueResult role(HttpServletRequest request) {
         SessionUserVO user = this.getUser(request);
         String query = RequestUtil.getStringTrans(request, "query");
-        String initId = RequestUtil.getStringTrans(request, "initId");
         Map<String, Object> map = new HashMap<String, Object>();
-        if (StringUtils.isBlank(initId)) {
-            map.put("nicknameLike", query);
-            map.put("businessId", user.getBusinessId());
-        } else {
-            map.put("id", initId);
+        if (StringUtils.isBlank(query)) {
+            return new VueResult(null);
         }
+        map.put("roleNameLike", query);
+        map.put("businessId", user.getBusinessId());
         List<AclRoleEntity> roleList = (List<AclRoleEntity>) aclRoleService.loadAclRole(map).getData();
         List<SelectVO> all = new ArrayList<>();
         for (AclRoleEntity roleEntity : roleList) {
@@ -195,10 +194,10 @@ public class SearchModule extends BaseController {
     public VueResult findByUserId(HttpServletRequest request) {
         AclGroupEntity groupEntity = (AclGroupEntity)
             aclGroupService.findAclGroupJoinHasUser(RequestUtil.getLong(request, "userId")).getData();
+        GroupVO vo = new GroupVO();
         if (groupEntity == null) {
             return new VueResult(null);
         }
-        GroupVO vo = new GroupVO();
         BeanUtils.copyProperties(groupEntity, vo);
         return new VueResult(vo);
     }

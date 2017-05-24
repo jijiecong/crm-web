@@ -1,18 +1,11 @@
-<template>
-  <div class="main-content ofh">
-    <el-row>
-      <el-col :span="24">
-        <div class="wrapper">
-          <div class="pageContent">
-            <slot></slot>
-          </div>
-        </div>
-        <!--<v-footer></v-footer>-->
-      </el-col>
-    </el-row>
-  </div>
-</template>
-<script type="text/javascript">
+<template >
+  <div class="main-content ofh" >
+    <div class="wrapper" >
+        <slot ></slot >
+    </div >
+  </div >
+</template >
+<script type="text/javascript" >
   import vFooter from './footer'
 
   export default{
@@ -24,4 +17,4 @@
       vFooter,
     }
   }
-</script>
+</script >
