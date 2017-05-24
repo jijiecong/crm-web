@@ -40,7 +40,7 @@ public class HierarchyModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("hierarchyNameLike", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("hierarchyNameLike", RequestUtil.getStringTrans(request, "name"));
         ApiResult apiResult = aclHierarchyService.searchAclHierarchy(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {
@@ -59,7 +59,7 @@ public class HierarchyModule extends BaseController {
     @RequestMapping(value = "/find", method = RequestMethod.GET)
     public VueResult find(HttpServletRequest request) {
         VueResult result = new VueResult();
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+        Long id = RequestUtil.getLong(request, "id");
         //搜索名称和对应值
         ApiResult apiResult = aclHierarchyService.findAclHierarchy(id);
         AclHierarchyEntity hierarchyEntity = (AclHierarchyEntity) apiResult.getData();
@@ -115,7 +115,7 @@ public class HierarchyModule extends BaseController {
             return result;
         }
         Map<String, Object> delMap = new HashMap<>();
-        Long id = com.meiren.utils.RequestUtil.getLong(request,"id");
+        Long id = RequestUtil.getLong(request,"id");
         delMap.put("id", id);
         aclHierarchyService.deleteAclHierarchy(delMap);
         result.setData("操作成功！");

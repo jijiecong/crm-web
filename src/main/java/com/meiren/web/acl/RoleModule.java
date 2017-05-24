@@ -80,7 +80,7 @@ public class RoleModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索名称和对应值
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("roleNameLike", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("roleNameLike", RequestUtil.getStringTrans(request, "name"));
         searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
         ApiResult apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
@@ -234,7 +234,6 @@ public class RoleModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 
@@ -415,7 +414,6 @@ public class RoleModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 

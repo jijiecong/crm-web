@@ -2,11 +2,9 @@
 package com.meiren.utils;
 
 import com.meiren.vo.SessionUserVO;
-import com.sun.tools.javac.code.Attribute;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -289,7 +289,6 @@ public class PrivilegeModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 
