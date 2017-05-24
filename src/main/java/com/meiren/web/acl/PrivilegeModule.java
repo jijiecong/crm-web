@@ -137,7 +137,7 @@ public class PrivilegeModule extends BaseController {
             }
             Long privilegeId;
             Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
-            if (!com.meiren.utils.StringUtils.isBlank(id)) {
+            if (!StringUtils.isBlank(id)) {
                 oldRiskLevel = aclPrivilegeService.findAclPrivilegeById(Long.valueOf(id)).getRiskLevel();
                 Map<String, Object> paramMap = com.meiren.common.utils.ObjectUtils.entityToMap(entity);
                 aclPrivilegeService.updateAclPrivilege(Long.valueOf(id), paramMap);
