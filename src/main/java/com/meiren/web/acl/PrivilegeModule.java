@@ -105,6 +105,7 @@ public class PrivilegeModule extends BaseController {
 //        result.setData("操作成功！");
 //        return result;
 //    }
+
     /**
      * 添加编辑
      */
@@ -131,19 +132,8 @@ public class PrivilegeModule extends BaseController {
             if (riskLevel == null) {
                 result.setError("请选择正确的风险等级！");
                 return result;
-            }
-            switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
-                case LOW:
-                    entity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
-                    break;
-                case MIDDLE:
-                    entity.setRiskLevel(RiskLevelEnum.MIDDLE.typeValue);
-                    break;
-                case HIGH:
-                    entity.setRiskLevel(RiskLevelEnum.HIGH.typeValue);
-                    break;
-                default:
-                    throw new Exception("请选择正确的风险等级！");
+            } else {
+                entity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
             }
             Long privilegeId;
             Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
@@ -231,7 +221,7 @@ public class PrivilegeModule extends BaseController {
                 vo.setChecked(false);
                 vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
                 for (AclPrivilegeProcessEntity privilegeProcessEntity : have) {
-                    if(privilegeProcessEntity.getProcessId() == vo.getId()){
+                    if (privilegeProcessEntity.getProcessId() == vo.getId()) {
                         vo.setChecked(true);
                         vo.setHierarchyId(privilegeProcessEntity.getHierarchyId());
                         vo.setApprovalCondition(privilegeProcessEntity.getApprovalCondition());
@@ -243,12 +233,12 @@ public class PrivilegeModule extends BaseController {
             result.setData(map);
         } else {
             //
-            String process = RequestUtil.getString(request,"process");
+            String process = RequestUtil.getString(request, "process");
             List<AclPrivilegeProcessEntity> list = new ArrayList<>();
-            list = JSONArray.parseArray(process,AclPrivilegeProcessEntity.class);
+            list = JSONArray.parseArray(process, AclPrivilegeProcessEntity.class);
             aclPrivilegeProcessService.deleteAclPrivilegeProcess(searchParamMap); // 删除原来的再重新添加
             for (AclPrivilegeProcessEntity entity : list) {
-                if(entity.getChecked()){
+                if (entity.getChecked()) {
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
                         ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
                     aclPrivilegeProcessService.createAclPrivilegeProcess(entity);
@@ -272,22 +262,22 @@ public class PrivilegeModule extends BaseController {
     public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasPrivilegeAll(user)){
+        if (!this.hasPrivilegeAll(user)) {
             result.setError("您没有权限操作权限！");
             return result;
         }
         Long initId = RequestUtil.getLong(request, "initId");
-        if(initId == null){
+        if (initId == null) {
             throw new Exception("请选择要操作的权限！");
         }
-        String selectedIds = RequestUtil.getString(request,"selectedIds");
-        String [] selectedIds_arr = null;
-        if(!StringUtils.isBlank(selectedIds)){
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
             selectedIds_arr = selectedIds.split(",");
         }
         switch (type) {
             case "init":
-                Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
+                Map<String, Object> data = this.setOwnerInit(initId, user.getBusinessId());
                 result.setData(data);
                 break;
             case "right":
@@ -304,7 +294,7 @@ public class PrivilegeModule extends BaseController {
     }
 
     private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             Map<String, Object> delMap = new HashMap<>();
             delMap.put("userId", Long.parseLong(id));
             delMap.put("privilegeId", initId);
@@ -314,7 +304,7 @@ public class PrivilegeModule extends BaseController {
     }
 
     private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclPrivilegeOwnerEntity entity = new AclPrivilegeOwnerEntity();
             entity.setUserId(Long.parseLong(id));
             entity.setPrivilegeId(initId);

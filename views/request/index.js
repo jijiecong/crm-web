@@ -5,7 +5,7 @@
 //导入模块
 import axios from 'axios'
 import store from 'store'
-import {request_login, result_code} from 'common/request_api'
+import { request_login, result_code } from 'common/request_api'
 import utils from 'common/utils'
 
 //设置用户信息action
@@ -69,15 +69,16 @@ const install = (Vue) => {
       //成功时
       let responseData = response.data
 
+      let isSuccess = responseData.isSuccess
       let dataCode = responseData.code
       let dataError = responseData.error || null
       let dataResult = responseData.data
-      if (dataCode === result_code.success) {
+      if (isSuccess && dataCode === result_code.success) {
         return Promise.resolve(responseData)
       }
       //没有登录的响应拦截,跳转登录页(登录页地址,后端传入)
       if (dataCode === result_code.unlogin) {
-        setUserInfo({login: false, userInfo: null})
+        setUserInfo({ login: false, userInfo: null })
         console.log(dataResult)
         $vue.$message.warning('您没有登录，请先前往登录')
         setTimeout(() => {
@@ -101,7 +102,7 @@ const install = (Vue) => {
         let resCode = resError.status
         let resMsg = error.message
         $vue.$message.error('操作失败！错误原因 ' + resMsg)
-        return Promise.reject({code: resCode, msg: resMsg})
+        return Promise.reject({ code: resCode, msg: resMsg })
       }
     }
   )
