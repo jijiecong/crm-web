@@ -8,7 +8,7 @@
           <form @submit.prevent="on_refresh" >
             <el-row :gutter="10" >
               <el-col :span="6" >
-                <el-input size="small" placeholder="名称" v-model="search_data.name" ></el-input >
+                <el-input size="small" placeholder="名称或token" v-model="search_data.name" ></el-input >
               </el-col >
               <el-col :span="1" >
                 <el-button type="primary" size="small" native-type="submit" >查询</el-button >
@@ -180,7 +180,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.del, { id: item.id })
+            let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_uri.del, param)
             .then(({ data: responseData }) => {
               this.get_table_data()
               this.$message.success("操作成功")

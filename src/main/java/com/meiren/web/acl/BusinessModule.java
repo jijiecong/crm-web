@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.business.index"})
+@AuthorityToken(needToken = {"meiren.acl.mbc.crm.acl.business.index"})
 @Controller
 @RequestMapping("{uuid}/acl/business")
 @ResponseBody

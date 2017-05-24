@@ -83,28 +83,29 @@ public class PrivilegeModule extends BaseController {
         PrivilegeVO vo = this.entityToVo(entity);
         return new VueResult(vo);
     }
-//    /**
-//     * 删除单个
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "del", method = RequestMethod.POST)
-//    public VueResult delete(HttpServletRequest request) throws Exception {
-//        VueResult result = new VueResult();
-//        Map<String, Object> delMap = new HashMap<>();
-//        SessionUserVO user = this.getUser(request);
-//        if (!this.hasPrivilegeAll(user)) {
-//            result.setError("您没有权限操作权限！");
-//            return result;
-//        }
-//        Long id = this.checkId(request);
-//        delMap.put("id", id);
-//        aclPrivilegeService.deleteAclPrivilege(delMap);
-//        result.setData("操作成功！");
-//        return result;
-//    }
+
+    /**
+     * 删除单个
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public VueResult delete(HttpServletRequest request) throws Exception {
+        VueResult result = new VueResult();
+        Map<String, Object> delMap = new HashMap<>();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAll(user)) {
+            result.setError("您没有权限操作权限！");
+            return result;
+        }
+        Long id = this.checkId(request);
+        delMap.put("id", id);
+        aclPrivilegeService.deleteAclPrivilege(delMap).check();
+        result.setData("操作成功！");
+        return result;
+    }
 
     /**
      * 添加编辑

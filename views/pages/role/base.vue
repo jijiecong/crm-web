@@ -59,8 +59,12 @@
         </el-table-column>
         <el-table-column
           prop="riskLevel"
-          label="风险等级">
-        </el-table-column>
+          label="风险等级"
+          width="100" >
+          <template scope="props" >
+            <span v-text="riskText(props.row.riskLevel)" ></span >
+          </template >
+        </el-table-column >
         <el-table-column
           label="操作"
           width="180">
@@ -162,6 +166,13 @@
       this.get_table_data()
     },
     methods: {
+      riskText(level){
+        const text = ['无', '低', '中', '高']
+        if (text.length - 1 < level && level < 0) {
+          return ''
+        }
+        return text[level]
+      },
       ...mapActions(['setBusinessId']),
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
