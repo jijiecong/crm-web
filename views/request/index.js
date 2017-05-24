@@ -45,10 +45,11 @@ const install = (Vue) => {
   axios.interceptors.request.use(
     (config) => {
       //开发模式下,默认基础路由
-      const base = process.env.NODE_ENV === 'production' ? '/' : '/vueApi'
+      const base = process.env.NODE_ENV === 'production' ? '' : 'vueApi'
       //用户的请求uuid,唯一标识
       const uuid = store.state.user.user_info !== null ? '/' + store.state.user.user_info.uuid : ''
       config.url = base + uuid + config.url
+      console.log(config.url)
       //在发送请求之前做某事
       $vue.$NProgress.start()
       return config
