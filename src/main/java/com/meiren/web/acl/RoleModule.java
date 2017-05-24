@@ -219,8 +219,6 @@ public class RoleModule extends BaseController {
         String[] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
             selectedIds_arr = selectedIds.split(",");
-        } else {
-            throw new Exception("请选择owner！");
         }
         switch (type) {
             case "init":
@@ -402,8 +400,6 @@ public class RoleModule extends BaseController {
         String[] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
             selectedIds_arr = selectedIds.split(",");
-        } else {
-            throw new Exception("请选择权限！");
         }
         switch (type) {
             case "init":

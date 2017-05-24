@@ -104,8 +104,6 @@ public class UserRoleModule extends BaseController {
         String [] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
             selectedIds_arr = selectedIds.split(",");
-        } else {
-            throw new Exception("请选择角色！");
         }
         switch (type) {
             case "init":
