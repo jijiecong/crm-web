@@ -52,11 +52,11 @@ html, body {
 }
 
 .width_100 {
-  width: 100%;
+  width: 100% !important;
 }
 
 .height_100 {
-  height: 100%;
+  height: 100% !important;
 }
 
 .nowrap {
@@ -91,4 +91,9 @@ html, body {
 
 .el-button-group .el-button {
   float: none;
+}
+.el-form {
+  .el-form-item {
+    width: 400px;
+  }
 }

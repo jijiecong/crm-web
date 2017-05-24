@@ -55,6 +55,7 @@ public class UserModule extends BaseController {
         "userName",
         "mobile",
     };
+
     /**
      * 用户列表
      *
@@ -79,6 +80,7 @@ public class UserModule extends BaseController {
         return new VueResult(rMap);
 
     }
+
     /**
      * 删除单个
      *
@@ -100,6 +102,7 @@ public class UserModule extends BaseController {
         result = aclUserService.deleteAclUser(delMap);
         return result;
     }
+
     /**
      * 查找用户
      *
@@ -129,7 +132,7 @@ public class UserModule extends BaseController {
     public VueResult save(HttpServletRequest request, UserVO vo) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -171,7 +174,7 @@ public class UserModule extends BaseController {
     public VueResult resign(HttpServletRequest request, HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -208,10 +211,10 @@ public class UserModule extends BaseController {
     @RequestMapping(value = "/changeGroup", method = RequestMethod.POST)
     @ResponseBody
     public VueResult changeGroup(HttpServletRequest request,
-                                 HttpServletResponse response){
+                                 HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -226,7 +229,7 @@ public class UserModule extends BaseController {
         return result;
     }
 
-    private VueResult changeGroup(Long userId, Long fromGroupId, Long toGroupId){
+    private VueResult changeGroup(Long userId, Long fromGroupId, Long toGroupId) {
         VueResult result = new VueResult();
         Map<String, Object> searchParamMap = new HashMap<String, Object>();
         //1、查询fromGroupId拥有的权限id和角色id
@@ -278,16 +281,17 @@ public class UserModule extends BaseController {
         VueResult result = new VueResult();
         Map<String, Object> updateMap = new HashMap<>();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
         Long userId = RequestUtil.getLong(request, "userId");
-        String status = RequestUtil.getString(request,"status");
-        Boolean flag = status.toLowerCase().equals("disable");
-        UserStatusEnum userStatusEnum = status.toLowerCase().equals("disable") ? UserStatusEnum.NORMAL : UserStatusEnum.DISABLE;
+        String status = RequestUtil.getString(request, "status");
+        UserStatusEnum userStatusEnum = status.toLowerCase().equals("disable")
+            ? UserStatusEnum.NORMAL : UserStatusEnum.DISABLE;
         updateMap.put("status", userStatusEnum.name());
         aclUserService.updateAclUser(userId, updateMap);
+
         AclUserEntity userEntity = (AclUserEntity) aclUserService.findAclUser(userId).getData();
         this.forcedLogout(userEntity);
         return result;
@@ -305,7 +309,7 @@ public class UserModule extends BaseController {
     public VueResult hierarchySet(HttpServletRequest request, HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -332,18 +336,18 @@ public class UserModule extends BaseController {
                                  HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
         Long userId = RequestUtil.getLong(request, "initId");
-        if(userId == null){
+        if (userId == null) {
             result.setError("用户为空");
             return result;
         }
-        String selectedIds = RequestUtil.getString(request,"selectedIds");
-        String [] selectedIds_arr = null;
-        if(selectedIds != null){
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
             selectedIds_arr = selectedIds.split(",");
         }
         switch (type) {
@@ -373,7 +377,7 @@ public class UserModule extends BaseController {
      */
     private VueResult roleControlDel(String[] selectedIds_arr, Long uid) throws Exception {
         VueResult result = new VueResult();
-        for(String id : selectedIds_arr){
+        for (String id : selectedIds_arr) {
             AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
             entity.setStatus(UserRoleStatusEnum.DELETE.name());
             entity.setUserId(uid);
@@ -392,7 +396,7 @@ public class UserModule extends BaseController {
      */
     private VueResult roleControlAdd(String[] selectedIds_arr, Long uid) {
         VueResult result = new VueResult();
-        for(String id : selectedIds_arr){
+        for (String id : selectedIds_arr) {
             AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
             entity.setStatus(UserRoleStatusEnum.DELETE.name());
             entity.setUserId(uid);
@@ -454,18 +458,18 @@ public class UserModule extends BaseController {
                                       HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasUserAll(user)){
+        if (!this.hasUserAll(user)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
         Long userId = RequestUtil.getLong(request, "initId");
-        if(userId == null){
+        if (userId == null) {
             result.setError("用户为空");
             return result;
         }
-        String selectedIds = RequestUtil.getString(request,"selectedIds");
-        String [] selectedIds_arr = null;
-        if(selectedIds != null){
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
             selectedIds_arr = selectedIds.split(",");
         }
         switch (type) {
@@ -495,7 +499,7 @@ public class UserModule extends BaseController {
      */
     private VueResult privilegeControlDel(String[] selectedIds_arr, Long uid) throws Exception {
         VueResult result = new VueResult();
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
             entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
             entity.setUserId(uid);
@@ -514,7 +518,7 @@ public class UserModule extends BaseController {
      */
     private VueResult privilegeControlAdd(String[] selectedIds_arr, Long uid) {
         VueResult result = new VueResult();
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
             entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
             entity.setUserId(uid);

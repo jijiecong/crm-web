@@ -7,7 +7,7 @@
       <el-row>
         <el-col>
           <el-form>
-            <el-form-item style="width: 600px">
+            <el-form-item style="width: 100%">
               <transfer-meiren ref="transferMeiren" :initUrl="data_url" :initId="route_id" :titles="['可授予的角色', '已拥有的角色']"></transfer-meiren>
             </el-form-item>
             <el-form-item style="margin-left: 150px">
@@ -17,7 +17,6 @@
           </el-form>
         </el-col>
       </el-row>
-
     </div>
   </div>
 </template>

@@ -42,7 +42,7 @@
         style="width: 100%;" >
         <el-table-column
           type="selection"
-          width="55" >
+          width="42" >
         </el-table-column >
         <el-table-column
           prop="id"
@@ -63,16 +63,17 @@
         </el-table-column >
         <el-table-column
           label="操作"
-          width="280">
-          <template scope="props">
-            <el-row>
-              <el-col :span="7">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
-              </el-col>
-              <el-col :span="9">
-                <el-button type="success" size="small" icon="edit" @click="to_router('userRoleEdit',props.row)">角色授权</el-button>
-              </el-col>
-              <el-col :span="8">
+          width="280" >
+          <template scope="props" >
+            <el-row class="operation-row" >
+              <el-col class="operation-col" >
+                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" >删除</el-button >
+              </el-col >
+              <el-col class="operation-col" >
+                <el-button type="success" size="small" icon="edit" @click="to_router('userRoleEdit',props.row)" >角色授权
+                </el-button >
+              </el-col >
+              <el-col class="operation-col" >
                 <el-dropdown
                   trigger="click"
                   split-button type="info" size="small"
@@ -89,14 +90,9 @@
                         <span >离职</span >
                       </a >
                     </el-dropdown-item >
-                    <el-dropdown-item v-if="props.row.status=='NORMAL'" >
+                    <el-dropdown-item >
                       <a @click="disable_data(props.row)" >
-                        <span >用户禁用</span >
-                      </a >
-                    </el-dropdown-item >
-                    <el-dropdown-item v-if="props.row.status=='DISABLE'" >
-                      <a @click="disable_data(props.row)" >
-                        <span >用户启用</span >
+                        <span v-text="disable_text(props.row.status)" ></span >
                       </a >
                     </el-dropdown-item >
                     <el-dropdown-item >
@@ -164,8 +160,7 @@
         load_data: true,
         //批量选择数组
         batch_select: [],
-        search_data: {
-        },
+        search_data: {},
       }
     },
     watch: {},
@@ -190,6 +185,13 @@
     },
     methods: {
       ...mapActions(['setBusinessId']),
+      disable_text(status){
+        let text = '禁用'
+        if (status === 'DISABLE') {
+          text = '启用'
+        }
+        return '用户' + text
+      },
       to_router(routerName, row){
         this.$router.push({ name: routerName, params: { id: row.id } })
       },
@@ -236,7 +238,8 @@
       //禁用
       disable_data(item){
         let param = this.$qs.stringify({ userId: item.id, status: item.status })
-        this.$confirm('设置用户禁用/启用', '是否继续?', '提示', {
+        let text = this.disable_text(item.status)
+        this.$confirm('设置' + text, '是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

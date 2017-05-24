@@ -24,7 +24,17 @@
                 placeholder="请输入内容"
                 :initId="initId" ></search-select >
             </el-form-item >
-            <el-form-item >
+            <el-form-item label="风险等级:" prop="riskLevel" >
+              <el-select v-model="form.riskLevel" placeholder="请选择" >
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value" >
+                </el-option >
+              </el-select >
+            </el-form-item >
+            <el-form-item class="width_100">
               <p style="" >* 命名规范:<br >
                 * 功能和菜单级别:meiren.acl.{appName}.{serviceName}.{funtionName}<br >
                 * 字段级别:meiren.acl.{appName}.{serviceName}.{funtionName}.{fieldName}</p >
@@ -64,7 +74,8 @@
           name: null,
           description: null,
           token: null,
-          ownerId: []
+          ownerId: [],
+          riskLevel: 1
         },
         route_id: this.$route.params.id,
         load_data: false,
@@ -109,7 +120,7 @@
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
-          let paramtmp = this.form;
+          let paramtmp = this.form
           paramtmp.ownerId = paramtmp.ownerId.join(",")
           let param = this.$qs.stringify(paramtmp)
           this.$http.post(request_searchPrivilege.save, param)

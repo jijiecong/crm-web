@@ -21,17 +21,17 @@
             <el-row :gutter="8">
               <el-col :span="8">
                 <router-link :to="{name: 'lowRisk'}" tag="span">
-                  <el-button type="success" size="small" >低风险模板</el-button>
+                  <el-button type="primary" size="small" >低风险模板</el-button>
                 </router-link>
               </el-col>
               <el-col :span="8">
                 <router-link :to="{name: 'middleRisk'}" tag="span">
-                  <el-button type="warning" size="small" >中风险模板</el-button>
+                  <el-button type="primary" size="small" >中风险模板</el-button>
                 </router-link>
               </el-col>
               <el-col :span="8">
                 <router-link :to="{name: 'highRisk'}" tag="span">
-                  <el-button type="danger" size="small" >高风险模板</el-button>
+                  <el-button type="primary" size="small" >高风险模板</el-button>
                 </router-link>
               </el-col>
             </el-row>
@@ -58,7 +58,7 @@
         style="width: 100%;">
         <el-table-column
           type="selection"
-          width="55">
+          width="42">
         </el-table-column>
         <el-table-column
           prop="id"
@@ -75,7 +75,7 @@
         </el-table-column>
         <el-table-column
           prop="hierarchyId"
-          label="最高层级">
+          label="最高层级限定">
         </el-table-column>
         <el-table-column
           label="操作"

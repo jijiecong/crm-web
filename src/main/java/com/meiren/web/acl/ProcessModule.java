@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.process.index","meiren.acl.all.superAdmin"})
+@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.process.index", "meiren.acl.all.superAdmin"})
 @Controller
 @RequestMapping("{uuid}/acl/process")
 @ResponseBody
@@ -40,10 +40,11 @@ public class ProcessModule extends BaseController {
     protected AclProcessModelService aclProcessModelService;
 
     private String[] necessaryParam = {
-            "name",
-            "hierarchyId",
-            "approvalLevel",
+        "name",
+        "hierarchyId",
+        "approvalLevel",
     };
+
     private ProcessVO entityToVo(AclProcessEntity entity) {
         ProcessVO vo = new ProcessVO();
         BeanUtils.copyProperties(entity, vo);
@@ -78,8 +79,8 @@ public class ProcessModule extends BaseController {
      * 查询
      */
     @RequestMapping("/find")
-    public VueResult find(HttpServletRequest request) {
-        Long id = RequestUtil.getLong(request, "id");
+    public VueResult find(HttpServletRequest request) throws Exception {
+        Long id = this.checkId(request);
         AclProcessEntity entity = (AclProcessEntity) aclProcessService.findAclProcess(id).getData();
         ProcessVO vo = this.entityToVo(entity);
         return new VueResult(vo);
@@ -105,30 +106,27 @@ public class ProcessModule extends BaseController {
 
     /**
      * 删除单个
+     *
      * @param request
      * @param response
      * @return
      */
     @RequestMapping(value = "del", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult delete(HttpServletRequest request, HttpServletResponse response) {
+    public VueResult delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
-        try {
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            aclProcessService.deleteAclProcess(delMap);
-            result.setData("操作成功！");
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        Long id = this.checkId(request);
+        delMap.put("id", id);
+        aclProcessService.deleteAclProcess(delMap);
+        result.setData("操作成功！");
         return result;
     }
 
     /**
      * 设置权限审核流程模板
      * TODO jijc
+     *
      * @param request
      * @param response
      * @param type
@@ -138,11 +136,14 @@ public class ProcessModule extends BaseController {
     @RequestMapping(value = "/setModel/{type}", method = RequestMethod.POST)
     @ResponseBody
     public VueResult process(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type) {
+                             HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
 
         Map<String, Object> searchParamMap = new HashMap<>();
-        int riskLevel = RequestUtil.getInteger(request, "riskLevel");
+        Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
+        if (riskLevel == null) {
+            throw new Exception("请选择要编辑的风险等级！");
+        }
         searchParamMap.put("riskLevel", riskLevel);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
@@ -156,7 +157,7 @@ public class ProcessModule extends BaseController {
                 vo.setChecked(false);
                 vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
                 for (AclProcessModelEntity processModelEntity : have) {
-                    if(processModelEntity.getProcessId() == vo.getId()){
+                    if (processModelEntity.getProcessId() == vo.getId()) {
                         vo.setChecked(true);
                         vo.setHierarchyId(processModelEntity.getHierarchyId());
                         vo.setApprovalCondition(processModelEntity.getApprovalCondition());
@@ -167,12 +168,12 @@ public class ProcessModule extends BaseController {
             map.put("all", allVOs); // 查询全部审核流程
             result.setData(map);
         } else {
-            String process = RequestUtil.getString(request,"process");
+            String process = RequestUtil.getString(request, "process");
             List<AclProcessModelEntity> list = new ArrayList<>();
-            list = JSONArray.parseArray(process,AclProcessModelEntity.class);
+            list = JSONArray.parseArray(process, AclProcessModelEntity.class);
             aclProcessModelService.deleteAclProcessModel(searchParamMap);   //删除原来的再重新添加
             for (AclProcessModelEntity entity : list) {
-                if(entity.getChecked()) {
+                if (entity.getChecked()) {
                     entity.setRiskLevel(riskLevel);
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
                         ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());

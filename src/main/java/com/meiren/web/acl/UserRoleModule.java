@@ -89,38 +89,37 @@ public class UserRoleModule extends BaseController {
      */
     @RequestMapping(value = "/setRole/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasRoleAuthorized(user)){
-                result.setError("您没有权限操作授予角色！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request,"selectedIds");
-            String [] selectedIds_arr = null;
-            if(selectedIds != null){
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setRoleInit(initId,user.getBusinessId(),user.getId());
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setRoleAdd(initId, selectedIds_arr);
-                    break;
-                case "left":
-                    result = this.setRoleDel(initId, selectedIds_arr);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if(!this.hasRoleAuthorized(user)){
+            result.setError("您没有权限操作授予角色！");
             return result;
         }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的用户！");
+        }
+        String selectedIds = RequestUtil.getString(request,"selectedIds");
+        String [] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setRoleInit(initId,user.getBusinessId(),user.getId());
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setRoleAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setRoleDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+            result.setData("操作成功！");
         return result;
     }
 

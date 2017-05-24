@@ -77,12 +77,34 @@ public class PrivilegeModule extends BaseController {
      * 查询
      */
     @RequestMapping("/find")
-    public VueResult find(HttpServletRequest request) {
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+    public VueResult find(HttpServletRequest request) throws Exception {
+        Long id = this.checkId(request);
         AclPrivilegeEntity entity = (AclPrivilegeEntity) aclPrivilegeService.findAclPrivilege(id).getData();
         PrivilegeVO vo = this.entityToVo(entity);
         return new VueResult(vo);
     }
+//    /**
+//     * 删除单个
+//     *
+//     * @param request
+//     * @param response
+//     * @return
+//     */
+//    @RequestMapping(value = "del", method = RequestMethod.POST)
+//    public VueResult delete(HttpServletRequest request) throws Exception {
+//        VueResult result = new VueResult();
+//        Map<String, Object> delMap = new HashMap<>();
+//        SessionUserVO user = this.getUser(request);
+//        if (!this.hasPrivilegeAll(user)) {
+//            result.setError("您没有权限操作权限！");
+//            return result;
+//        }
+//        Long id = this.checkId(request);
+//        delMap.put("id", id);
+//        aclPrivilegeService.deleteAclPrivilege(delMap);
+//        result.setData("操作成功！");
+//        return result;
+//    }
 
     /**
      * 添加编辑
@@ -106,27 +128,16 @@ public class PrivilegeModule extends BaseController {
         }
         if (canDo) {
             AclPrivilegeEntity entity = this.voToEntity(vo);
-            Integer riskLevel = com.meiren.utils.RequestUtil.getInteger(request, "riskLevel");
+            Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
             if (riskLevel == null) {
                 result.setError("请选择正确的风险等级！");
                 return result;
-            }
-            switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
-                case LOW:
-                    entity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
-                    break;
-                case MIDDLE:
-                    entity.setRiskLevel(RiskLevelEnum.MIDDLE.typeValue);
-                    break;
-                case HIGH:
-                    entity.setRiskLevel(RiskLevelEnum.HIGH.typeValue);
-                    break;
-                default:
-                    throw new Exception("请选择正确的风险等级！");
+            } else {
+                entity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
             }
             Long privilegeId;
             Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
-            if (!com.meiren.utils.StringUtils.isBlank(id)) {
+            if (!StringUtils.isBlank(id)) {
                 oldRiskLevel = aclPrivilegeService.findAclPrivilegeById(Long.valueOf(id)).getRiskLevel();
                 Map<String, Object> paramMap = com.meiren.common.utils.ObjectUtils.entityToMap(entity);
                 aclPrivilegeService.updateAclPrivilege(Long.valueOf(id), paramMap);
@@ -188,7 +199,7 @@ public class PrivilegeModule extends BaseController {
      */
     @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult process(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult process(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if (!this.hasPrivilegeAll(user)) {
@@ -196,7 +207,7 @@ public class PrivilegeModule extends BaseController {
             return result;
         }
         Map<String, Object> searchParamMap = new HashMap<>();
-        Long id = RequestUtil.getLong(request, "id");
+        Long id = this.checkId(request);
         searchParamMap.put("privilegeId", id);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
@@ -210,7 +221,7 @@ public class PrivilegeModule extends BaseController {
                 vo.setChecked(false);
                 vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
                 for (AclPrivilegeProcessEntity privilegeProcessEntity : have) {
-                    if(privilegeProcessEntity.getProcessId() == vo.getId()){
+                    if (privilegeProcessEntity.getProcessId() == vo.getId()) {
                         vo.setChecked(true);
                         vo.setHierarchyId(privilegeProcessEntity.getHierarchyId());
                         vo.setApprovalCondition(privilegeProcessEntity.getApprovalCondition());
@@ -222,12 +233,12 @@ public class PrivilegeModule extends BaseController {
             result.setData(map);
         } else {
             //
-            String process = RequestUtil.getString(request,"process");
+            String process = RequestUtil.getString(request, "process");
             List<AclPrivilegeProcessEntity> list = new ArrayList<>();
-            list = JSONArray.parseArray(process,AclPrivilegeProcessEntity.class);
+            list = JSONArray.parseArray(process, AclPrivilegeProcessEntity.class);
             aclPrivilegeProcessService.deleteAclPrivilegeProcess(searchParamMap); // 删除原来的再重新添加
             for (AclPrivilegeProcessEntity entity : list) {
-                if(entity.getChecked()){
+                if (entity.getChecked()) {
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
                         ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
                     aclPrivilegeProcessService.createAclPrivilegeProcess(entity);
@@ -248,43 +259,42 @@ public class PrivilegeModule extends BaseController {
      */
     @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if(!this.hasPrivilegeAll(user)){
-                result.setError("您没有权限操作权限！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request,"selectedIds");
-            String [] selectedIds_arr = null;
-            if(selectedIds != null){
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setOwnerInit(initId,user.getBusinessId());
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setOwnerAdd(initId, selectedIds_arr);
-                    break;
-                case "left":
-                    result = this.setOwnerDel(initId, selectedIds_arr);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAll(user)) {
+            result.setError("您没有权限操作权限！");
             return result;
         }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的权限！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setOwnerInit(initId, user.getBusinessId());
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setOwnerAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setOwnerDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        result.setData("操作成功！");
         return result;
     }
 
     private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             Map<String, Object> delMap = new HashMap<>();
             delMap.put("userId", Long.parseLong(id));
             delMap.put("privilegeId", initId);
@@ -294,7 +304,7 @@ public class PrivilegeModule extends BaseController {
     }
 
     private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclPrivilegeOwnerEntity entity = new AclPrivilegeOwnerEntity();
             entity.setUserId(Long.parseLong(id));
             entity.setPrivilegeId(initId);

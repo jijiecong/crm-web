@@ -1,92 +1,96 @@
-<template>
-  <div class="panel">
-    <panel-title :title="$route.meta.title">
-    </panel-title>
-    <div class="panel-title-down">
-      <el-row>
-        <el-col :span="20">
-          <form @submit.prevent="on_refresh">
-            <el-row :gutter="10">
-              <el-col :span="6">
-                <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
-              </el-col>
-              <el-col :span="1">
-                <el-button type="primary" size="small" native-type="submit">查询</el-button>
-              </el-col>
-            </el-row>
-          </form>
-        </el-col>
-        <el-col :span="4">
-          <div class="fr">
-            <el-button @click.stop="on_refresh" size="small">
-              <i class="fa fa-refresh"></i>
-            </el-button>
-            <router-link :to="{name: 'privilegeAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">添加数据</el-button>
-            </router-link>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="panel-body">
+<template >
+  <div class="panel" >
+    <panel-title :title="$route.meta.title" >
+    </panel-title >
+    <div class="panel-title-down" >
+      <el-row >
+        <el-col :span="20" >
+          <form @submit.prevent="on_refresh" >
+            <el-row :gutter="10" >
+              <el-col :span="6" >
+                <el-input size="small" placeholder="名称" v-model="search_data.name" ></el-input >
+              </el-col >
+              <el-col :span="1" >
+                <el-button type="primary" size="small" native-type="submit" >查询</el-button >
+              </el-col >
+            </el-row >
+          </form >
+        </el-col >
+        <el-col :span="4" >
+          <div class="fr" >
+            <el-button @click.stop="on_refresh" size="small" >
+              <i class="fa fa-refresh" ></i >
+            </el-button >
+            <router-link :to="{name: 'privilegeAdd'}" tag="span" >
+              <el-button type="primary" icon="plus" size="small" >添加数据</el-button >
+            </router-link >
+          </div >
+        </el-col >
+      </el-row >
+    </div >
+    <div class="panel-body" >
       <el-table
         :data="table_data"
         v-loading="load_data"
         element-loading-text="拼命加载中"
         border
         @selection-change="on_batch_select"
-        style="width: 100%;">
+        style="width: 100%;" >
         <el-table-column
           type="selection"
-          width="55">
-        </el-table-column>
+          width="42" >
+        </el-table-column >
         <el-table-column
           prop="id"
           label="id"
-          width="80">
-        </el-table-column>
+          width="80" >
+        </el-table-column >
         <el-table-column
           prop="name"
-          label="名称">
-        </el-table-column>
+          label="名称" >
+        </el-table-column >
         <el-table-column
           prop="token"
-          label="token">
-        </el-table-column>
+          label="token" >
+        </el-table-column >
         <el-table-column
           prop="riskLevel"
-          label="风险等级">
-        </el-table-column>
+          label="风险等级"
+          width="100" >
+          <template scope="props" >
+            <span v-text="riskText(props.row.riskLevel)" ></span >
+          </template >
+        </el-table-column >
         <el-table-column
           label="操作"
-          width="180">
-          <template scope="props">
-            <el-row>
-              <el-col :span="11">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
-              </el-col>
-              <el-col :span="13">
-                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)">
+          width="180" >
+          <template scope="props" >
+            <el-row class="operation-row" >
+              <el-col class="operation-col" >
+                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" >删除</el-button >
+              </el-col >
+              <el-col class="operation-col" >
+                <el-dropdown split-button type="info" size="small" @click="to_router('privilegeUpdate',props.row)" >
                   修改
-                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu">
-                    <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeProcess',props.row)">
-                        <span>设置审核流程</span>
-                      </a>
-                    </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a @click="to_router('setPrivilegeOwner',props.row)">
-                      <span>设置权限owner</span>
-                    </a>
-                  </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </el-col>
-            </el-row>
-          </template>
-        </el-table-column>
-      </el-table>
-      <bottom-tool-bar>
+                  <el-dropdown-menu slot="dropdown" class="table-dropdown-menu" >
+                    <el-dropdown-item >
+                      <a @click="to_router('setPrivilegeProcess',props.row)" >
+                        <span >设置审核流程</span >
+                      </a >
+                    </el-dropdown-item >
+                    <el-dropdown-item >
+                      <a @click="to_router('setPrivilegeOwner',props.row)" >
+                        <span >设置权限owner</span >
+                      </a >
+                    </el-dropdown-item >
+                  </el-dropdown-menu >
+                </el-dropdown >
+              </el-col >
+            </el-row >
+          </template >
+        </el-table-column >
+      </el-table >
+      <bottom-tool-bar >
         <!--<el-button-->
         <!--type="danger"-->
         <!--icon="delete"-->
@@ -96,22 +100,22 @@
         <!--slot="handler">-->
         <!--<span>批量删除</span>-->
         <!--</el-button>-->
-        <div slot="page">
+        <div slot="page" >
           <el-pagination
             @current-change="handleCurrentChange"
             :current-page="currentPage"
             :page-size="10"
             layout="total, prev, pager, next"
-            :total="total_count">
-          </el-pagination>
-        </div>
-      </bottom-tool-bar>
-    </div>
-  </div>
-</template>
-<script type="text/javascript">
-  import {panelTitle, bottomToolBar} from 'components'
-  import {request_privilege as request_uri} from 'common/request_api'
+            :total="total_count" >
+          </el-pagination >
+        </div >
+      </bottom-tool-bar >
+    </div >
+  </div >
+</template >
+<script type="text/javascript" >
+  import { panelTitle, bottomToolBar } from 'components'
+  import { request_privilege as request_uri } from 'common/request_api'
 
   export default{
     data(){
@@ -138,8 +142,15 @@
       this.get_table_data()
     },
     methods: {
+      riskText(level){
+        const text = ['无', '低', '中', '高']
+        if (text.length - 1 < level && level < 0) {
+          return ''
+        }
+        return text[level]
+      },
       to_router(routerName, row){
-        this.$router.push({name: routerName, params: {id: row.id}})
+        this.$router.push({ name: routerName, params: { id: row.id } })
       },
       //刷新
       on_refresh(){
@@ -154,7 +165,7 @@
             rows: this.rows,
             ...this.search_data
           }
-        }).then(({data}) => {
+        }).then(({ data }) => {
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false
@@ -169,8 +180,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(request_uri.del, {id: item.id})
-            .then(({data: responseData}) => {
+          this.$http.post(request_uri.del, { id: item.id })
+            .then(({ data: responseData }) => {
               this.get_table_data()
               this.$message.success("操作成功")
             })
@@ -193,7 +204,7 @@
           type: 'warning'
         }).then(() => {
           this.$http.post(request_uri.batch_del, this.batch_select)
-            .then(({data: responseData}) => {
+            .then(({ data: responseData }) => {
               this.get_table_data()
               this.$message.success("操作成功")
             })
@@ -201,4 +212,4 @@
       }
     }
   }
-</script>
+</script >
