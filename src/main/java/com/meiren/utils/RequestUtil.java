@@ -5,6 +5,10 @@ import com.meiren.vo.SessionUserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class RequestUtil {
 
@@ -33,6 +37,19 @@ public class RequestUtil {
         return val;
     }
 
+
+    public static List<String> getArray(HttpServletRequest request, String paramName) {
+        List<String> list = new ArrayList<>();
+        Map<String, String[]> params = request.getParameterMap();
+        for (Map.Entry<String, String[]> entry : params.entrySet()) {
+            if (entry.getKey().startsWith(paramName + "[") && entry.getKey().endsWith("]")
+                || (entry.getKey().equals(paramName))) {
+                String[] value = entry.getValue();
+                list.addAll(Arrays.asList(value));
+            }
+        }
+        return list;
+    }
 
     public static String getStringTrans(HttpServletRequest request, String paramName) {
         String value = request.getParameter(paramName);

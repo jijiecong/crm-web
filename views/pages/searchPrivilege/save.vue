@@ -34,7 +34,7 @@
                 </el-option >
               </el-select >
             </el-form-item >
-            <el-form-item class="width_100">
+            <el-form-item class="width_100" >
               <p style="" >* 命名规范:<br >
                 * 功能和菜单级别:meiren.acl.{appName}.{serviceName}.{funtionName}<br >
                 * 字段级别:meiren.acl.{appName}.{serviceName}.{funtionName}.{fieldName}</p >
@@ -59,7 +59,7 @@
     data(){
       return {
         select_user_url: request_user.search,
-        initId: null,
+        initId: [],
         options: [{
           value: 1,
           label: '低风险'
@@ -108,7 +108,7 @@
       }
     },
     created(){
-      this.initId = this.getUserInfo.id
+      this.initId.push(this.getUserInfo.id)
     },
     watch: {},
     computed: {
@@ -120,9 +120,7 @@
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
-          let paramtmp = this.form
-          paramtmp.ownerId = paramtmp.ownerId.join(",")
-          let param = this.$qs.stringify(paramtmp)
+          let param = this.$qs.stringify(this.form)
           this.$http.post(request_searchPrivilege.save, param)
             .then(({ data: responseData }) => {
               this.$message.success("操作成功")

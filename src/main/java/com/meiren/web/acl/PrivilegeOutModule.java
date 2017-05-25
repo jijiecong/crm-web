@@ -58,7 +58,7 @@ public class PrivilegeOutModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索名称和对应值
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("nameOrToken", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("nameOrToken", RequestUtil.getStringTrans(request, "name"));
         ApiResult apiResult = aclPrivilegeService.searchAclPrivilege(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {
@@ -95,11 +95,10 @@ public class PrivilegeOutModule extends BaseController {
         this.addPrivilegeProcess(privilegeId, riskLevel, oldRiskLevel);
         //设置owner，另外添加
         AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
-        String userIds = RequestUtil.getString(request, "ownerId");
-        if (!StringUtils.isBlank(userIds)) {
-            String[] useridArr = userIds.split(",");
-            for (int i = 0; i < useridArr.length; i++) {
-                aclPrivilegeOwnerEntity.setUserId(Long.parseLong(useridArr[i]));
+        List<String> userIds = RequestUtil.getArray(request, "ownerId");
+        if (userIds.isEmpty()) {
+            for (String userId : userIds) {
+                aclPrivilegeOwnerEntity.setUserId(Long.parseLong(userId));
                 aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
                 aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
             }

@@ -5,9 +5,9 @@ import com.meiren.acl.enums.PrivilegeTokenEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.sso.web.SsoHelper;
+import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
@@ -25,7 +25,7 @@ public class BaseController {
     private AclBusinessService aclBusinessService;
 
     SessionUserVO getUser(HttpServletRequest request) {
-        return com.meiren.utils.RequestUtil.getSessionUser(request);
+        return RequestUtil.getSessionUser(request);
     }
 
     public Map<String, Object> converRequestMap(Map<String, String[]> paramMap) {

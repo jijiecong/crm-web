@@ -92,7 +92,7 @@ public class UserRoleModule extends BaseController {
     public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if(!this.hasRoleAuthorized(user)){
+        if (!this.hasRoleAuthorized(user)) {
             result.setError("您没有权限操作授予角色！");
             return result;
         }
@@ -100,14 +100,14 @@ public class UserRoleModule extends BaseController {
         if (initId == null) {
             throw new Exception("请选择要操作的用户！");
         }
-        String selectedIds = RequestUtil.getString(request,"selectedIds");
-        String [] selectedIds_arr = null;
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
             selectedIds_arr = selectedIds.split(",");
         }
         switch (type) {
             case "init":
-                Map<String, Object> data = this.setRoleInit(initId,user.getBusinessId(),user.getId());
+                Map<String, Object> data = this.setRoleInit(initId, user.getBusinessId(), user.getId());
                 result.setData(data);
                 break;
             case "right":
@@ -119,12 +119,11 @@ public class UserRoleModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-            result.setData("操作成功！");
         return result;
     }
 
     private VueResult setRoleDel(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             Map<String, Object> delMap = new HashMap<>();
             delMap.put("userId", initId);
             delMap.put("roleId", Long.parseLong(id));
@@ -134,7 +133,7 @@ public class UserRoleModule extends BaseController {
     }
 
     private VueResult setRoleAdd(Long initId, String[] selectedIds_arr) {
-        for(String id : selectedIds_arr) {
+        for (String id : selectedIds_arr) {
             AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
             entity.setUserId(initId);
             entity.setRoleId(Long.parseLong(id));

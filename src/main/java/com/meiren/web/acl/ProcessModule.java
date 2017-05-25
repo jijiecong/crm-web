@@ -118,7 +118,7 @@ public class ProcessModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         Long id = this.checkId(request);
         delMap.put("id", id);
-        aclProcessService.deleteAclProcess(delMap);
+        aclProcessService.deleteAclProcess(delMap).check();
         result.setData("操作成功！");
         return result;
     }

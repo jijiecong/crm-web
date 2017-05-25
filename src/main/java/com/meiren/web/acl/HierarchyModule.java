@@ -3,6 +3,7 @@ package com.meiren.web.acl;
 import com.meiren.acl.service.AclHierarchyService;
 import com.meiren.acl.service.entity.AclHierarchyEntity;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
+@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index", "meiren.acl.all.superAdmin"})
 @Controller
 @RequestMapping("{uuid}/acl/hierarchy")
 @ResponseBody
@@ -40,7 +41,7 @@ public class HierarchyModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("hierarchyNameLike", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("hierarchyNameLike", RequestUtil.getStringTrans(request, "name"));
         ApiResult apiResult = aclHierarchyService.searchAclHierarchy(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {
@@ -59,7 +60,7 @@ public class HierarchyModule extends BaseController {
     @RequestMapping(value = "/find", method = RequestMethod.GET)
     public VueResult find(HttpServletRequest request) {
         VueResult result = new VueResult();
-        Long id = com.meiren.utils.RequestUtil.getLong(request, "id");
+        Long id = RequestUtil.getLong(request, "id");
         //搜索名称和对应值
         ApiResult apiResult = aclHierarchyService.findAclHierarchy(id);
         AclHierarchyEntity hierarchyEntity = (AclHierarchyEntity) apiResult.getData();
@@ -107,7 +108,7 @@ public class HierarchyModule extends BaseController {
      */
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult delete(HttpServletRequest request) {
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if(!this.hasSuperAdmin(user)){
@@ -115,9 +116,9 @@ public class HierarchyModule extends BaseController {
             return result;
         }
         Map<String, Object> delMap = new HashMap<>();
-        Long id = com.meiren.utils.RequestUtil.getLong(request,"id");
+        Long id = RequestUtil.getLong(request,"id");
         delMap.put("id", id);
-        aclHierarchyService.deleteAclHierarchy(delMap);
+        aclHierarchyService.deleteAclHierarchy(delMap).check();
         result.setData("操作成功！");
         return result;
     }

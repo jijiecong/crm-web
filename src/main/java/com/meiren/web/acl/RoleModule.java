@@ -56,7 +56,7 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclProcessModelService aclProcessModelService;
     private String[] necessaryParam = {
-        "name",
+        "name","businessId",
     };
 
     private RoleVO entityToVo(AclRoleEntity entity) {
@@ -80,7 +80,7 @@ public class RoleModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索名称和对应值
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("roleNameLike", com.meiren.utils.RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("roleNameLike", RequestUtil.getStringTrans(request, "name"));
         searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
         ApiResult apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
@@ -127,19 +127,8 @@ public class RoleModule extends BaseController {
             if (riskLevel == null) {
                 result.setError("请选择正确的风险等级！");
                 return result;
-            }
-            switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
-                case LOW:
-                    entity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
-                    break;
-                case MIDDLE:
-                    entity.setRiskLevel(RiskLevelEnum.MIDDLE.typeValue);
-                    break;
-                case HIGH:
-                    entity.setRiskLevel(RiskLevelEnum.HIGH.typeValue);
-                    break;
-                default:
-                    throw new Exception("请选择正确的风险等级！");
+            }else{
+                entity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
             }
             Long roleId;
             Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
@@ -150,12 +139,12 @@ public class RoleModule extends BaseController {
                 roleId = Long.valueOf(id);
             } else {
                 entity.setStatus(RoleStatusEnum.NORMAL.name());
-                entity.setPid(0l);
-                aclRoleService.createAclRole(entity);
-                roleId = (Long) result.getData();
+                entity.setPid(0L);
+                ApiResult apiResult = aclRoleService.createAclRole(entity);
+                roleId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
-            this.addRoleProcess(roleId, riskLevel, oldRiskLevel);
+            this.addRoleProcess(roleId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
         } else {
             result.setError("您无权添加编辑该权限");
@@ -234,7 +223,6 @@ public class RoleModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 
@@ -346,7 +334,7 @@ public class RoleModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         Long id = this.checkId(request);
         delMap.put("id", id);
-        aclRoleService.deleteAclRole(delMap);
+        aclRoleService.deleteAclRole(delMap).check();
         result.setData("操作成功！");
         return result;
     }
@@ -415,7 +403,6 @@ public class RoleModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 

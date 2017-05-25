@@ -37,10 +37,6 @@
         @selection-change="on_batch_select"
         style="width: 100%;">
         <el-table-column
-          type="selection"
-          width="42">
-        </el-table-column>
-        <el-table-column
           prop="id"
           label="id"
           width="80">
@@ -66,7 +62,7 @@
           label="被申请角色/权限">
         </el-table-column>
         <el-table-column
-          prop="approvalLevel"
+          prop="approvalLevelName"
           width="200"
           label="审核级别">
         </el-table-column>
@@ -93,6 +89,7 @@
         </el-table-column>
         <el-table-column
           label="操作"
+          fixed="right"
           width="100">
           <template scope="props">
             <el-row>
@@ -201,6 +198,7 @@
             ...this.search_data
           }
         }).then(({data}) => {
+            console.log(data)
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false

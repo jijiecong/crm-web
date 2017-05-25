@@ -83,28 +83,29 @@ public class PrivilegeModule extends BaseController {
         PrivilegeVO vo = this.entityToVo(entity);
         return new VueResult(vo);
     }
-//    /**
-//     * 删除单个
-//     *
-//     * @param request
-//     * @param response
-//     * @return
-//     */
-//    @RequestMapping(value = "del", method = RequestMethod.POST)
-//    public VueResult delete(HttpServletRequest request) throws Exception {
-//        VueResult result = new VueResult();
-//        Map<String, Object> delMap = new HashMap<>();
-//        SessionUserVO user = this.getUser(request);
-//        if (!this.hasPrivilegeAll(user)) {
-//            result.setError("您没有权限操作权限！");
-//            return result;
-//        }
-//        Long id = this.checkId(request);
-//        delMap.put("id", id);
-//        aclPrivilegeService.deleteAclPrivilege(delMap);
-//        result.setData("操作成功！");
-//        return result;
-//    }
+
+    /**
+     * 删除单个
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public VueResult delete(HttpServletRequest request) throws Exception {
+        VueResult result = new VueResult();
+        Map<String, Object> delMap = new HashMap<>();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAll(user)) {
+            result.setError("您没有权限操作权限！");
+            return result;
+        }
+        Long id = this.checkId(request);
+        delMap.put("id", id);
+        aclPrivilegeService.deleteAclPrivilege(delMap).check();
+        result.setData("操作成功！");
+        return result;
+    }
 
     /**
      * 添加编辑
@@ -145,11 +146,11 @@ public class PrivilegeModule extends BaseController {
             } else {
                 entity.setCreateUserId(user.getId());
                 entity.setStatus(PrivilegeStatusEnum.NORMAL.name());
-                aclPrivilegeService.createAclPrivilege(entity);
-                privilegeId = (Long) result.getData();
+                ApiResult apiResult = aclPrivilegeService.createAclPrivilege(entity);
+                privilegeId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
-            this.addPrivilegeProcess(privilegeId, riskLevel, oldRiskLevel);
+            this.addPrivilegeProcess(privilegeId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
         } else {
             result.setError("您无权添加编辑该权限");
@@ -289,7 +290,6 @@ public class PrivilegeModule extends BaseController {
             default:
                 throw new Exception("type not find");
         }
-        result.setData("操作成功！");
         return result;
     }
 

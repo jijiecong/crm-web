@@ -2,13 +2,15 @@
   <el-row >
     <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText"
       v-if="title" ></label >
-    <el-select class="select-div" :class="{'no-title':title===null}"
+    <el-select class="select-div" :class="{'no-title':title===null}" ref="select"
       :value="currentValue"
       :clearable="clearable"
       :multiple="multiple"
       :size="size"
       filterable
       remote
+      :loading="loading"
+      v-loading="load_data"
       :placeholder="placeholder"
       :remote-method="remoteMethod"
       @input="handleInput" >
@@ -59,15 +61,15 @@
         type: Boolean,
         default: false
       },
-      initId: {
-        type: Number,
-        default: null
-      },
+      initId: [String, Number, Array],
     },
     data() {
       return {
         options: this.selectData,
+        loading: false,
         load_data: false,
+        initOk: false,
+        canQuery: true,
         currentValue: this.value,
       }
     },
@@ -94,24 +96,21 @@
       },
       setCurrentValue(value) {
         if (value === this.currentValue) return;
-        if (this.multiple && !Array.isArray(value)) {
-          if (this.currentValue.indexOf(value) < 0) {
-            this.currentValue.push(value);
-          }
-        } else {
-          this.currentValue = value;
-        }
+        this.currentValue = value;
       },
       initData() {
-        let id = this.initId
-        if (id !== null && this.options.length === 0) {
+        if (this.initId !== undefined && this.initId !== null && !this.initOk) {
+          this.canQuery = false
+          this.load_data = true
           this.$http.get(this.selectUrl, {
             params: {
-              initId: id
+              initId: this.initId
             }
-          }).then(({ data }) => {
+          }).then(async ({ data }) => {
             this.options = data
-            this.setCurrentValue(id)
+            await this.handleInput(this.initId)
+            this.initOk = true
+            this.canQuery = true
             this.load_data = false
           }).catch(() => {
             this.load_data = false
@@ -119,17 +118,17 @@
         }
       },
       remoteMethod(query) {
-        if (query !== '') {
-          this.loading = false;
+        if (this.canQuery && query !== '') {
+          this.loading = true;
           this.$http.get(this.selectUrl, {
             params: {
               query: query
             }
           }).then(({ data }) => {
             this.options = data
-            this.load_data = false
+            this.loading = false
           }).catch(() => {
-            this.load_data = false
+            this.loading = false
           });
         } else {
           this.options = [];

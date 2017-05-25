@@ -59,8 +59,12 @@
         </el-table-column>
         <el-table-column
           prop="riskLevel"
-          label="风险等级">
-        </el-table-column>
+          label="风险等级"
+          width="100" >
+          <template scope="props" >
+            <span v-text="riskText(props.row.riskLevel)" ></span >
+          </template >
+        </el-table-column >
         <el-table-column
           label="操作"
           width="180">
@@ -162,6 +166,13 @@
       this.get_table_data()
     },
     methods: {
+      riskText(level){
+        const text = ['无', '低', '中', '高']
+        if (text.length - 1 < level && level < 0) {
+          return ''
+        }
+        return text[level]
+      },
       ...mapActions(['setBusinessId']),
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
@@ -190,11 +201,21 @@
       },
       //单个删除
       delete_data(item){
-        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+        const h = this.$createElement;
+        this.$msgbox({
+          title: '消息',
+          type: 'warning',
+          message: h('p', null, [
+            h('span', null, '此操作将删除选择数据, 是否继续?'),
+            h('br'),
+            h('br'),
+            h('span', null, 'ps:1、当有用户或部门拥有该角色时，2、当有用户申请该角色时，需要先取消关联才能删除，否则删除失败！'),
+          ]),
+          showCancelButton: true,
+        }).then((action) => {
+          if (action === 'cancel') {
+            return
+          }
           let param = this.$qs.stringify({id: item.id})
           this.$http.post(request_role.del, param)
             .then(({data: responseData}) => {

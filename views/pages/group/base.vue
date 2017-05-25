@@ -196,11 +196,21 @@
 
       //单个删除
       delete_data(item){
-        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+        const h = this.$createElement;
+        this.$msgbox({
+          title: '消息',
+          type: 'warning',
+          message: h('p', null, [
+            h('span', null, '此操作将删除选择数据, 是否继续?'),
+            h('br'),
+            h('br'),
+            h('span', null, 'ps:当有用户在该部门下时，需要先取消关联才能删除，否则删除失败！'),
+          ]),
+          showCancelButton: true,
+        }).then((action) => {
+          if (action === 'cancel') {
+            return
+          }
           let param = this.$qs.stringify({id: item.id})
           this.$http.post(request_group.del, param)
             .then(({data: responseData}) => {
