@@ -4,19 +4,7 @@
     </panel-title>
     <div class="panel-title-down">
       <el-row>
-        <el-col :span="18">
-          <form @submit.prevent="on_refresh">
-            <el-row :gutter="10">
-              <el-col :span="6">
-                <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
-              </el-col>
-              <el-col :span="2">
-                <el-button type="primary" size="small" native-type="submit">查询</el-button>
-              </el-col>
-            </el-row>
-          </form>
-        </el-col>
-        <el-col :span="6">
+        <el-col :span="6" :offset="18">
           <div class="fr">
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
