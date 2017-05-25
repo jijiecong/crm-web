@@ -57,9 +57,13 @@
           prop="description"
           label="部门描述">
         </el-table-column>
+        <!--<el-table-column-->
+          <!--prop="status"-->
+          <!--label="部门状态">-->
+        <!--</el-table-column>-->
         <el-table-column
-          prop="status"
-          label="部门状态">
+          prop="pname"
+          label="上级部门">
         </el-table-column>
         <el-table-column
           label="操作"
@@ -181,6 +185,7 @@
             ...this.search_data
           }
         }).then(({data}) => {
+
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false

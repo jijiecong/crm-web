@@ -92,9 +92,9 @@ public class BusinessModule extends BaseController {
         VueResult result = new VueResult();
         Long id = RequestUtil.getLong(request, "id");
         if (id != null) {
-            aclBusinessService.updateAclBusiness(id, ObjectUtils.entityToMap(vo));
+            aclBusinessService.updateAclBusiness(id, ObjectUtils.entityToMap(vo)).check();
         } else {
-            aclBusinessService.createAclBusiness(this.voToEntity(vo));
+            aclBusinessService.createAclBusiness(this.voToEntity(vo)).check();
         }
         return result;
     }
@@ -142,49 +142,43 @@ public class BusinessModule extends BaseController {
     @RequestMapping(value = "setBusinessHasRole", method = RequestMethod.POST)
     public ApiResult setBusinessHasRole(HttpServletRequest request) {
         ApiResult result = new ApiResult();
-        try {
-            List<Long> listOld = new ArrayList<>();
-            List<Long> listNew = new ArrayList<>();
-            Map<String, Object> map = new HashMap<String, Object>();
-            String roleIds = RequestUtil.getString(request, "roleId");
+        List<Long> listOld = new ArrayList<>();
+        List<Long> listNew = new ArrayList<>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        String roleIds = RequestUtil.getString(request, "roleId");
 
-            String[] roleIdArr = roleIds.split(","); //获取角色id
+        String[] roleIdArr = roleIds.split(","); //获取角色id
 
-            List<String> idsList = Arrays.asList(roleIdArr);//转换成list
+        List<String> idsList = Arrays.asList(roleIdArr);//转换成list
 
-            Long businessId = RequestUtil.getLong(request, "businessId"); //获取商家id
-            map.put("businessId", businessId);
-            //查询该商家拥有的权限
-            List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
-            Map<String, Object> roleMap = new HashMap<String, Object>();
-            roleMap.put("inRoleIds", idsList);
-            //查询角色拥有的权限
-            List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
-            for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
-                if (!listNew.contains(a.getPrivilegeId())) {
-                    listNew.add(a.getPrivilegeId());
-                }
+        Long businessId = RequestUtil.getLong(request, "businessId"); //获取商家id
+        map.put("businessId", businessId);
+        //查询该商家拥有的权限
+        List<AclBusinessHasPrivilegeEntity> aclBusinessHasPrivilegeEntityList = (List<AclBusinessHasPrivilegeEntity>) aclBusinessHasPrivilegeService.loadAclBusinessHasPrivilege(map).getData();
+        Map<String, Object> roleMap = new HashMap<String, Object>();
+        roleMap.put("inRoleIds", idsList);
+        //查询角色拥有的权限
+        List<AclRoleHasPrivilegeEntity> aclRoleHasPrivilegeEntity = (List<AclRoleHasPrivilegeEntity>) aclRoleHasPrivilegeService.loadAclRoleHasPrivilege(roleMap).getData();
+        for (AclRoleHasPrivilegeEntity a : aclRoleHasPrivilegeEntity) {
+            if (!listNew.contains(a.getPrivilegeId())) {
+                listNew.add(a.getPrivilegeId());
             }
-            for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
-                listOld.add(b.getPrivilegeId());
-            }
-            listNew.removeAll(listOld);
-            List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
-            for (int i = 0; i < listNew.size(); ++i) {
-                AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
-                aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
-                aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
-                list.add(aclBusinessHasPrivilegeEntity);
-            }
-            if (listNew.size() > 0) {
-                result = aclBusinessHasPrivilegeService.createBatch(list);
-            } else {
-                result.setData("您选择导入的权限已经存在，无需重复添加！");
-            }
-
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+        }
+        for (AclBusinessHasPrivilegeEntity b : aclBusinessHasPrivilegeEntityList) {
+            listOld.add(b.getPrivilegeId());
+        }
+        listNew.removeAll(listOld);
+        List<AclBusinessHasPrivilegeEntity> list = new ArrayList<>();
+        for (int i = 0; i < listNew.size(); ++i) {
+            AclBusinessHasPrivilegeEntity aclBusinessHasPrivilegeEntity = new AclBusinessHasPrivilegeEntity();
+            aclBusinessHasPrivilegeEntity.setBusinessId(businessId);
+            aclBusinessHasPrivilegeEntity.setPrivilegeId(listNew.get(i));
+            list.add(aclBusinessHasPrivilegeEntity);
+        }
+        if (listNew.size() > 0) {
+            result = aclBusinessHasPrivilegeService.createBatch(list);
+        } else {
+            result.setData("您选择导入的权限已经存在，无需重复添加！");
         }
         return result;
     }
@@ -199,38 +193,32 @@ public class BusinessModule extends BaseController {
      * @return
      */
     @RequestMapping(value = "/setBusinessHasPrivilege/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public VueResult setPrivilege(HttpServletRequest request, @PathVariable String type) {
+    public VueResult setPrivilege(HttpServletRequest request, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
-        try {
-            SessionUserVO user = this.getUser(request);
-            if (!this.hasPrivilegeAuthorized(user)) {
-                result.setError("您没有权限授权权限！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "initId");
-            String selectedIds = RequestUtil.getString(request, "selectedIds");
-            String[] selectedIds_arr = null;
-            if (selectedIds != null) {
-                selectedIds_arr = selectedIds.split(",");
-            }
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setPrivilegeInit(initId);       //查询权限
-                    result.setData(data);
-                    break;
-                case "right":
-                    result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
-                    break;
-                case "left":
-                    result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAuthorized(user)) {
+            result.setError("您没有权限授权权限！");
             return result;
+        }
+        Long initId = RequestUtil.getLong(request, "initId");
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setPrivilegeInit(initId);       //查询权限
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
+                break;
+            case "left":
+                result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
+                break;
+            default:
+                throw new Exception("type not find");
         }
         return result;
     }
