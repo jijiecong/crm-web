@@ -264,6 +264,32 @@ const routes = [{
   },
   //申请管理路由 结束
 
+  //监控配置管理路由 开始
+  {
+    path: '/monitor/base', name: 'monitorBase',
+    meta: { title: "监控配置管理列表" },
+    components: { default: resolve => require(['pages/monitor/base'], resolve) },
+  },{
+    path: '/monitor/add', name: 'monitorAdd',
+    meta: { title: "添加监控配置" },
+    components: { default: resolve => require(['pages/monitor/save'], resolve) },
+  },{
+    path: '/monitor/update/:id', name: 'monitorUpdate',
+    meta: { title: "修改监控配置" },
+    components: { default: resolve => require(['pages/monitor/save'], resolve) },
+  },
+
+  //监控配置管理路由 结束
+
+  //监控结果管理路由 开始
+  {
+    path: '/monitorResult/base', name: 'monitorResultBase',
+    meta: { title: "监控结果列表" },
+    components: { default: resolve => require(['pages/monitorResult/base'], resolve) },
+  },
+  //监控结果管理路由 结束
+
+
   {
     path: '/table/base', name: 'tableBase',
     meta: { title: "基本表格" },

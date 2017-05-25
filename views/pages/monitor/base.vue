@@ -4,29 +4,13 @@
     </panel-title>
     <div class="panel-title-down">
       <el-row>
-        <el-col :span="20">
-          <form @submit.prevent="on_refresh">
-            <el-row :gutter="10">
-              <el-col :span="6">
-                <el-input size="small" placeholder="名称" v-model="search_data.name"></el-input>
-              </el-col>
-              <el-col :span="2">
-                <el-button type="primary" size="small" native-type="submit">查询</el-button>
-              </el-col>
-            </el-row>
-          </form>
-        </el-col>
         <el-col :span="4">
           <div class="fr">
             <el-button @click.stop="on_refresh" size="small">
               <i class="fa fa-refresh"></i>
             </el-button>
-            <router-link :to="{name: 'applyAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">申请权限</el-button>
-            </router-link>
-
-            <router-link :to="{name: 'applyRoleAdd'}" tag="span">
-              <el-button type="primary" icon="plus" size="small">申请角色</el-button>
+            <router-link :to="{name: 'monitorAdd'}" tag="span">
+              <el-button type="primary" icon="plus" size="small">添加数据</el-button>
             </router-link>
           </div>
         </el-col>
@@ -50,33 +34,51 @@
           width="80">
         </el-table-column>
         <el-table-column
-          prop="userName"
-          label="申请人">
+          prop="name"
+          label="名称">
         </el-table-column>
         <el-table-column
-          prop="applyContent"
-          label="申请描述">
+          prop="type"
+          label="类型">
         </el-table-column>
         <el-table-column
-          prop="wantName"
-          label="被申请权限/角色">
+          prop="domain"
+          label="ip">
         </el-table-column>
         <el-table-column
-          prop="approvalState"
-          label="审核状态">
+          prop="router"
+          label="路由">
         </el-table-column>
         <el-table-column
-          prop="applyTime"
-          width="200"
-          label="申请时间">
+          prop="method"
+          label="方法">
+        </el-table-column> <el-table-column
+        prop="paramType"
+        label="参数名称">
+      </el-table-column> <el-table-column
+        prop="paramValue"
+        label="参数值">
+      </el-table-column>
+        <el-table-column
+          prop="timeValue"
+          label="时间间隔">
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          width="180">
           <template scope="props">
-            <label v-text="to_date(props.row.applyTime)" ></label>
+            <el-row>
+              <el-col :span="11">
+                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
+              </el-col>
+              <el-col :span="13">
+                <el-button split-button type="info" icon="edit" size="small" @click="to_router('monitorUpdate',props.row)">修改</el-button>
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
-
       </el-table>
       <bottom-tool-bar>
-
         <div slot="page">
           <el-pagination
             @current-change="handleCurrentChange"
@@ -92,7 +94,7 @@
 </template>
 <script type="text/javascript">
   import {simpleSelect, panelTitle, bottomToolBar} from 'components'
-  import {request_user, request_apply} from 'common/request_api'
+  import {request_user, request_monitor} from 'common/request_api'
   import {mapGetters} from 'vuex'
 
   export default{
@@ -107,11 +109,6 @@
         rows: 10,
         //请求时的loading效果
         load_data: true,
-        //批量选择数组
-        batch_select: [],
-        search_data: {
-          businessId: ''
-        },
       }
     },
     components: {
@@ -126,9 +123,6 @@
       ...mapGetters(['getUserInfo'])
     },
     methods: {
-      to_date(time){
-        return this.$dateFormat(time,'yyyy-MM-dd hh:mm')
-      },
       //刷新
       on_refresh(){
         this.get_table_data()
@@ -136,7 +130,7 @@
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_apply.list, {
+        this.$http.get(request_monitor.list, {
           params: {
             page: this.currentPage,
             rows: this.rows,
@@ -148,6 +142,21 @@
           this.load_data = false
         }).catch(() => {
           this.load_data = false
+        })
+      },
+      //单个删除
+      delete_data(item){
+        this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let param = this.$qs.stringify({id: item.id})
+          this.$http.post(request_monitor.del,param)
+            .then(({data: responseData}) => {
+              this.get_table_data()
+              this.$message.success("操作成功")
+            })
         })
       },
       //页码选择
