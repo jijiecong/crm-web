@@ -6,6 +6,7 @@ import com.meiren.acl.service.entity.AclBusinessHasPrivilegeEntity;
 import com.meiren.acl.service.entity.AclPrivilegeEntity;
 import com.meiren.acl.service.entity.AclRoleHasPrivilegeEntity;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.crm.acl.business.index"})
+@AuthorityToken(needToken = {"meiren.acl.mbc.crm.acl.business.index", "meiren.acl.all.superAdmin"})
 @Controller
 @RequestMapping("{uuid}/acl/business")
 @ResponseBody
@@ -118,14 +119,14 @@ public class BusinessModule extends BaseController {
      */
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult delete(HttpServletRequest request) {
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
         VueResult result = new VueResult();
         Long id = RequestUtil.getLong(request, "id");
         if (id == null) {
             result.setError("请选择要删除的商家！");
             return result;
         }
-        aclBusinessService.deleteById(id);
+        aclBusinessService.deleteById(id).check();
         return result;
     }
 

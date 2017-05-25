@@ -3,6 +3,7 @@ package com.meiren.web.acl;
 import com.meiren.acl.service.AclHierarchyService;
 import com.meiren.acl.service.entity.AclHierarchyEntity;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index"})
+@AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.hierarchy.index", "meiren.acl.all.superAdmin"})
 @Controller
 @RequestMapping("{uuid}/acl/hierarchy")
 @ResponseBody
@@ -107,7 +108,7 @@ public class HierarchyModule extends BaseController {
      */
     @RequestMapping(value = "/del", method = RequestMethod.POST)
     @ResponseBody
-    public VueResult delete(HttpServletRequest request) {
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if(!this.hasSuperAdmin(user)){
@@ -117,7 +118,7 @@ public class HierarchyModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         Long id = RequestUtil.getLong(request,"id");
         delMap.put("id", id);
-        aclHierarchyService.deleteAclHierarchy(delMap);
+        aclHierarchyService.deleteAclHierarchy(delMap).check();
         result.setData("操作成功！");
         return result;
     }

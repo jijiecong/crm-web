@@ -6,6 +6,7 @@ import com.meiren.acl.enums.UserStatusEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.result.VueResultCode;
@@ -89,8 +90,8 @@ public class UserModule extends BaseController {
      * @return
      */
     @RequestMapping(value = "del", method = RequestMethod.POST)
-    public ApiResult delete(HttpServletRequest request) {
-        ApiResult result = new ApiResult();
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         SessionUserVO user = this.getUser(request);
         if (!this.hasGroupAll(user)) {
@@ -99,7 +100,7 @@ public class UserModule extends BaseController {
         }
         Long id = RequestUtil.getLong(request, "id");
         delMap.put("id", id);
-        result = aclUserService.deleteAclUser(delMap);
+        aclUserService.deleteAclUser(delMap).check();
         return result;
     }
 

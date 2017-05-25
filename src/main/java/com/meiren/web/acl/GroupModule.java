@@ -3,6 +3,7 @@ package com.meiren.web.acl;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
@@ -79,8 +80,8 @@ public class GroupModule extends BaseController {
      * @return
      */
     @RequestMapping(value = "del", method = RequestMethod.POST)
-    public ApiResult delete(HttpServletRequest request) {
-        ApiResult result = new ApiResult();
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         SessionUserVO user = this.getUser(request);
         if (!this.hasGroupAll(user)) {
@@ -89,7 +90,7 @@ public class GroupModule extends BaseController {
         }
         Long id = RequestUtil.getLong(request, "id");
         delMap.put("id", id);
-        result = aclGroupService.deleteAclGroup(delMap);
+        aclGroupService.deleteAclGroup(delMap).check();
         return result;
     }
 

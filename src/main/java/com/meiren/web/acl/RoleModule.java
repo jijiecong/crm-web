@@ -56,7 +56,7 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclProcessModelService aclProcessModelService;
     private String[] necessaryParam = {
-        "name",
+        "name","businessId",
     };
 
     private RoleVO entityToVo(AclRoleEntity entity) {
@@ -151,8 +151,8 @@ public class RoleModule extends BaseController {
             } else {
                 entity.setStatus(RoleStatusEnum.NORMAL.name());
                 entity.setPid(0l);
-                aclRoleService.createAclRole(entity);
-                roleId = (Long) result.getData();
+                ApiResult apiResult = aclRoleService.createAclRole(entity);
+                roleId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
             this.addRoleProcess(roleId, riskLevel, oldRiskLevel);
@@ -345,7 +345,7 @@ public class RoleModule extends BaseController {
         Map<String, Object> delMap = new HashMap<>();
         Long id = this.checkId(request);
         delMap.put("id", id);
-        aclRoleService.deleteAclRole(delMap);
+        aclRoleService.deleteAclRole(delMap).check();
         result.setData("操作成功！");
         return result;
     }

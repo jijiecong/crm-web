@@ -146,8 +146,8 @@ public class PrivilegeModule extends BaseController {
             } else {
                 entity.setCreateUserId(user.getId());
                 entity.setStatus(PrivilegeStatusEnum.NORMAL.name());
-                aclPrivilegeService.createAclPrivilege(entity);
-                privilegeId = (Long) result.getData();
+                ApiResult apiResult = aclPrivilegeService.createAclPrivilege(entity);
+                privilegeId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
             this.addPrivilegeProcess(privilegeId, riskLevel, oldRiskLevel);

@@ -86,6 +86,9 @@
     created(){
       console.log('save')
       this.route_id && this.get_form_data()
+      if(!this.route_id){
+        this.form.businessId = this.getUserInfo.businessId
+      }
     },
     computed: {
       ...mapGetters(['getUserInfo']),

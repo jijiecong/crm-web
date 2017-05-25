@@ -60,7 +60,7 @@
           id: null,
           name: null,
           description: null,
-          riskLevel: null
+          riskLevel: 1,
         },
         route_id: this.$route.params.id,
         load_data: false,
@@ -89,6 +89,9 @@
     },
     created(){
       this.route_id && this.get_form_data()
+      if(!this.route_id){
+          this.form.businessId = this.getUserInfo.businessId
+      }
     },
     watch:{
 
