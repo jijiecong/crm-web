@@ -89,6 +89,9 @@
             id: this.route_id
           }
         }).then(({data: responseData}) => {
+            if(responseData.pid === 0 ){
+              responseData.pid=null
+            }
           this.form = responseData
           this.load_data = false
         }).catch(() => {
