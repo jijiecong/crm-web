@@ -107,9 +107,6 @@
         }
       }
     },
-    created(){
-      this.initId.push(this.getUserInfo.id)
-    },
     watch: {},
     computed: {
       ...mapGetters(['getUserInfo']),

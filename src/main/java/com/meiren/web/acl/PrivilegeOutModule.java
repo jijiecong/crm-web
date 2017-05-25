@@ -13,7 +13,6 @@ import com.meiren.acl.service.entity.AclProcessModelEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.utils.RequestUtil;
-import com.meiren.utils.StringUtils;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -96,7 +95,7 @@ public class PrivilegeOutModule extends BaseController {
         //设置owner，另外添加
         AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
         List<String> userIds = RequestUtil.getArray(request, "ownerId");
-        if (userIds.isEmpty()) {
+        if (!userIds.isEmpty()) {
             for (String userId : userIds) {
                 aclPrivilegeOwnerEntity.setUserId(Long.parseLong(userId));
                 aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
