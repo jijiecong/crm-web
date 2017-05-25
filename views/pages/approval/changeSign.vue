@@ -46,7 +46,6 @@
     },
     watch: {
       form(val){
-        console.log(val)
       }
     },
     methods: {

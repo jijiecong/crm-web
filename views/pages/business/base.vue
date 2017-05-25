@@ -145,11 +145,6 @@
       ...mapGetters(['getUserInfo'])
     },
     methods: {
-      on_command(a, b, c){
-        console.log(a)
-        console.log(b)
-        console.log(c)
-      },
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
       },

@@ -198,7 +198,6 @@
             ...this.search_data
           }
         }).then(({data}) => {
-            console.log(data)
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false
