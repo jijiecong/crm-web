@@ -119,19 +119,8 @@ public class RoleModule extends BaseController {
             if (riskLevel == null) {
                 result.setError("请选择正确的风险等级！");
                 return result;
-            }
-            switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
-                case LOW:
-                    entity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
-                    break;
-                case MIDDLE:
-                    entity.setRiskLevel(RiskLevelEnum.MIDDLE.typeValue);
-                    break;
-                case HIGH:
-                    entity.setRiskLevel(RiskLevelEnum.HIGH.typeValue);
-                    break;
-                default:
-                    throw new Exception("请选择正确的风险等级！");
+            }else{
+                entity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
             }
             Long roleId;
             Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
@@ -142,12 +131,12 @@ public class RoleModule extends BaseController {
                 roleId = Long.valueOf(id);
             } else {
                 entity.setStatus(RoleStatusEnum.NORMAL.name());
-                entity.setPid(0l);
+                entity.setPid(0L);
                 ApiResult apiResult = aclRoleService.createAclRole(entity);
                 roleId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
-            this.addRoleProcess(roleId, riskLevel, oldRiskLevel);
+            this.addRoleProcess(roleId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
         } else {
             result.setError("您无权添加编辑该权限");

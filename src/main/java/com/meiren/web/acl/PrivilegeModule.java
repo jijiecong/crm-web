@@ -150,7 +150,7 @@ public class PrivilegeModule extends BaseController {
                 privilegeId = (Long) apiResult.getData();
             }
             // 添加风险审核流程
-            this.addPrivilegeProcess(privilegeId, riskLevel, oldRiskLevel);
+            this.addPrivilegeProcess(privilegeId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
         } else {
             result.setError("您无权添加编辑该权限");

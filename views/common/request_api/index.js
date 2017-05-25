@@ -19,4 +19,6 @@ module.exports = {
   request_approval: require("./approval"),
   request_userAndRole: require("./userAndRole"),
   request_apply: require("./apply"),
+  request_monitor: require("./monitor"),
+  request_monitorResult: require("./monitorResult"),
 }
