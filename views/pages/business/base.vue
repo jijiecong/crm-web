@@ -63,7 +63,7 @@
           <template scope="props">
             <el-row>
               <el-col :span="11">
-                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>
+                <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" :disabled="props.row.token === 'INSIDE'">删除</el-button>
               </el-col>
               <el-col :span="13">
                 <el-dropdown

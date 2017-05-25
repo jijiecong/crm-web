@@ -74,7 +74,7 @@
           label="审核级别">
         </el-table-column>
         <el-table-column
-          prop="hierarchyId"
+          prop="hierarchyName"
           label="最高层级限定">
         </el-table-column>
         <el-table-column

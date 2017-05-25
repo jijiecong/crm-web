@@ -14,7 +14,7 @@
               <el-input v-model="form.description" placeholder="请输入内容"></el-input>
             </el-form-item>
             <el-form-item label="商家token:" prop="token">
-              <el-input v-model="form.token" placeholder="请输入内容"></el-input>
+              <el-input v-model="form.token" placeholder="请输入内容" :disabled="form.token === 'INSIDE'"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button @click="$router.back()">取消</el-button>
