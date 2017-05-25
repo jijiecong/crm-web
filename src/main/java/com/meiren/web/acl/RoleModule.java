@@ -38,15 +38,7 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
     @Autowired
-    protected AclUserHasPrivilegeService aclUserHasPrivilegeService;
-    @Autowired
-    protected AclGroupHasRoleService aclGroupHasRoleService;
-    @Autowired
-    protected AclBizService aclBizService;
-    @Autowired
     protected AclRoleOwnerService aclRoleOwnerService;
-    @Autowired
-    protected AclBizOwnerService aclBizOwnerService;
     @Autowired
     protected AclProcessService aclProcessService;
     @Autowired

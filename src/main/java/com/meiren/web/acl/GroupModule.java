@@ -43,8 +43,6 @@ public class GroupModule extends BaseController {
     protected AclRoleService aclRoleService;
     @Autowired
     protected AclGroupHasRoleService aclGroupHasRoleService;
-    @Autowired
-    protected AclBusinessService aclBusinessService;
     private String[] necessaryParam = {
         "name",
     };
