@@ -1,50 +1,50 @@
-<template>
-  <div class="panel">
-    <panel-title :title="$route.meta.title"></panel-title>
+<template >
+  <div class="panel" >
+    <panel-title :title="$route.meta.title" ></panel-title >
     <div class="panel-body"
-         v-loading="load_data"
-         element-loading-text="拼命加载中">
-      <el-row>
-        <el-col>
-          <el-form ref="form" :model="form" :rules="rules" label-width="100px">
-            <el-form-item label="部门名称:" prop="name">
-              <el-input v-model="form.name" placeholder="请输入内容"></el-input>
-            </el-form-item>
-            <el-form-item label="部门描述:" prop="description">
-              <el-input v-model="form.description" placeholder="请输入内容"></el-input>
-            </el-form-item>
-            <el-form-item label="上级部门:" prop="pid">
-                <simple-select :selectUrl="select_group_url" v-model="form.pid"></simple-select>
-            </el-form-item>
-            <el-form-item label="选择商家:" prop="businessId" v-if="this.form.id === null && getUserInfo.inSide">
-              <simple-select :selectUrl="select_url" v-model="form.businessId"></simple-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button @click="$router.back()">取消</el-button>
-              <el-button type="primary" @click="on_submit_form" :loading="on_submit_loading">立即提交</el-button>
-            </el-form-item>
-          </el-form>
-        </el-col>
-      </el-row>
-    </div>
-  </div>
-</template>
-<script type="text/javascript">
-  import {panelTitle,simpleSelect} from 'components'
-  import {mapGetters} from 'vuex'
-  import {request_user, result_code, request_business, request_group} from 'common/request_api'
-  import {tools_verify} from 'common/tools'
+      v-loading="load_data"
+      element-loading-text="拼命加载中" >
+      <el-row >
+        <el-col >
+          <el-form ref="form" :model="form" :rules="rules" label-width="100px" >
+            <el-form-item label="部门名称:" prop="name" >
+              <el-input v-model="form.name" placeholder="请输入内容" ></el-input >
+            </el-form-item >
+            <el-form-item label="部门描述:" prop="description" >
+              <el-input v-model="form.description" placeholder="请输入内容" ></el-input >
+            </el-form-item >
+            <el-form-item label="上级部门:" prop="pid" >
+              <simple-select :selectUrl="select_group_url" v-model="form.pid" ></simple-select >
+            </el-form-item >
+            <el-form-item label="选择商家:" prop="businessId" v-if="this.form.id === null && getUserInfo.inSide" >
+              <simple-select :selectUrl="select_url" v-model="form.businessId" ></simple-select >
+            </el-form-item >
+            <el-form-item >
+              <el-button @click="$router.back()" >取消</el-button >
+              <el-button type="primary" @click="on_submit_form" :loading="on_submit_loading" >立即提交</el-button >
+            </el-form-item >
+          </el-form >
+        </el-col >
+      </el-row >
+    </div >
+  </div >
+</template >
+<script type="text/javascript" >
+  import { panelTitle, simpleSelect } from 'components'
+  import { mapGetters } from 'vuex'
+  import { request_user, result_code, request_business, request_group } from 'common/request_api'
+  import { tools_verify } from 'common/tools'
 
   export default{
     data(){
 
-      let isEdit = !!this.$route.params.id;
+      let isEdit = !!this.$route.params.id
       let checkPassword = (rule, value, callback) => {
         if (!isEdit && (value === null || value === '')) {
-          return callback(new Error('密码不能为空'));
+          return callback(new Error('密码不能为空'))
         }
-        callback();
-      };
+        callback()
+      }
       return {
         select_group_url: request_group.search,
         select_url: request_business.search,
@@ -73,7 +73,7 @@
     },
     created(){
       this.route_id && this.get_form_data()
-      if(!this.route_id){
+      if (!this.route_id) {
         this.form.businessId = this.getUserInfo.businessId
       }
     },
@@ -88,7 +88,10 @@
           params: {
             id: this.route_id
           }
-        }).then(({data: responseData}) => {
+        }).then(({ data: responseData }) => {
+          if (responseData.pid === 0) {
+            responseData.pid = null
+          }
           this.form = responseData
           this.load_data = false
         }).catch(() => {
@@ -102,7 +105,7 @@
           this.on_submit_loading = true
           let param = this.$qs.stringify(this.form)
           this.axios.post(request_group.save, param)
-            .then(({data: responseData}) => {
+            .then(({ data: responseData }) => {
               this.$message.success("操作成功")
               setTimeout(() => {
                 this.$router.back()
@@ -120,4 +123,4 @@
       simpleSelect
     }
   }
-</script>
+</script >

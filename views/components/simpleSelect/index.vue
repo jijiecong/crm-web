@@ -1,23 +1,26 @@
 <template >
   <el-row >
-    <label class="simple-select-label" :class="[size ? 'label--' + size : '']" v-text="titleText"
-      v-if="title" ></label >
-    <el-select class="select-div" :class="{'no-title':title===null}"
-      :value="currentValue"
-      :multiple="multiple"
-      filterable
-      :clearable="clearable"
-      :placeholder="placeholder"
-      v-loading="load_data"
-      :size="size"
-      @input="handleInput" >
-      <el-option
-        v-for="item in options"
-        :key="item.id"
-        :label="item.name"
-        :value="item.id" >
-      </el-option >
-    </el-select >
+    <el-col :span="label_span" class="simple-select-label" :class="[size ? 'label--' + size : '']" v-if="title" >
+      <label v-text="titleText" ></label >
+    </el-col >
+    <el-col :span="select_span" >
+      <el-select
+        :value="currentValue"
+        :multiple="multiple"
+        filterable
+        :clearable="clearable"
+        :placeholder="placeholder"
+        v-loading="load_data"
+        :size="size"
+        @input="handleInput" >
+        <el-option
+          v-for="item in options"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id" >
+        </el-option >
+      </el-select >
+    </el-col >
   </el-row >
 </template >
 
@@ -63,10 +66,14 @@
       return {
         options: this.selectData,
         load_data: false,
+        label_span: 0,
         currentValue: this.value,
       }
     },
     created(){
+      if (this.title !== null) {
+        this.label_span = 6
+      }
       this.selectUrl && this.get_select_data()
     },
     watch: {
@@ -75,6 +82,9 @@
       },
     },
     computed: {
+      select_span(){
+        return 24 - this.label_span
+      },
       titleText(){
         return this.title + '：'
       }
@@ -102,27 +112,3 @@
     }
   }
 </script >
-<style lang="scss" type="text/scss" rel="stylesheet/scss" >
-  .select-div {
-    width: 78%;
-  }
-
-  .select-div.no-title {
-    width: 100%;
-  }
-
-  .simple-select-label.label--small {
-    line-height: 30px;
-  }
-
-  .simple-select-label {
-    line-height: 35px;
-    display: inline;
-    text-align: right;
-    font-size: 14px;
-    float: left;
-    color: #48576a;
-    box-sizing: border-box;
-    width: 22%;
-  }
-</style >
