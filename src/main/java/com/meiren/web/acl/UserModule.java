@@ -49,6 +49,10 @@ public class UserModule extends BaseController {
     @Autowired
     private AclRoleService aclRoleService;
     @Autowired
+    private AclRoleOwnerService aclRoleOwnerService;
+    @Autowired
+    private AclPrivilegeOwnerService aclPrivilegeOwnerService;
+    @Autowired
     private AclPrivilegeService aclPrivilegeService;
     String userRoleAll = "meiren.acl.user.all";
 
@@ -189,6 +193,11 @@ public class UserModule extends BaseController {
         aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
         aclUserHasRoleService.deleteAclUserHasRole(delMap);
         aclGroupHasUserService.deleteAclGroupHasUser(delMap);
+        aclPrivilegeOwnerService.deleteAclPrivilegeOwner(delMap);
+
+        Map<String, Object> delMap_owner = new HashMap<String, Object>();
+        delMap_owner.put("ownerId", userId);
+        aclRoleOwnerService.deleteAclRoleOwner(delMap_owner);
 
         Map<String, Object> delMap_leader = new HashMap<String, Object>();
         delMap_leader.put("leaderId", userId);
