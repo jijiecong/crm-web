@@ -38,7 +38,7 @@ const install = (Vue) => {
   //设置默认根地址,请求前缀
   axios.defaults.baseURL = ''
   //设置请求超时设置
-  axios.defaults.timeout = 2000
+  axios.defaults.timeout = 10000
   //设置请求时的header
   axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
   //添加请求拦截器
@@ -65,6 +65,7 @@ const install = (Vue) => {
    */
   axios.interceptors.response.use(
     (response) => {
+      console.log(response)
       $vue.$NProgress.done()
       //成功时
       let responseData = response.data
@@ -96,13 +97,19 @@ const install = (Vue) => {
     },
     (error) => {
       $vue.$NProgress.done()
-      //错误时
+      //错误
       if (error.response) {
         let resError = error.response
         let resCode = resError.status
         let resMsg = error.message
         $vue.$message.error('操作失败！错误原因 ' + resMsg)
         return Promise.reject({ code: resCode, msg: resMsg })
+      }
+      //了解超时
+      if (error.code === 'ECONNABORTED') {
+        let msg = '与服务器断开，请稍后重试！！！'
+        $vue.$message.error(msg)
+        return Promise.reject({ code: error.code, msg: msg })
       }
     }
   )
