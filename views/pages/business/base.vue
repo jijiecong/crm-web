@@ -188,7 +188,7 @@
             h('span', null, '此操作将删除选择数据, 是否继续?'),
             h('br'),
             h('br'),
-            h('span', null, 'ps:当有商家下有用户时，需要先取消关联才能删除，否则删除失败！'),
+            h('span', null, 'ps:当商家下有用户时，需要先取消关联才能删除，否则删除失败！'),
           ]),
           showCancelButton: true,
         }).then((action) => {
