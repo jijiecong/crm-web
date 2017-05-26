@@ -39,38 +39,30 @@
             <el-form-item label="方法:" prop="method">
               <el-input v-model="form.method" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="参数1:" prop="param" >
-              <el-input v-model="form.param" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.param" placeholder="value"></el-input>
+            <el-form-item label="参数1:" prop="paramName1" >
+              <el-input v-model="form.paramName1" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue1" placeholder="value"></el-input>
             </el-form-item>
-            <!--<el-form-item label="参数2:" prop="" >-->
-              <!--<el-input v-model="" placeholder="name" style="width: 148px"></el-input> <el-input style="width: 148px" v-model="" placeholder="value"></el-input>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="参数3:" prop="" >-->
-              <!--<el-input v-model="" placeholder="name" style="width: 148px"></el-input> <el-input style="width: 148px" v-model="" placeholder="value"></el-input>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="通知触发类型:" prop="type">-->
-              <!--<el-select v-model="type" placeholder="请选择">-->
-                <!--<el-option-->
-                  <!--v-for="item in option"-->
-                  <!--:key="item.type"-->
-                  <!--:label="item.label"-->
-                  <!--:value="item.type">-->
-                <!--</el-option>-->
-              <!--</el-select>-->
-            <!--</el-form-item>-->
+            <el-form-item label="参数2:" prop="" >
+              <el-input v-model="form.paramName2" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue2" placeholder="value"></el-input>
+            </el-form-item>
+            <el-form-item label="参数3:" prop="" >
+              <el-input v-model="form.paramName3" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue3" placeholder="value"></el-input>
+            </el-form-item>
+            <el-form-item label="通知触发类型:" prop="notifyType">
+              <el-radio class="radio1" v-model="form.notifyType" label="0">出错</el-radio>
+              <el-radio class="radio1" v-model="form.notifyType" label="1">其他</el-radio>
+            </el-form-item>
             <el-form-item label="通知触发值:" prop="triggerValue">
               <el-input v-model="form.triggerValue" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="通知人:" prop="userIds">
+            <el-form-item label="通知人:" prop="userId">
               <simple-select :selectUrl="select_url" multiple v-model="form.userIds"></simple-select>
             </el-form-item>
-            <el-form-item label="是否启用:" prop="isNo">
-              <el-radio-group size="small" v-model="form.isNo">
-                <el-radio label="YES"></el-radio>
-                <el-radio label="NO"></el-radio>
-              </el-radio-group>
-            </el-form-item>
 
+            <el-form-item label="是否启用:" prop="isUsed">
+            <el-radio class="radio" v-model="form.isUsed" label="0">是</el-radio>
+            <el-radio class="radio" v-model="form.isUsed" label="1">否</el-radio>
+            </el-form-item>
             <el-form-item>
               <el-button @click="$router.back()">取消</el-button>
               <el-button type="primary" @click="on_submit_form" :loading="on_submit_loading">立即提交</el-button>
@@ -109,6 +101,7 @@
           label: '5分钟'
         }],
         timeValue: '',
+
         form: {
           name: null,
           type: null,
@@ -116,6 +109,14 @@
           param:null,
           timeValue:null,
           triggerValue:null,
+          paramName1:null,
+          paramName2:null,
+          paramName3:null,
+          paramValue1:null,
+          paramValue2:null,
+          paramValue3:null,
+          notifyType:null,
+          isUsed:null,
           userIds:[]
         },
         route_id: this.$route.params.id,
@@ -134,17 +135,14 @@
         }
       }
     },
-    computed: {
-      // 仅读取，值只须为函数
-      aDouble() {
-        return this.a * 2
-      },
+    created(){
+      this.route_id && this.get_form_data()
     },
     methods: {
       //获取数据
       get_form_data(){
         this.load_data = true
-        this.$http.get(request_business.find, {
+        this.$http.get(request_monitor.find, {
           params: {
             id: this.route_id
           }
