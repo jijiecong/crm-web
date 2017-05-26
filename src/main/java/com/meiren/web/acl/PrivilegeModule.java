@@ -149,6 +149,10 @@ public class PrivilegeModule extends BaseController {
                 ApiResult apiResult = aclPrivilegeService.createAclPrivilege(entity);
                 privilegeId = (Long) apiResult.getData();
             }
+            List<String> userIds = RequestUtil.getArray(request, "ownerId");
+
+            //添加owner
+            this.addOwner(privilegeId,userIds);
             // 添加风险审核流程
             this.addPrivilegeProcess(privilegeId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
@@ -157,6 +161,21 @@ public class PrivilegeModule extends BaseController {
             return result;
         }
         return result;
+    }
+
+    private void addOwner(Long privilegeId, List<String> userIds) {
+        //设置owner，另外添加
+        HashMap<String,Object> delMap = new HashMap<>();
+        delMap.put("privilegeId", privilegeId);
+        aclPrivilegeOwnerService.deleteAclPrivilegeOwner(delMap);
+        AclPrivilegeOwnerEntity aclPrivilegeOwnerEntity = new AclPrivilegeOwnerEntity();
+        if (!userIds.isEmpty()) {
+            for (String userId : userIds) {
+                aclPrivilegeOwnerEntity.setUserId(Long.parseLong(userId));
+                aclPrivilegeOwnerEntity.setPrivilegeId(privilegeId);
+                aclPrivilegeOwnerService.createAclPrivilegeOwner(aclPrivilegeOwnerEntity);
+            }
+        }
     }
 
     /**
@@ -350,5 +369,26 @@ public class PrivilegeModule extends BaseController {
         dataMap.put("selected", selectedVOs);
         dataMap.put("selectData", selectDataVOs);
         return dataMap;
+    }
+
+    @RequestMapping(value = "getOwner", method = RequestMethod.GET)
+    @ResponseBody
+    public VueResult getOwner(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
+        Long id = this.checkId(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("privilegeId", id);
+        List<AclUserEntity> selected = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinPrivilegeOwner(searchParamMap).getData();
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        for (AclUserEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId()); // 将信息转换为id
+            selectedVOs.add(vo);
+        }
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        result.setData(dataMap);
+        return result;
     }
 }

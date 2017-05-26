@@ -80,11 +80,11 @@
                         <span>设置审核流程</span>
                       </a>
                     </el-dropdown-item>
-                    <el-dropdown-item>
-                      <a @click="to_router('setPrivilegeOwner',props.row)">
-                        <span>设置权限owner</span>
-                      </a>
-                    </el-dropdown-item>
+                    <!--<el-dropdown-item>-->
+                      <!--<a @click="to_router('setPrivilegeOwner',props.row)">-->
+                        <!--<span>设置权限owner</span>-->
+                      <!--</a>-->
+                    <!--</el-dropdown-item>-->
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-col>

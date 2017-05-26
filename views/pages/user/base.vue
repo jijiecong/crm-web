@@ -105,11 +105,11 @@
                         <span >权限禁用</span >
                       </a >
                     </el-dropdown-item >
-                    <el-dropdown-item >
-                      <a @click="to_router_hierarchy('setHierarchy',props.row)" >
-                        <span >设置层级</span >
-                      </a >
-                    </el-dropdown-item >
+                    <!--<el-dropdown-item >-->
+                      <!--<a @click="to_router_hierarchy('setHierarchy',props.row)" >-->
+                        <!--<span >设置层级</span >-->
+                      <!--</a >-->
+                    <!--</el-dropdown-item >-->
                   </el-dropdown-menu >
                 </el-dropdown >
               </el-col >

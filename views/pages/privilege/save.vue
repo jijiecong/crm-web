@@ -16,6 +16,15 @@
             <el-form-item label="token:" prop="token" >
               <el-input v-model="form.token" placeholder="请输入内容" ></el-input >
             </el-form-item >
+            <el-form-item label="权限owner:" prop="ownerId" >
+              <search-select
+                multiple
+                :selectUrl="select_user_url"
+                v-model="ownerId"
+                placeholder="请输入内容"
+                :initId="initId">
+              </search-select>
+            </el-form-item>
             <el-form-item label="风险等级:" prop="riskLevel" >
               <el-select v-model="form.riskLevel" placeholder="请选择" >
                 <el-option
@@ -42,8 +51,9 @@
   </div >
 </template >
 <script type="text/javascript" >
-  import { panelTitle, simpleSelect } from 'components'
-  import { request_privilege, result_code } from 'common/request_api'
+  import { mapGetters } from 'vuex'
+  import { panelTitle, simpleSelect,searchSelect } from 'components'
+  import { request_privilege, result_code, request_user } from 'common/request_api'
   import { tools_verify } from 'common/tools'
 
   export default{
@@ -65,7 +75,10 @@
           token: null,
           riskLevel: 1
         },
+        ownerId: [],
         route_id: this.$route.params.id,
+        select_user_url: request_user.search,
+        initId: [],
         load_data: false,
         on_submit_loading: false,
         rules: {
@@ -96,10 +109,16 @@
       }
     },
     created(){
-      this.route_id && this.get_form_data()
+      if(!this.route_id){
+        this.initId.push(this.getUserInfo.id)
+      }else {
+          this.get_form_data();
+          this.get_owner();
+      }
     },
     watch: {},
     computed: {
+      ...mapGetters(['getUserInfo']),
       // 仅读取，值只须为函数
       aDouble() {
         return this.a * 2
@@ -122,11 +141,34 @@
             this.load_data = false
           })
       },
+      get_owner(){
+        this.load_data = true
+        this.$http.get(request_privilege.getOwner, {
+          params: {
+            id: this.route_id
+          }
+        })
+          .then(({ data: responseData }) => {
+            let selected = responseData.selected;
+            let data = [];
+            selected.forEach(function (element) {
+              data.push(
+                element.id
+              )
+            });
+            this.initId = data;
+            this.load_data = false
+          })
+          .catch(() => {
+            this.load_data = false
+          })
+      },
       //提交
       on_submit_form(){
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
+          this.form.ownerId = this.ownerId
           let param = this.$qs.stringify(this.form)
           this.$http.post(request_privilege.save, param)
             .then(({ data: responseData }) => {
@@ -144,7 +186,8 @@
     },
     components: {
       panelTitle,
-      simpleSelect
+      simpleSelect,
+      searchSelect
     }
   }
 </script >
