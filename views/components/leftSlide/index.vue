@@ -2,8 +2,8 @@
   <div class="left-side" >
     <div class="left-side-inner" >
       <router-link to="/" class="logo block" >
-        <div style="height: 40px" >
-          <img src="./images/logo.png" alt="" >
+        <div >
+          美人权限中心
         </div >
       </router-link >
       <el-menu

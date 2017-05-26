@@ -65,7 +65,6 @@ const install = (Vue) => {
    */
   axios.interceptors.response.use(
     (response) => {
-      console.log(response)
       $vue.$NProgress.done()
       //成功时
       let responseData = response.data
