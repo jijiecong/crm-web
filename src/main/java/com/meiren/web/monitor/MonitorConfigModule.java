@@ -2,6 +2,7 @@ package com.meiren.web.monitor;
 
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.monitor.service.PavepawsMonitorConfigHasUserService;
 import com.meiren.monitor.service.PavepawsMonitorConfigService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -114,37 +116,42 @@ public class MonitorConfigModule extends BaseController {
     @ResponseBody
     public ApiResult addOrUpdate(HttpServletRequest request,PavepawsMonitorConfigVO entity) {
         ApiResult result = new ApiResult();
-//        try {
-//            Long configId;
-//            String id = request.getParameter("id");
-//            Map<String, String[]> paramMap = request.getParameterMap();
-//            entity.setParamType(paramMap.get("paramtype[]"));
-//            entity.setParamValue(paramMap.get("paramvalue[]"));
-//            if (!StringUtils.isBlank(id)) {
-//                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id),
-//                        ObjectUtils.reflexToMap(entity));
-//                configId = Long.valueOf(id);
-//            } else {
-//                result = configService.createPavepawsMonitorConfig(entity);
-//                configId = (Long) result.getData();
-//            }
-//            this.updateConfigHasUser(request.getParameter("userIds"), configId);
-//        } catch (Exception e) {
-//            result.setError(e.getMessage());
-//            return result;
-//        }
+        try {
+            Long configId;
+            String id = request.getParameter("id");
+            Map<String, String[]> paramMap = request.getParameterMap();
+            entity.setParamType(paramMap.get("paramtype[]"));
+            entity.setParamValue(paramMap.get("paramvalue[]"));
+            if (!StringUtils.isBlank(id)) {
+                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id), ObjectUtils.entityToMap(entity));
+                configId = Long.valueOf(id);
+            } else {
+                result = configService.createPavepawsMonitorConfig(this.voToEntity(entity));
+                configId = (Long) result.getData();
+            }
+            List<String> userIds = RequestUtil.getArray(request, "ownerId");
+            this.updateConfigHasUser(userIds, configId);
+        } catch (Exception e) {
+            result.setError(e.getMessage());
+            return result;
+        }
         return result;
     }
 
-    private void updateConfigHasUser(String idsString, Long configId) {
+    private PavepawsMonitorConfigEntity voToEntity(PavepawsMonitorConfigVO vo) {
+        PavepawsMonitorConfigEntity entity = new PavepawsMonitorConfigEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
+
+    private void updateConfigHasUser(List<String> userIds, Long configId) {
         Map<String, Object> delmap = new HashMap<>();
         delmap.put("configId", configId);
         configHasUserService.deletePavepawsMonitorConfigHasUser(delmap);
-        if (!StringUtils.isBlank(idsString)) {
-            String[] Ids = idsString.split(",");
-            for (String id : Ids) {
-                PavepawsMonitorConfigHasUserEntity entity =
-                        new PavepawsMonitorConfigHasUserEntity();
+
+        if (!userIds.isEmpty()) {
+            for (String id : userIds) {
+                PavepawsMonitorConfigHasUserEntity entity = new PavepawsMonitorConfigHasUserEntity();
                 entity.setUserId(Long.valueOf(id));
                 entity.setConfigId(configId);
                 configHasUserService.createPavepawsMonitorConfigHasUser(entity);

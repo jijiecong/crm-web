@@ -89,16 +89,7 @@
           title: "定时监控结果",
           path: "/monitorResult/base",
         },
-//          {
-//          title: "消息列表",
-//          path: "/notify/base",
-//        }, {
-//          title: "消息发送记录",
-//          path: "/notifySend/base",
-//        }, {
-//          title: "消息模板配置",
-//          path: "/notifyTemplate/base",
-//        },
+
 //          {
 //            title: "用户角色列表",
 //            path: "/userAndRole/base",
