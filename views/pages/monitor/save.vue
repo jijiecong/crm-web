@@ -5,13 +5,13 @@
          v-loading="load_data"
          element-loading-text="拼命加载中">
       <el-row>
-        <el-col :span="8">
+        <el-col>
           <el-form ref="form" :model="form" :rules="rules" label-width="100px">
             <el-form-item label="名称:" prop="name">
               <el-input v-model="form.name" placeholder="请输入内容"></el-input>
             </el-form-item>
             <el-form-item label="类型:" prop="type">
-              <el-select v-model="type" placeholder="请选择">
+              <el-select v-model="form.type" placeholder="请选择">
                 <el-option
                   v-for="item in option"
                   :key="item.type"
@@ -20,24 +20,55 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="间隔时间:" prop="time">
-              <el-select v-model="time" placeholder="请选择">
+            <el-form-item label="间隔时间:" prop="timeValue">
+              <el-select v-model="form.timeValue" placeholder="请选择">
                 <el-option
                   v-for="item in options"
-                  :key="item.time"
+                  :key="item.timeValue"
                   :label="item.label"
-                  :value="item.time">
+                  :value="item.timeValue">
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="ip或域名:" prop="token">
-              <el-input v-model="form.token" placeholder="请输入内容"></el-input>
+            <el-form-item label="ip或域名:" prop="domain">
+              <el-input v-model="form.domain" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="路由:" prop="token">
-              <el-input v-model="form.token" placeholder="请输入内容"></el-input>
+            <el-form-item label="路由:" prop="router">
+              <el-input v-model="form.router" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="方法:" prop="token">
-              <el-input v-model="form.token" placeholder="请输入内容"></el-input>
+            <el-form-item label="方法:" prop="method">
+              <el-input v-model="form.method" placeholder="请输入内容"></el-input>
+            </el-form-item>
+            <el-form-item label="参数1:" prop="param" >
+              <el-input v-model="form.param" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.param" placeholder="value"></el-input>
+            </el-form-item>
+            <!--<el-form-item label="参数2:" prop="" >-->
+              <!--<el-input v-model="" placeholder="name" style="width: 148px"></el-input> <el-input style="width: 148px" v-model="" placeholder="value"></el-input>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="参数3:" prop="" >-->
+              <!--<el-input v-model="" placeholder="name" style="width: 148px"></el-input> <el-input style="width: 148px" v-model="" placeholder="value"></el-input>-->
+            <!--</el-form-item>-->
+            <!--<el-form-item label="通知触发类型:" prop="type">-->
+              <!--<el-select v-model="type" placeholder="请选择">-->
+                <!--<el-option-->
+                  <!--v-for="item in option"-->
+                  <!--:key="item.type"-->
+                  <!--:label="item.label"-->
+                  <!--:value="item.type">-->
+                <!--</el-option>-->
+              <!--</el-select>-->
+            <!--</el-form-item>-->
+            <el-form-item label="通知触发值:" prop="triggerValue">
+              <el-input v-model="form.triggerValue" placeholder="请输入内容"></el-input>
+            </el-form-item>
+            <el-form-item label="通知人:" prop="userIds">
+              <simple-select :selectUrl="select_url" multiple v-model="form.userIds"></simple-select>
+            </el-form-item>
+            <el-form-item label="是否启用:" prop="isNo">
+              <el-radio-group size="small" v-model="form.isNo">
+                <el-radio label="YES"></el-radio>
+                <el-radio label="NO"></el-radio>
+              </el-radio-group>
             </el-form-item>
 
             <el-form-item>
@@ -51,38 +82,41 @@
   </div>
 </template>
 <script type="text/javascript">
-  import {simpleSelect, panelTitle , bottomToolBar} from 'components'
-  import {request_business, result_code} from 'common/request_api'
+  import {panelTitle,simpleSelect} from 'components'
+  import {request_monitor, result_code, request_user} from 'common/request_api'
   import {tools_verify} from 'common/tools'
 
   export default{
     data(){
       return {
+        select_url: request_user.search,
         option: [{
-          type: 'http',
+          type: '1',
           label: 'http'
         }, {
-          type: 'dubbos',
+          type: '2',
           label: 'dubbo'
         }],
         type: '',
-
         options: [{
-          time: '30',
+          timeValue: '30',
           label: '30s'
         }, {
-          time: '60',
+          timeValue: '60',
           label: '60s'
         },{
-          time: '5',
+          timeValue: '300',
           label: '5分钟'
         }],
-        time: '',
-
+        timeValue: '',
         form: {
           name: null,
-          description: null,
-          token: null
+          type: null,
+          domain:null,
+          param:null,
+          timeValue:null,
+          triggerValue:null,
+          userIds:[]
         },
         route_id: this.$route.params.id,
         load_data: false,
@@ -90,31 +124,15 @@
         rules: {
           name: [{
             required: true,
-            message: '请输入商家名称',
+            message: '请输入名称',
             trigger: 'blur'
           }, {
             min: 2,
             max: 25,
             message: '长度在 4 到 25 个字符'
           }],
-          description: {
-            required: true,
-            message: '请输入商家描述',
-            trigger: 'blur'
-          },
-          token: {
-            required: true,
-            message: '请输入商家token',
-            trigger: 'blur'
-          }
         }
       }
-    },
-    created(){
-      this.route_id && this.get_form_data()
-    },
-    watch:{
-
     },
     computed: {
       // 仅读取，值只须为函数
@@ -145,7 +163,7 @@
           if (!valid) return false
           this.on_submit_loading = true
           let param = this.$qs.stringify(this.form)
-          this.$http.post(request_business.save, param)
+          this.$http.post(request_monitor.save, param)
             .then(({data: responseData}) => {
               this.$message.success("操作成功")
               setTimeout(() => {
@@ -160,7 +178,8 @@
       }
     },
     components: {
-      panelTitle
+      panelTitle,
+      simpleSelect
     }
   }
 </script>

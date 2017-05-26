@@ -2,8 +2,8 @@
   <div class="left-side" >
     <div class="left-side-inner" >
       <router-link to="/" class="logo block" >
-        <div style="height: 40px" >
-          <img src="./images/logo.png" alt="" >
+        <div >
+          美人权限中心
         </div >
       </router-link >
       <el-menu
@@ -89,16 +89,7 @@
           title: "定时监控结果",
           path: "/monitorResult/base",
         },
-//          {
-//          title: "消息列表",
-//          path: "/notify/base",
-//        }, {
-//          title: "消息发送记录",
-//          path: "/notifySend/base",
-//        }, {
-//          title: "消息模板配置",
-//          path: "/notifyTemplate/base",
-//        },
+
 //          {
 //            title: "用户角色列表",
 //            path: "/userAndRole/base",
