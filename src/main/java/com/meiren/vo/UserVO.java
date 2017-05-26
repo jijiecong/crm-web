@@ -84,6 +84,7 @@ public class UserVO {
             + ", password=" + this.password
             + ", mobile=" + this.mobile
             + ", businessId=" + this.businessId
+            + ", hierarchyId=" + this.hierarchyId
             + "]";
     }
 

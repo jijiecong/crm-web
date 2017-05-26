@@ -22,6 +22,9 @@
             <el-form-item label="密码:" prop="password">
               <el-input v-model="form.password" placeholder="请输入内容" type="password"></el-input>
             </el-form-item>
+            <el-form-item label="选择层级:" prop="hierarchyId">
+              <simple-select :selectUrl="select_url_hierarchy" v-model="form.hierarchyId"></simple-select>
+            </el-form-item>
             <el-form-item label="商家:" prop="businessId" v-if="this.form.id === null && getUserInfo.inSide">
               <simple-select :selectUrl="select_url" v-model="form.businessId"></simple-select>
             </el-form-item>
@@ -38,7 +41,7 @@
 <script type="text/javascript">
   import {panelTitle,simpleSelect} from 'components'
   import {mapGetters} from 'vuex'
-  import {request_user, result_code, request_business} from 'common/request_api'
+  import {request_user, result_code, request_business, request_hierarchy} from 'common/request_api'
   import {tools_verify} from 'common/tools'
 
   export default{
@@ -52,6 +55,7 @@
       };
       return {
         select_url: request_business.search,
+        select_url_hierarchy: request_hierarchy.search,
         form: {
           id: null,
           nickname: null,
@@ -59,7 +63,8 @@
           email: null,
           mobile: null,
           password: null,
-          businessId: null
+          businessId: null,
+          hierarchyId: null
         },
         route_id: this.$route.params.id,
         load_data: false,
@@ -79,7 +84,13 @@
             message: '请输入邮箱',
             trigger: 'blur'
           }],
-          password: [{validator: checkPassword, trigger: 'blur'}]
+          password: [{validator: checkPassword, trigger: 'blur'}],
+          hierarchyId: [{
+            type: 'number',
+            required: true,
+            message: '请选择要设置的层级',
+            trigger: 'change'
+          }]
         }
       }
     },
@@ -102,6 +113,9 @@
           }
         }).then(({data: responseData}) => {
           this.form = responseData
+          if(responseData.hierarchyId === 0){
+              this.form.hierarchyId = null
+          }
           this.load_data = false
         }).catch(() => {
           this.load_data = false

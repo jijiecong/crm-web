@@ -20,3 +20,5 @@ exports.setProcess = "/acl/privilege/process"
 exports.setOwner = "/acl/privilege/setOwner"
 //查询权限
 exports.search = "/acl/search/privilege"
+//设置owner
+exports.getOwner = "/acl/privilege/getOwner"
