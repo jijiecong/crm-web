@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,15 @@ public class MonitorConfigModule extends BaseController {
         ApiResult apiResult = configService.findPavepawsMonitorConfig(id);
         PavepawsMonitorConfigEntity pavepawsMonitorConfigEntity = (PavepawsMonitorConfigEntity) apiResult.getData();
         PavepawsMonitorConfigVO vo = this.entityToVo(pavepawsMonitorConfigEntity);
+        Map<String, Object> map = new HashMap<>();
+        map.put("configId", id);
+        List<PavepawsMonitorConfigHasUserEntity> pavepawsMonitorConfigHasUserEntities =
+            (List<PavepawsMonitorConfigHasUserEntity>) configHasUserService.loadPavepawsMonitorConfigHasUser(map).getData();
+        List<Long> userIds = new ArrayList<>();
+        for(PavepawsMonitorConfigHasUserEntity pavepawsMonitorConfigHasUserEntity : pavepawsMonitorConfigHasUserEntities){
+            userIds.add(pavepawsMonitorConfigHasUserEntity.getUserId());
+        }
+        vo.setUserIds(userIds);
         return new VueResult(vo);
     }
 
@@ -107,18 +117,21 @@ public class MonitorConfigModule extends BaseController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult addOrUpdate(HttpServletRequest request,PavepawsMonitorConfigVO entity) {
+    public ApiResult addOrUpdate(HttpServletRequest request,PavepawsMonitorConfigVO vo) {
         ApiResult result = new ApiResult();
         try {
             Long configId;
+            PavepawsMonitorConfigEntity pavepawsMonitorConfigEntity = this.voToEntity(vo);
             String id = request.getParameter("id");
-            entity.setParamType(request.getParameter("paramName1")+"|"+request.getParameter("paramName2")+"|"+request.getParameter("paramName3")+"|");
-            entity.setParamValue(request.getParameter("paramValue1")+"|"+request.getParameter("paramValue2")+"|"+request.getParameter("paramValue3")+"|");
+            String paramTypes = RequestUtil.getString(request,"paramTypes");
+            String paramValues = RequestUtil.getString(request,"paramValues");
+            pavepawsMonitorConfigEntity.setParamType(paramTypes);
+            pavepawsMonitorConfigEntity.setParamValue(paramValues);
             if (!StringUtils.isBlank(id)) {
-                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id), ObjectUtils.entityToMap(entity));
+                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id), ObjectUtils.entityToMap(pavepawsMonitorConfigEntity));
                 configId = Long.valueOf(id);
             } else {
-                result = configService.createPavepawsMonitorConfig(this.voToEntity(entity));
+                result = configService.createPavepawsMonitorConfig(pavepawsMonitorConfigEntity);
                 configId = (Long) result.getData();
             }
             List<String> userIds = RequestUtil.getArray(request, "userIds");
