@@ -39,14 +39,14 @@
             <el-form-item label="方法:" prop="method">
               <el-input v-model="form.method" placeholder="请输入内容"></el-input>
             </el-form-item>
-            <el-form-item label="参数1:" prop="paramName1" >
-              <el-input v-model="form.paramName1" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue1" placeholder="value"></el-input>
+            <el-form-item label="参数1:" prop="" >
+              <el-input v-model="paramTypes[0]" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="paramValues[0]" placeholder="value"></el-input>
             </el-form-item>
             <el-form-item label="参数2:" prop="" >
-              <el-input v-model="form.paramName2" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue2" placeholder="value"></el-input>
+              <el-input v-model="paramTypes[1]" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="paramValues[1]" placeholder="value"></el-input>
             </el-form-item>
             <el-form-item label="参数3:" prop="" >
-              <el-input v-model="form.paramName3" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="form.paramValue3" placeholder="value"></el-input>
+              <el-input v-model="paramTypes[2]" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="paramValues[2]" placeholder="value"></el-input>
             </el-form-item>
             <el-form-item label="通知触发类型:" prop="notifyType">
               <el-radio class="radio1" v-model="form.notifyType" label="0">出错</el-radio>
@@ -60,8 +60,8 @@
             </el-form-item>
 
             <el-form-item label="是否启用:" prop="isUsed">
-            <el-radio class="radio" v-model="form.isUsed" label="0">是</el-radio>
-            <el-radio class="radio" v-model="form.isUsed" label="1">否</el-radio>
+            <el-radio class="radio" v-model="form.isUsed" :label="0">是</el-radio>
+            <el-radio class="radio" v-model="form.isUsed" :label="1">否</el-radio>
             </el-form-item>
             <el-form-item>
               <el-button @click="$router.back()">取消</el-button>
@@ -109,16 +109,12 @@
           param:null,
           timeValue:null,
           triggerValue:null,
-          paramName1:null,
-          paramName2:null,
-          paramName3:null,
-          paramValue1:null,
-          paramValue2:null,
-          paramValue3:null,
           notifyType:null,
           isUsed:null,
           userIds:[]
         },
+        paramTypes:[],
+        paramValues:[],
         route_id: this.$route.params.id,
         load_data: false,
         on_submit_loading: false,
@@ -137,6 +133,8 @@
     },
     created(){
       this.route_id && this.get_form_data()
+      this.paramTypes.push('','','')
+      this.paramValues.push('','','')
     },
     methods: {
       //获取数据
@@ -149,6 +147,14 @@
         })
           .then(({data: responseData}) => {
             this.form = responseData
+            let list_type = responseData.paramTypeList;
+            let list_value = responseData.paramValueList;
+            for(let i = 0 ; i < list_type.length ; i++){
+              this.paramTypes[i] = list_type[i]
+            }
+            for(let j = 0 ; j < list_value.length ; j++){
+              this.paramValues[j] = list_value[j]
+            }
             this.load_data = false
           })
           .catch(() => {
@@ -160,6 +166,8 @@
         this.$refs.form.validate((valid) => {
           if (!valid) return false
           this.on_submit_loading = true
+          this.form.paramTypes = '|'+this.paramTypes.join('|')+'|';
+          this.form.paramValues = '|'+this.paramValues.join('|')+'|';
           let param = this.$qs.stringify(this.form)
           this.$http.post(request_monitor.save, param)
             .then(({data: responseData}) => {

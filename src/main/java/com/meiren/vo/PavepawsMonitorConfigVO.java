@@ -24,6 +24,15 @@ public class PavepawsMonitorConfigVO implements Serializable {
     private String triggerType;
     private String triggerValue;
     private String separateRegex = "|";
+    private List<Long> userIds;
+
+    public List<Long> getUserIds() {
+        return userIds;
+    }
+
+    public void setUserIds(List<Long> userIds) {
+        this.userIds = userIds;
+    }
 
     public Long getId() {
         return this.id;
