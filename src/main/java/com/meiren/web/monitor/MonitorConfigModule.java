@@ -32,13 +32,6 @@ public class MonitorConfigModule extends BaseController {
     @Autowired
     protected PavepawsMonitorConfigHasUserService configHasUserService;
 
-    private String[] necessaryParam = {
-            "name",
-            "method",
-            "router",
-            "domain",
-    };
-
     /**
      * 列表
      *
@@ -91,7 +84,7 @@ public class MonitorConfigModule extends BaseController {
      */
     @RequestMapping(value = "find", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResult findById(HttpServletRequest request) {
+    public ApiResult find(HttpServletRequest request) {
         Long id = RequestUtil.getLong(request, "id");
         ApiResult apiResult = configService.findPavepawsMonitorConfig(id);
         PavepawsMonitorConfigEntity pavepawsMonitorConfigEntity = (PavepawsMonitorConfigEntity) apiResult.getData();
@@ -119,9 +112,8 @@ public class MonitorConfigModule extends BaseController {
         try {
             Long configId;
             String id = request.getParameter("id");
-            Map<String, String[]> paramMap = request.getParameterMap();
-            entity.setParamType(paramMap.get("paramtype[]"));
-            entity.setParamValue(paramMap.get("paramvalue[]"));
+            entity.setParamType(request.getParameter("paramName1")+"|"+request.getParameter("paramName2")+"|"+request.getParameter("paramName3")+"|");
+            entity.setParamValue(request.getParameter("paramValue1")+"|"+request.getParameter("paramValue2")+"|"+request.getParameter("paramValue3")+"|");
             if (!StringUtils.isBlank(id)) {
                 result = configService.updatePavepawsMonitorConfig(Long.valueOf(id), ObjectUtils.entityToMap(entity));
                 configId = Long.valueOf(id);
@@ -129,7 +121,7 @@ public class MonitorConfigModule extends BaseController {
                 result = configService.createPavepawsMonitorConfig(this.voToEntity(entity));
                 configId = (Long) result.getData();
             }
-            List<String> userIds = RequestUtil.getArray(request, "ownerId");
+            List<String> userIds = RequestUtil.getArray(request, "userIds");
             this.updateConfigHasUser(userIds, configId);
         } catch (Exception e) {
             result.setError(e.getMessage());

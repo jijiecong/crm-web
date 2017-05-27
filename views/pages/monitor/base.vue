@@ -3,12 +3,9 @@
     <panel-title :title="$route.meta.title">
     </panel-title>
     <div class="panel-title-down">
-      <el-row>
-        <el-col :span="4">
-          <div class="fr">
-            <el-button @click.stop="on_refresh" size="small">
-              <i class="fa fa-refresh"></i>
-            </el-button>
+      <el-row >
+        <el-col :span="4"  style="float: right">
+          <div class="fr" >
             <router-link :to="{name: 'monitorAdd'}" tag="span">
               <el-button type="primary" icon="plus" size="small">添加数据</el-button>
             </router-link>
@@ -123,6 +120,9 @@
       ...mapGetters(['getUserInfo'])
     },
     methods: {
+      to_router(routerName, row){
+        this.$router.push({name: routerName, params: {id: row.id}})
+      },
       //刷新
       on_refresh(){
         this.get_table_data()
