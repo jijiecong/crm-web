@@ -70,7 +70,7 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" >删除</el-button >
               </el-col >
               <el-col class="operation-col" >
-                <el-button type="success" size="small" icon="edit" @click="to_router('userRoleEdit',props.row)" >角色授权
+                <el-button type="success" size="small" icon="edit" :disabled="props.row.status !== 'NORMAL' " @click="to_router('userRoleEdit',props.row)" >角色授权
                 </el-button >
               </el-col >
               <el-col class="operation-col" >
@@ -81,12 +81,12 @@
                   修改
                   <el-dropdown-menu slot="dropdown" class="table-dropdown-menu" >
                     <el-dropdown-item >
-                      <a @click="to_router('userChangeGroup',props.row)" >
+                      <a @click="to_router('userChangeGroup',props.row)" v-if="props.row.status === 'NORMAL'">
                         <span >转岗</span >
                       </a >
                     </el-dropdown-item >
                     <el-dropdown-item >
-                      <a @click="resign_data(props.row)" >
+                      <a @click="resign_data(props.row)" v-if="props.row.status === 'NORMAL'">
                         <span >离职</span >
                       </a >
                     </el-dropdown-item >
@@ -96,12 +96,12 @@
                       </a >
                     </el-dropdown-item >
                     <el-dropdown-item >
-                      <a @click="to_router('disableRole',props.row)" >
+                      <a @click="to_router('disableRole',props.row)" v-if="props.row.status === 'NORMAL'">
                         <span >角色禁用</span >
                       </a >
                     </el-dropdown-item >
                     <el-dropdown-item >
-                      <a class="dropdown-item-btn" @click="to_router('disablePrivilege',props.row)" >
+                      <a class="dropdown-item-btn" @click="to_router('disablePrivilege',props.row)" v-if="props.row.status === 'NORMAL'">
                         <span >权限禁用</span >
                       </a >
                     </el-dropdown-item >
