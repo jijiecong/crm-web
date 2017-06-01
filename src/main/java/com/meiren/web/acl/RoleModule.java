@@ -423,12 +423,14 @@ public class RoleModule extends BaseController {
      * @return
      */
     private VueResult setPrivilegeAdd(Long initId, String[] selectedIds_arr) {
+        List<AclRoleHasPrivilegeEntity> list = new ArrayList<>();
         for (String id : selectedIds_arr) {
             AclRoleHasPrivilegeEntity entity = new AclRoleHasPrivilegeEntity();
             entity.setPrivilegeId(Long.parseLong(id));
             entity.setRoleId(initId);
-            aclRoleHasPrivilegeService.createAclRoleHasPrivilege(entity);
+            list.add(entity);
         }
+        aclRoleHasPrivilegeService.createBatch(list);
         return new VueResult("操作成功！");
     }
 

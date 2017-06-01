@@ -56,12 +56,12 @@
         </el-table-column>
         <el-table-column
           prop="approvalResultName"
-          width="200"
+          width="150"
           label="审核结果">
         </el-table-column>
         <el-table-column
           prop="applyTime"
-          width="200"
+          width="150"
           label="申请时间">
           <template scope="props">
             <label v-text="to_date(props.row.applyTime)" ></label>
@@ -69,7 +69,7 @@
         </el-table-column>
         <el-table-column
           prop="approvalTime"
-          width="200"
+          width="150"
           label="审核时间">
           <template scope="props">
             <label v-text="to_date(props.row.approvalTime)" ></label>
@@ -78,7 +78,7 @@
         <el-table-column
           label="操作"
           fixed="right"
-          width="100">
+          width="147">
           <template scope="props">
             <el-row>
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">

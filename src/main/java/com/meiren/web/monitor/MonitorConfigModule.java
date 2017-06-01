@@ -143,12 +143,22 @@ public class MonitorConfigModule extends BaseController {
         return result;
     }
 
+    /**
+     * vo转换为Entity
+     * @param vo
+     * @return
+     */
     private PavepawsMonitorConfigEntity voToEntity(PavepawsMonitorConfigVO vo) {
         PavepawsMonitorConfigEntity entity = new PavepawsMonitorConfigEntity();
         BeanUtils.copyProperties(vo, entity);
         return entity;
     }
 
+    /**
+     * 添加监控通知人
+     * @param userIds
+     * @param configId
+     */
     private void updateConfigHasUser(List<String> userIds, Long configId) {
         Map<String, Object> delmap = new HashMap<>();
         delmap.put("configId", configId);
