@@ -1,3 +1,11 @@
+/**
+*
+* 可输入搜索选择下拉框组件
+*
+* @Date: 2017/5/23
+* @Author: jijc
+*
+*/
 <template >
   <el-row >
     <el-select ref="select"

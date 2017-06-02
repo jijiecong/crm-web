@@ -1,3 +1,11 @@
+/**
+*
+* 穿梭框组件
+*
+* @Date: 2017/5/23
+* @Author: jijc
+*
+*/
 <style lang="scss" type="text/scss" rel="stylesheet/scss" >
   .transfer-meiren {
     .el-transfer-panel__filter .el-input__inner {

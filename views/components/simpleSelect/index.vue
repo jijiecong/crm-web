@@ -1,3 +1,10 @@
+/**
+*
+* 选择下拉框组件
+*
+* @Date: 2017/3/23 18:41
+*
+*/
 <template >
   <el-row >
     <el-col :span="label_span" class="simple-select-label" :class="[size ? 'label--' + size : '']" v-if="title" >
