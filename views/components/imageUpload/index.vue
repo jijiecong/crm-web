@@ -1,3 +1,11 @@
+/**
+*
+* 上传图片组件
+*
+* @Date: 2017/6/6
+* @Author: jijc
+*
+*/
 <template>
  <div>
     <el-upload
