@@ -21,4 +21,5 @@ module.exports = {
   request_apply: require("./apply"),
   request_monitor: require("./monitor"),
   request_monitorResult: require("./monitorResult"),
+  request_upload: require("./uploadImage")
 }
