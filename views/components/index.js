@@ -22,6 +22,8 @@ import simpleSelect from 'components/simpleSelect'
 import transferMeiren from 'components/transferMeiren'
 //可查询的select封装
 import searchSelect from 'components/searchSelect'
+//照片墙
+import imageUpload from 'components/imageUpload'
 export {
   simpleSelect,
   mainContent,
@@ -31,5 +33,6 @@ export {
   simpleImageUpload,
   bottomToolBar,
   transferMeiren,
-  searchSelect
+  searchSelect,
+  imageUpload
 }

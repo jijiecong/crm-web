@@ -1,3 +1,11 @@
+/**
+*
+* 可输入搜索选择下拉框组件
+*
+* @Date: 2017/5/23
+* @Author: jijc
+*
+*/
 <template >
   <el-row >
     <el-select ref="select"
@@ -97,7 +105,7 @@
         this.currentValue = value;
       },
       initData() {
-        if (this.initId !== undefined && this.initId !== null && !this.initOk) {
+        if (this.initId !== undefined && this.initId !== null && !this.initOk && this.initId.length !==0 ) {
           this.canQuery = false
           this.load_data = true
           this.$http.get(this.selectUrl, {
