@@ -54,12 +54,6 @@ public class UserModule extends BaseController {
     private AclPrivilegeOwnerService aclPrivilegeOwnerService;
     @Autowired
     private AclPrivilegeService aclPrivilegeService;
-    String userRoleAll = "meiren.acl.user.all";
-
-    private String[] necessaryParam = {
-        "userName",
-        "mobile",
-    };
 
     /**
      * 用户列表

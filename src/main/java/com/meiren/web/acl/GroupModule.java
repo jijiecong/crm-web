@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.group.index"})
 @Controller
@@ -195,14 +192,20 @@ public class GroupModule extends BaseController {
         }
         return new VueResult("操作成功！");
     }
-
+    /**
+     * 设置部门成员
+     * @param dataId
+     * @return
+     */
     private VueResult setUserAdd(Long initId, String[] selectedIds_arr) {
+        List<AclGroupHasUserEntity> list = new ArrayList();
         for (String id : selectedIds_arr) {
             AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
             entity.setUserId(Long.parseLong(id));
             entity.setGroupId(initId);
-            aclGroupHasUserService.createAclGroupHasUser(entity);
+            list.add(entity);
         }
+        aclGroupHasUserService.createAclGroupHasUserBatch(list);
         return new VueResult("操作成功！");
     }
 

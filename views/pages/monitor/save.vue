@@ -10,25 +10,34 @@
             <el-form-item label="名称:" prop="name">
               <el-input v-model="form.name" placeholder="请输入内容"></el-input>
             </el-form-item>
+            <!--<el-form-item label="类型:" prop="type">-->
+              <!--<el-select v-model="form.type" placeholder="请选择">-->
+                <!--<el-option-->
+                  <!--v-for="item in option"-->
+                  <!--:key="item.type"-->
+                  <!--:label="item.label"-->
+                  <!--:value="item.type">-->
+                <!--</el-option>-->
+              <!--</el-select>-->
+            <!--</el-form-item>-->
             <el-form-item label="类型:" prop="type">
-              <el-select v-model="form.type" placeholder="请选择">
-                <el-option
-                  v-for="item in option"
-                  :key="item.type"
-                  :label="item.label"
-                  :value="item.type">
-                </el-option>
-              </el-select>
+              <el-radio class="radio" v-model="form.type" label="0">http</el-radio>
+              <el-radio class="radio" v-model="form.type" label="1">dubbo</el-radio>
             </el-form-item>
+            <!--<el-form-item label="间隔时间:" prop="timeValue">-->
+              <!--<el-select v-model="form.timeValue" placeholder="请选择">-->
+                <!--<el-option-->
+                  <!--v-for="item in options"-->
+                  <!--:key="item.timeValue"-->
+                  <!--:label="item.label"-->
+                  <!--:value="item.timeValue">-->
+                <!--</el-option>-->
+              <!--</el-select>-->
+            <!--</el-form-item>-->
             <el-form-item label="间隔时间:" prop="timeValue">
-              <el-select v-model="form.timeValue" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.timeValue"
-                  :label="item.label"
-                  :value="item.timeValue">
-                </el-option>
-              </el-select>
+              <el-radio class="radio" v-model="form.timeValue" label="30">30秒</el-radio>
+              <el-radio class="radio" v-model="form.timeValue" label="60">60秒</el-radio>
+              <el-radio class="radio" v-model="form.timeValue" label="300">5分钟</el-radio>
             </el-form-item>
             <el-form-item label="ip或域名:" prop="domain">
               <el-input v-model="form.domain" placeholder="请输入内容"></el-input>
@@ -49,8 +58,8 @@
               <el-input v-model="paramTypes[2]" placeholder="name" style="width: 198px"></el-input> <el-input style="width: 198px" v-model="paramValues[2]" placeholder="value"></el-input>
             </el-form-item>
             <el-form-item label="通知触发类型:" prop="notifyType">
-              <el-radio class="radio1" v-model="form.notifyType" label="0">出错</el-radio>
-              <el-radio class="radio1" v-model="form.notifyType" label="1">其他</el-radio>
+              <el-radio class="radio" v-model="form.notifyType" label="0">出错</el-radio>
+              <el-radio class="radio" v-model="form.notifyType" label="1">其他</el-radio>
             </el-form-item>
             <el-form-item label="通知触发值:" prop="triggerValue">
               <el-input v-model="form.triggerValue" placeholder="请输入内容"></el-input>
