@@ -48,9 +48,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
         SessionUserVO oldUserVO = RequestUtil.getSessionUser(request);
-        if (oldUserVO != null) {
-            return true;
-        }
+
         Cookie[] cookies = request.getCookies();
         String value = null;
         if (cookies != null) {
@@ -68,8 +66,14 @@ public class LoginInterceptor implements HandlerInterceptor {
 
                 SessionUserVO userVO = new SessionUserVO();
                 BeanUtils.copyProperties(user, userVO);
+                //当老的session没有失效且用户信息和sso校验得到的用户信息一致时，直接用老的session
+                //避免uuid每次sso校验后都重置
+                if(oldUserVO != null && (oldUserVO.getId() == userVO.getId())){
+                    return true;
+                }
                 userVO.setInSide(this.isInSide(user.getId()));
                 userVO.setUuid(StringUtils.shortUuid());
+
                 RequestUtil.setSessionUser(request, userVO);
                 return true;
             }
