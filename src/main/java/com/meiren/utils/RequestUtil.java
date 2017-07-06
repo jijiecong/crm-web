@@ -54,13 +54,13 @@ public class RequestUtil {
     public static String getStringTrans(HttpServletRequest request, String paramName) {
         String value = request.getParameter(paramName);
 
-        try {
-            if (!StringUtils.isBlank(value)) {
-                value = new String(value.getBytes("ISO-8859-1"), "utf-8");
-            }
-        } catch (UnsupportedEncodingException var4) {
-            var4.printStackTrace();
-        }
+//        try {
+//            if (!StringUtils.isBlank(value)) {
+//                value = new String(value.getBytes("ISO-8859-1"), "utf-8");
+//            }
+//        } catch (UnsupportedEncodingException var4) {
+//            var4.printStackTrace();
+//        }
 
         return value;
     }
