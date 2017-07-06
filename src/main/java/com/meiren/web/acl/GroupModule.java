@@ -57,7 +57,7 @@ public class GroupModule extends BaseController {
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("nicknameLike", RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("nameLike", RequestUtil.getStringTrans(request, "name"));
         searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
         ApiResult apiResult = aclGroupService.searchAclGroup(searchParamMap, pageNum, rowsNum);
         Map<String, Object> rMap = new HashMap<>();
