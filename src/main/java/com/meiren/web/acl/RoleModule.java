@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.meiren.acl.enums.ApprovalConditionEnum;
 import com.meiren.acl.enums.RiskLevelEnum;
 import com.meiren.acl.enums.RoleStatusEnum;
@@ -7,14 +8,18 @@ import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
-import com.meiren.monitor.utils.ObjectUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.ProcessVO;
+import com.meiren.vo.RoleVO;
 import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +27,8 @@ import java.util.*;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.role.index"})
 @Controller
-@RequestMapping("/acl/role")
+@RequestMapping("{uuid}/acl/role")
+@ResponseBody
 public class RoleModule extends BaseController {
 
     @Autowired
@@ -32,15 +38,7 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclRoleHasPrivilegeService aclRoleHasPrivilegeService;
     @Autowired
-    protected AclUserHasPrivilegeService aclUserHasPrivilegeService;
-    @Autowired
-    protected AclGroupHasRoleService aclGroupHasRoleService;
-    @Autowired
-    protected AclBizService aclBizService;
-    @Autowired
     protected AclRoleOwnerService aclRoleOwnerService;
-    @Autowired
-    protected AclBizOwnerService aclBizOwnerService;
     @Autowired
     protected AclProcessService aclProcessService;
     @Autowired
@@ -50,17 +48,243 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclProcessModelService aclProcessModelService;
     private String[] necessaryParam = {
-            "name",
+        "name","businessId",
     };
 
+    private RoleVO entityToVo(AclRoleEntity entity) {
+        RoleVO vo = new RoleVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
+    }
+
+    private AclRoleEntity voToEntity(RoleVO vo) {
+        AclRoleEntity entity = new AclRoleEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
+
     /**
-     * 查询角色
+     * 列表
+     */
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索名称和对应值
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("roleNameLike", RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
+        ApiResult apiResult = aclRoleService.searchAclRole(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+    }
+
+    /**
+     * 查询
+     */
+    @RequestMapping("/find")
+    public VueResult find(HttpServletRequest request) throws Exception {
+        Long id = this.checkId(request);
+        AclRoleEntity entity = (AclRoleEntity) aclRoleService.findAclRole(id).getData();
+        RoleVO vo = this.entityToVo(entity);
+        return new VueResult(vo);
+    }
+
+    /**
+     * 添加编辑
+     */
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public VueResult save(HttpServletRequest request, RoleVO vo) throws Exception {
+        VueResult result = new VueResult();
+        this.checkParamMiss(request, this.necessaryParam);
+        String id = request.getParameter("id");
+        SessionUserVO user = this.getUser(request);
+        HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("userId", user.getId());
+        if (!StringUtils.isBlank(id)) {
+            searchParamMap.put("roleId", Long.valueOf(id));
+        }
+        boolean canDo = false;
+        if (!StringUtils.isBlank(id) && (aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)) {// 编辑情况
+            canDo = true;
+        } else if (this.hasRoleAll(user)) {// 有权限管理权限
+            canDo = true;
+        }
+        if (canDo) {
+            AclRoleEntity entity = this.voToEntity(vo);
+            Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
+            if (riskLevel == null) {
+                result.setError("请选择正确的风险等级！");
+                return result;
+            }else{
+                entity.setRiskLevel(RiskLevelEnum.getByTypeValue(riskLevel).typeValue);
+            }
+            Long roleId;
+            Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
+            if (!StringUtils.isBlank(id)) {
+                oldRiskLevel = aclRoleService.findAclRoleById(Long.valueOf(id)).getRiskLevel();
+                Map<String, Object> paramMap = ObjectUtils.entityToMap(entity);
+                aclRoleService.updateAclRole(Long.valueOf(id), paramMap);
+                roleId = Long.valueOf(id);
+            } else {
+                entity.setStatus(RoleStatusEnum.NORMAL.name());
+                entity.setPid(0L);
+                ApiResult apiResult = aclRoleService.createAclRole(entity);
+                roleId = (Long) apiResult.getData();
+            }
+            // 添加风险审核流程
+            this.addRoleProcess(roleId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
+            result.setData(true);
+        } else {
+            result.setError("您无权添加编辑该权限");
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * 根据风险等级添加默认审核流程
+     *
+     * @param privilegeId
+     * @param riskLevel
+     * @param oldRiskLevel
+     * @return
+     */
+    private void addRoleProcess(Long roleId, Integer riskLevel, Integer oldRiskLevel) {
+        if (oldRiskLevel == null || riskLevel.intValue() != oldRiskLevel.intValue()) {
+            Map<String, Object> delParamMap = new HashMap<>();
+            delParamMap.put("roleId", roleId);
+            aclRoleProcessService.deleteAclRoleProcess(delParamMap);
+
+            Map<String, Object> searchParamMap = new HashMap<>();
+            searchParamMap.put("riskLevel", riskLevel);
+            List<AclProcessModelEntity> all = (List<AclProcessModelEntity>) aclProcessModelService.loadAclProcessModel(searchParamMap).getData();
+            for (AclProcessModelEntity entity : all) {
+                AclRoleProcessEntity aclRoleProcessEntity = new AclRoleProcessEntity();
+                aclRoleProcessEntity.setRoleId(roleId);
+                aclRoleProcessEntity.setProcessId(entity.getProcessId());
+                aclRoleProcessEntity.setHierarchyId(entity.getHierarchyId());
+                aclRoleProcessEntity.setApprovalCondition(entity.getApprovalCondition());
+                aclRoleProcessEntity.setApprovalLevel(entity.getApprovalLevel());
+                aclRoleProcessService.createAclRoleProcess(aclRoleProcessEntity);
+            }
+        }
+
+    }
+
+    /**
+     * 设置owner
      *
      * @param request
      * @param response
      * @param type
      * @return
      */
+    @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAll(user)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的角色！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setOwnerInit(initId, user.getBusinessId());
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setOwnerAdd(initId, selectedIds_arr);
+                break;
+            case "left":
+                result = this.setOwnerDel(initId, selectedIds_arr);
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        return result;
+    }
+
+    private VueResult setOwnerDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("ownerId", Long.parseLong(id));
+            delMap.put("roleId", initId);
+            aclRoleOwnerService.deleteAclRoleOwner(delMap);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    private VueResult setOwnerAdd(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            AclRoleOwnerEntity entity = new AclRoleOwnerEntity();
+            entity.setOwnerId(Long.parseLong(id));
+            entity.setRoleId(initId);
+            aclRoleOwnerService.createAclRoleOwner(entity);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    /**
+     * 查询权限属于某个用户及全部用户
+     *
+     * @param dataId
+     * @return
+     */
+    private Map<String, Object> setOwnerInit(Long dataId, Long businessId) {
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("roleId", dataId);
+        List<AclUserEntity> selected = (List<AclUserEntity>)
+            aclUserService.loadAclUserJoinRoleOwner(searchParamMap).getData(); // 根据查询权限Id查询用户
+
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("businessId", businessId);
+        List<AclUserEntity> all = (List<AclUserEntity>)
+            aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
+
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        List<SelectVO> selectDataVOs = new ArrayList<>();
+
+        for (AclUserEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId()); // 将信息转换为id name 类型
+            vo.setName(entity.getUserName());
+            selectedVOs.add(vo);
+        }
+        for (AclUserEntity entity : all) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getUserName());
+            selectDataVOs.add(vo);
+        }
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        dataMap.put("selectData", selectDataVOs);
+        return dataMap;
+    }
+
+ /*   *//**
+     * 查询角色
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     *//*
     @RequestMapping("/select2/{type}")
     @ResponseBody
     public ApiResult select2(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
@@ -86,67 +310,7 @@ public class RoleModule extends BaseController {
             return result;
         }
         return result;
-    }
-
-    /**
-     * 列表
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request.getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/role/index");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-
-        Map<String, Object> searchParamMap = new HashMap<>();
-        AclUserEntity user = this.getUser(request);
-
-        //搜索名称和对应值
-        Map<String, String> mapPrams = new HashMap<>();
-        mapPrams.put("roleNameLike", "roleName");
-        this.mapPrams(request, mapPrams, searchParamMap, modelAndView);
-
-        Long businessId = RequestUtil.getLong(request, "businessId");
-        if (businessId == null) {
-            businessId = user.getBusinessId();
-        }
-        searchParamMap.put("businessId", businessId);
-        modelAndView.addObject("businessId", businessId);
-        ApiResult apiResult = aclRoleService.searchAclManageableRole(user.getId(), searchParamMap, pageNum, pageSize);
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
-        }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-
-        if (resultMap.get("data") != null) {
-            List<AclRoleEntity> resultList = (List<AclRoleEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide", this.isMeiren(user));
-
-        return modelAndView;
-    }
+    }*/
 
     /**
      * 删除单个
@@ -155,19 +319,15 @@ public class RoleModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
+    @RequestMapping(value = "del", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
+    public VueResult delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
-        try {
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            result = aclRoleService.deleteAclRole(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        Long id = this.checkId(request);
+        delMap.put("id", id);
+        aclRoleService.deleteAclRole(delMap).check();
+        result.setData("操作成功！");
         return result;
     }
 
@@ -180,165 +340,17 @@ public class RoleModule extends BaseController {
      */
     @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult deleteBatch(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
+    public VueResult deleteBatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         String[] ids = request.getParameterValues("ids[]");
+        if (ids.length == 0 || ids == null) {
+            throw new Exception("请选择要删除的角色！");
+        }
         List<String> idsList = Arrays.asList(ids);
-        try {
-            delMap.put("inIds", idsList);
-            result = aclRoleService.deleteAclRole(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 查找单个
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclRoleService.findAclRole(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 添加/修改
-     *
-     * @param request
-     * @param response
-     * @param aclRoleEntity
-     * @return
-     */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult addOrUpdate(HttpServletRequest request, HttpServletResponse response, AclRoleEntity aclRoleEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            this.checkParamMiss(request, this.necessaryParam);
-            AclUserEntity user = this.getUser(request);
-            String id = request.getParameter("id");
-            HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
-            searchParamMap.put("ownerId", user.getId());
-            if (!StringUtils.isBlank(id)) {
-                searchParamMap.put("roleId", Long.valueOf(id));
-            }
-            boolean canDo = false;
-            if (!StringUtils.isBlank(id) && (aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)) {//编辑情况
-                canDo = true;
-            } else if (this.hasRoleAll(user)) {// 有角色管理权限
-                canDo = true;
-            }
-            if (canDo) {
-                Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
-                switch (RiskLevelEnum.getByTypeValue(riskLevel)) {
-                    case LOW:
-                        aclRoleEntity.setRiskLevel(RiskLevelEnum.LOW.typeValue);
-                        break;
-                    case MIDDLE:
-                        aclRoleEntity.setRiskLevel(RiskLevelEnum.MIDDLE.typeValue);
-                        break;
-                    case HIGH:
-                        aclRoleEntity.setRiskLevel(RiskLevelEnum.HIGH.typeValue);
-                        break;
-                    default:
-                        throw new Exception("not find riskLevel");
-                }
-                Long roleId;
-                Integer oldRiskLevel = RiskLevelEnum.NONE.typeValue;
-                if (!StringUtils.isBlank(id)) {
-                    oldRiskLevel = aclRoleService.findAclRoleById(Long.valueOf(id)).getRiskLevel();
-                    Map<String, Object> paramMap = ObjectUtils.reflexToMap(aclRoleEntity);
-                    result = aclRoleService.updateAclRole(Long.valueOf(id), paramMap);
-                    roleId = Long.valueOf(id);
-                } else {
-                    aclRoleEntity.setStatus(RoleStatusEnum.NORMAL.name());
-                    if (aclRoleEntity.getPid() == null) {
-                        aclRoleEntity.setPid(0L);
-                    }
-                    result = aclRoleService.createAclRole(aclRoleEntity);
-                    roleId = (Long) result.getData();
-                }
-                //添加风险审核流程
-                result = this.addRoleProcess(roleId, riskLevel, oldRiskLevel);
-            } else {
-                result.setError("您无权操作角色");
-                return result;
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    private ApiResult addRoleProcess(Long roleId, Integer riskLevel, Integer oldRiskLevel) throws Exception {
-        ApiResult result = new ApiResult();
-        if (oldRiskLevel == null || riskLevel.intValue() != oldRiskLevel.intValue()) {
-            Map<String, Object> delParamMap = new HashMap<>();
-            delParamMap.put("roleId", roleId);
-            aclRoleProcessService.deleteAclRoleProcess(delParamMap);
-
-            Map<String, Object> searchParamMap = new HashMap<>();
-            searchParamMap.put("riskLevel", riskLevel);
-            List<AclProcessModelEntity> all = (List<AclProcessModelEntity>) aclProcessModelService.loadAclProcessModel(searchParamMap).getData();
-            for (AclProcessModelEntity entity : all) {
-                AclRoleProcessEntity aclRoleProcessEntity = new AclRoleProcessEntity();
-                aclRoleProcessEntity.setRoleId(roleId);
-                aclRoleProcessEntity.setProcessId(entity.getProcessId());
-                aclRoleProcessEntity.setHierarchyId(entity.getHierarchyId());
-                aclRoleProcessEntity.setApprovalCondition(entity.getApprovalCondition());
-                aclRoleProcessEntity.setApprovalLevel(entity.getApprovalLevel());
-                result = aclRoleProcessService.createAclRoleProcess(aclRoleProcessEntity);
-            }
-        }
-        return result;
-
-    }
-
-    @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult process(HttpServletRequest request,
-                             HttpServletResponse response, @PathVariable String type, @RequestBody List<AclRoleProcessEntity> list) {
-        ApiResult result = new ApiResult();
-        try {
-            Map<String, Object> searchParamMap = new HashMap<>();
-            Long id = RequestUtil.getLong(request, "id");
-            searchParamMap.put("roleId", id);
-            if (Objects.equals(type, "init")) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("have", aclRoleProcessService.loadAclRoleProcess(searchParamMap).getData());  //已拥有的流程
-                map.put("all", aclProcessService.loadAclProcess(null).getData());  //全部流程
-                result.setData(map);
-            } else {
-                aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
-                for (AclRoleProcessEntity entity : list) {
-                    entity.setRoleId(id);
-                    entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
-                            ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
-                    aclRoleProcessService.createAclRoleProcess(entity);
-                }
-                result.setData(1);
-            }
-            result.setData(result.getData());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+        delMap.put("inIds", idsList);
+        aclRoleService.deleteAclRole(delMap);
+        result.setData("操作成功！");
         return result;
     }
 
@@ -350,40 +362,40 @@ public class RoleModule extends BaseController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "/setPrivilege/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/setRoleHasPrivilege/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult setPrivilege(HttpServletRequest request,
-                                  HttpServletResponse response, @PathVariable String type) {
-        ApiResult apiResult = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasPrivilegeAuthorized(user)) {
-                apiResult.setError("您没有权限授权权限！");
-                return apiResult;
-            }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long selectedId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setPrivilegeInit(initId, user.getId());       //查询权限
-                    apiResult.setData(data);
-                    break;
-                case "add":
-                    apiResult = this.setPrivilegeAdd(selectedId, uid);         //添加权限
-                    break;
-                case "del":
-                    apiResult = this.setPrivilegeDel(selectedId, uid);        //删除权限
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            apiResult.setError(e.getMessage());
-            return apiResult;
+    public VueResult setPrivilege(HttpServletRequest request,
+                                  HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasPrivilegeAuthorized(user)) {
+            result.setError("您没有权限授权权限！");
+            return result;
         }
-        return apiResult;
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的角色！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.setPrivilegeInit(initId, user.getId());       //查询权限
+                result.setData(data);
+                break;
+            case "right":
+                result = this.setPrivilegeAdd(initId, selectedIds_arr);         //添加权限
+                break;
+            case "left":
+                result = this.setPrivilegeDel(initId, selectedIds_arr);        //删除权限
+                break;
+            default:
+                throw new Exception("type not find");
+        }
+        return result;
     }
 
     /**
@@ -393,11 +405,14 @@ public class RoleModule extends BaseController {
      * @param uid
      * @return
      */
-    private ApiResult setPrivilegeDel(Long privilegeId, Long uid) {
-        Map<String, Object> delMap = new HashMap<>();
-        delMap.put("privilegeId", privilegeId);
-        delMap.put("roleId", uid);
-        return aclRoleHasPrivilegeService.deleteAclRoleHasPrivilege(delMap);
+    private VueResult setPrivilegeDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("privilegeId", Long.parseLong(id));
+            delMap.put("roleId", initId);
+            aclRoleHasPrivilegeService.deleteAclRoleHasPrivilege(delMap);
+        }
+        return new VueResult("操作成功！");
     }
 
     /**
@@ -407,11 +422,16 @@ public class RoleModule extends BaseController {
      * @param uid
      * @return
      */
-    private ApiResult setPrivilegeAdd(Long privilegeId, Long uid) {
-        AclRoleHasPrivilegeEntity entity = new AclRoleHasPrivilegeEntity();
-        entity.setPrivilegeId(privilegeId);
-        entity.setRoleId(uid);
-        return aclRoleHasPrivilegeService.createAclRoleHasPrivilege(entity);
+    private VueResult setPrivilegeAdd(Long initId, String[] selectedIds_arr) {
+        List<AclRoleHasPrivilegeEntity> list = new ArrayList<>();
+        for (String id : selectedIds_arr) {
+            AclRoleHasPrivilegeEntity entity = new AclRoleHasPrivilegeEntity();
+            entity.setPrivilegeId(Long.parseLong(id));
+            entity.setRoleId(initId);
+            list.add(entity);
+        }
+        aclRoleHasPrivilegeService.createBatch(list);
+        return new VueResult("操作成功！");
     }
 
     /**
@@ -421,15 +441,15 @@ public class RoleModule extends BaseController {
      * @param dataId
      * @return
      */
-    private Map<String, Object> setPrivilegeInit(Long dataId, Long uid) {
+    private Map<String, Object> setPrivilegeInit(Long initId, Long uid) {
         Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("roleId", dataId);
+        searchParamMap.put("roleId", initId);
         List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>)
-                aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData(); //查询已拥有的权限
+            aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData(); //查询已拥有的权限
 
-        AclRoleEntity roleEntity = (AclRoleEntity) aclRoleService.findAclRole(dataId).getData();
+        AclRoleEntity roleEntity = (AclRoleEntity) aclRoleService.findAclRole(initId).getData();
         List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>)
-                aclPrivilegeService.getManageablePrivilege(uid, roleEntity.getBusinessId()).getData(); //查询用户在该商家下的全部权限
+            aclPrivilegeService.getManageablePrivilege(uid, roleEntity.getBusinessId()).getData(); //查询用户在该商家下的全部权限
 
         List<SelectVO> selectedVOs = new ArrayList<>();
         List<SelectVO> selectDataVOs = new ArrayList<>();
@@ -453,159 +473,59 @@ public class RoleModule extends BaseController {
         return dataMap;
     }
 
-
-    /**
-     * 设置角色owner
-     *
-     * @param request
-     * @param response
-     * @param type
-     * @return
-     */
-    @RequestMapping(value = "/setOwner/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/process/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult setOwner(HttpServletRequest request,
-                              HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long selectedId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.setOwnerInit(initId);
-                    result.setData(data);
-                    break;
-                case "add":
-                    result = this.setOwnerAdd(selectedId, uid);
-                    break;
-                case "del":
-                    result = this.setOwnerDel(selectedId, uid);
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult process(HttpServletRequest request,
+                             HttpServletResponse response, @PathVariable String type) throws Exception {
+
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasRoleAll(user)) {
+            result.setError("您没有权限操作角色！");
             return result;
+        }
+        Map<String, Object> searchParamMap = new HashMap<>();
+        Long id = this.checkId(request);
+        searchParamMap.put("roleId", id);
+        if (Objects.equals(type, "init")) {
+            Map<String, Object> map = new HashMap<>();
+            List<AclRoleProcessEntity> have = (List<AclRoleProcessEntity>) aclRoleProcessService.loadAclRoleProcess(searchParamMap).getData();
+            List<AclProcessEntity> all = (List<AclProcessEntity>) aclProcessService.loadAclProcess(null).getData();
+            List<ProcessVO> allVOs = new ArrayList<>();
+
+            for (AclProcessEntity entity : all) {
+                ProcessVO vo = new ProcessVO();
+                BeanUtils.copyProperties(entity, vo);
+                vo.setChecked(false);
+                vo.setApprovalCondition(ApprovalConditionEnum.AND.name);
+                for (AclRoleProcessEntity roleProcessEntity : have) {
+                    if (roleProcessEntity.getProcessId() == vo.getId()) {
+                        vo.setChecked(true);
+                        vo.setHierarchyId(roleProcessEntity.getHierarchyId());
+                        vo.setApprovalCondition(roleProcessEntity.getApprovalCondition());
+                    }
+                }
+                allVOs.add(vo);
+            }
+            map.put("all", allVOs); // 查询全部审核流程
+            result.setData(map);
+        } else {
+            String process = RequestUtil.getString(request, "process");
+            List<AclRoleProcessEntity> list = new ArrayList<>();
+            list = JSONArray.parseArray(process, AclRoleProcessEntity.class);
+            aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
+            for (AclRoleProcessEntity entity : list) {
+                if (entity.getChecked()) {
+                    entity.setRoleId(id);
+                    entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
+                        ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
+                    aclRoleProcessService.createAclRoleProcess(entity);
+                }
+            }
+            result.setData("操作成功！");
         }
         return result;
     }
 
-    /**
-     * 删除角色owner
-     *
-     * @param userId
-     * @param uid
-     * @return
-     */
-    private ApiResult setOwnerDel(Long userId, Long uid) {
-        Map<String, Object> delMap = new HashMap<>();
-        delMap.put("ownerId", userId);
-        delMap.put("roleId", uid);
-        return aclRoleOwnerService.deleteAclRoleOwner(delMap);
-    }
 
-    /**
-     * 添加角色owner
-     *
-     * @param userId
-     * @param uid
-     * @return
-     */
-    private ApiResult setOwnerAdd(Long userId, Long uid) {
-        AclRoleOwnerEntity entity = new AclRoleOwnerEntity();
-        entity.setOwnerId(userId);
-        entity.setRoleId(uid);
-        return aclRoleOwnerService.createAclRoleOwner(entity);
-    }
-
-    /**
-     * 查询角色owner，角色所属商家的用户才能成为owner
-     * TODO bugfix
-     * @param dataId
-     * @return
-     */
-    private Map<String, Object> setOwnerInit(Long dataId) {
-        Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("roleId", dataId);
-        List<AclUserEntity> selected = (List<AclUserEntity>)
-                aclUserService.loadAclUserJoinRoleOwner(searchParamMap).getData();
-
-        AclRoleEntity roleEntity = aclRoleService.findAclRoleById(dataId);
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("businessId", roleEntity.getBusinessId());
-        List<AclUserEntity> all = (List<AclUserEntity>)
-                aclUserService.loadAclUser(paramMap).getData();
-
-        List<SelectVO> selectedVOs = new ArrayList<>();
-        List<SelectVO> selectDataVOs = new ArrayList<>();
-
-        for (AclUserEntity entity : selected) {
-            SelectVO vo = new SelectVO();
-            vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
-            selectedVOs.add(vo);
-        }
-        for (AclUserEntity entity : all) {
-            SelectVO vo = new SelectVO();
-            vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
-            selectDataVOs.add(vo);
-        }
-
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("selected", selectedVOs);
-        dataMap.put("selectData", selectDataVOs);
-        return dataMap;
-    }
-
-    /**
-     * 跳转添加/修改页面
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-    @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity user = this.getUser(request);
-        switch (type) {
-            case "add":
-                modelAndView.addObject("inSide", this.isMeiren(user));
-                modelAndView.addObject("title", "添加角色");
-                modelAndView.addObject("id", "");
-                modelAndView.addObject("businessId", user.getBusinessId());
-                modelAndView.setViewName("acl/role/edit");
-                break;
-            case "modify":
-                //编辑的时候不需要修改businessId
-                modelAndView.addObject("title", "编辑角色");
-                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                modelAndView.addObject("businessId", "");
-                modelAndView.setViewName("acl/role/edit");
-                break;
-        }
-        return modelAndView;
-    }
-
-    /**
-     * 跳转设置拥有权限页面
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-
-    @AuthorityToken(needToken = {"meiren.acl.privilege.authorized"})
-    @RequestMapping(value = "goTo/setPrivilege")
-    public ModelAndView setPrivilege(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("title", "设置拥有权限");
-        modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-        modelAndView.setViewName("acl/role/edit_privilege");
-        return modelAndView;
-    }
 }

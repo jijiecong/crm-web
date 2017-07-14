@@ -2,17 +2,19 @@ package com.meiren.web.acl;
 
 import com.meiren.acl.enums.ApprovalResultEnum;
 import com.meiren.acl.enums.SignStatusEnum;
-import com.meiren.acl.service.AclApplyService;
-import com.meiren.acl.service.AclApprovalService;
-import com.meiren.acl.service.AclPrivilegeService;
-import com.meiren.acl.service.AclSignedService;
+import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.AclSignedEntity;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.acl.service.entity.ApprovalJoinApplyEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.SessionUserVO;
+import com.meiren.vo.SignedVO;
+import com.meiren.vo.UserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-//@AuthorityToken(needToken = {"meiren.acl.mbc.backend.acl.approval.index"})
 @Controller
-@RequestMapping("/acl/approval")
+@RequestMapping("{uuid}/acl/approval")
+@ResponseBody
 public class ApprovalModule extends BaseController {
 
     @Autowired
@@ -41,58 +43,31 @@ public class ApprovalModule extends BaseController {
     protected AclPrivilegeService aclPrivilegeService;
     @Autowired
     protected AclSignedService aclSignedService;
+    @Autowired
+    protected AclUserService aclUserService;
 
     /**
-     * 个人审核管理列表
-     * @param request
-     * @param response
-     * @return
+     * 列表
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/approval/index");
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        SessionUserVO user = this.getUser(request);
         Map<String, Object> searchParamMap = new HashMap<>();
-
-        AclUserEntity user = this.getUser(request);
         if (user.getId() != null) {
             searchParamMap.put("approverId", user.getId());
         } else {
-            modelAndView.addObject("message", "没有登录不能使用此功能");
-            return modelAndView;
+            return new VueResult("没有登录不能使用此功能");
+
         }
 
-        ApiResult apiResult = aclApprovalService.searchAclApprovalJoinApply(searchParamMap, pageNum, pageSize);
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
+        ApiResult apiResult = aclApprovalService.searchAclApprovalJoinApply(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
         }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-        if (resultMap.get("data") != null) {
-            List<ApprovalJoinApplyEntity> resultList = (List<ApprovalJoinApplyEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
+        return new VueResult(rMap);
     }
 
     /**
@@ -101,19 +76,19 @@ public class ApprovalModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            result = aclApprovalService.findAclApproval(id);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
+//    @RequestMapping(value = "find", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
+//        ApiResult result = new ApiResult();
+//        try {
+//            Long id = this.checkId(request);
+//            result = aclApprovalService.findAclApproval(id);
+//        } catch (Exception e) {
+//            result.setError(e.getMessage());
+//            return result;
+//        }
+//        return result;
+//    }
 
     /**
      * 转,加签
@@ -123,23 +98,34 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = "signed/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult signed(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = RequestUtil.getLong(request, "id");
-            Long toUserId = RequestUtil.getLong(request, "toUserId");
-            if (Objects.equals(type, "add")) {
-                result = aclApprovalService.updateAclApprovalDoAdd(id, toUserId,this.getUser(request).getId());  //加签
-            } else {
-                result = aclApprovalService.updateAclApprovalDoChange(id, toUserId,this.getUser(request).getId());  //转签
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+    public VueResult signed(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        Long id = this.checkId(request);
+        Long toUserId = RequestUtil.getLong(request, "toUserId");
+        if(toUserId == null){
+            throw new Exception("请选择要转签或加签的用户！");
         }
+        Long userId = this.getUser(request).getId();
+        if (Objects.equals(type, "add")) {
+            aclApprovalService.updateAclApprovalDoAdd(id, toUserId,userId);  //加签
+        } else {
+            aclApprovalService.updateAclApprovalDoChange(id, toUserId,userId);  //转签
+        }
+        result.setData("操作成功！");
         return result;
     }
 
+    private SignedVO entityToVo(AclSignedEntity entity) {
+        SignedVO vo = new SignedVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
+    }
+
+    private AclSignedEntity voToEntity(SignedVO vo) {
+        AclSignedEntity entity = new AclSignedEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
     /**
      * 查找代签
      * @param request
@@ -148,22 +134,20 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = "agent/find", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult agentFind(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("userId", user.getId());
-            List<AclSignedEntity> list = (List<AclSignedEntity>)
-                    aclSignedService.loadAclSigned(map).getData();
-            if (list!=null&&list.size()>0){
-                result.setData(list.get(0));
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+    public VueResult agentFind(HttpServletRequest request, HttpServletResponse response) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("userId", user.getId());
+        List<AclSignedEntity> list = (List <AclSignedEntity>)
+                aclSignedService.loadAclSigned(map).getData();
+        if(list.size() > 0){
+            AclSignedEntity signedEntity = list.get(0);
+            SignedVO vo = this.entityToVo(signedEntity);
+            AclUserEntity userEntity = (AclUserEntity) aclUserService.findAclUser(vo.getToUserId()).getData();
+            vo.setToUserName(userEntity.getUserName());
+            return new VueResult(vo);
         }
-        return result;
+        return new VueResult("没有代签记录！");
     }
 
     /**
@@ -174,28 +158,24 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = {"agent/edit"}, method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult signedSet(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            String toUserId = request.getParameter("toUserId");
-            Integer isUsed = RequestUtil.getInteger(request, "isUsed");
-            if (toUserId==null||StringUtils.isBlank(toUserId)){
-                return result;
-            }
-            Map<String, Object> delMap = new HashMap<String, Object>();
-            delMap.put("userId", user.getId());
-            aclSignedService.deleteAclSigned(delMap);
-
-            AclSignedEntity entity = new AclSignedEntity();
-            entity.setIsUsed(String.valueOf(SignStatusEnum.getByTypeValue(isUsed).typeValue));
-            entity.setToUserId(Long.valueOf(toUserId));
-            entity.setUserId(user.getId());
-            result = aclSignedService.createAclSigned(entity);  //设置代签
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+    public VueResult signedSet(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        String toUserId = request.getParameter("toUserId");
+        Integer isUsed = RequestUtil.getInteger(request, "isUsed");
+        if (StringUtils.isBlank(toUserId)){
+            throw new Exception("请选择要代签的用户！");
         }
+        Map<String, Object> delMap = new HashMap<String, Object>();
+        delMap.put("userId", user.getId());
+        aclSignedService.deleteAclSigned(delMap);
+
+        AclSignedEntity entity = new AclSignedEntity();
+        entity.setIsUsed(String.valueOf(SignStatusEnum.getByTypeValue(isUsed).typeValue));
+        entity.setToUserId(Long.valueOf(toUserId));
+        entity.setUserId(user.getId());
+        aclSignedService.createAclSigned(entity);  //设置代签
+        result.setData("操作成功！");
         return result;
     }
 
@@ -207,18 +187,14 @@ public class ApprovalModule extends BaseController {
      */
     @RequestMapping(value = "result/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult result(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = RequestUtil.getLong(request, "id");
-            ApprovalResultEnum resultEnum = Objects.equals(type, "pass") ? ApprovalResultEnum.PASS : ApprovalResultEnum.NOT_PASS;
-            //需要事物处理,放入一个service
-            
-            result = aclApplyService.updateAclApprovalResult(id, resultEnum,this.getUser(request).getId());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
+    public VueResult result(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        Long id = this.checkId(request);
+        ApprovalResultEnum resultEnum = Objects.equals(type, "pass") ? ApprovalResultEnum.PASS : ApprovalResultEnum.NOT_PASS;
+        //需要事物处理,放入一个service
+
+        aclApplyService.updateAclApprovalResult(id, resultEnum,this.getUser(request).getId());
+        result.setData("操作成功！");
         return result;
     }
 }

@@ -6,53 +6,159 @@ import com.meiren.acl.enums.UserStatusEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
-import com.meiren.common.utils.StringUtils;
-import com.meiren.monitor.utils.ObjectUtils;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.result.VueResultCode;
+import com.meiren.common.utils.ObjectUtils;
+import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
+import com.meiren.vo.UserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @AuthorityToken(needToken = {"meiren.acl.mbc.backend.user.index"})
 @Controller
-@RequestMapping("acl/user")
+@RequestMapping("{uuid}/acl/user")
+@ResponseBody
 public class UserModule extends BaseController {
 
     @Autowired
-    protected AclUserService aclUserService;
+    private AclUserService aclUserService;
     @Autowired
-    protected AclGroupLeaderService aclGroupLeaderService;
+    private AclGroupLeaderService aclGroupLeaderService;
     @Autowired
-    protected AclPrivilegeService aclPrivilegeService;
+    private AclUserHasPrivilegeService aclUserHasPrivilegeService;
     @Autowired
-    protected AclUserHasPrivilegeService aclUserHasPrivilegeService;
+    private AclUserHasRoleService aclUserHasRoleService;
     @Autowired
-    protected AclRoleService aclRoleService;
+    private AclGroupHasUserService aclGroupHasUserService;
     @Autowired
-    protected AclUserHasRoleService aclUserHasRoleService;
+    private AclRoleService aclRoleService;
     @Autowired
-    protected AclGroupHasUserService aclGroupHasUserService;
+    private AclRoleOwnerService aclRoleOwnerService;
     @Autowired
-    protected AclGroupService aclGrouprService;
+    private AclPrivilegeOwnerService aclPrivilegeOwnerService;
     @Autowired
-    protected AclBusinessService aclBusinessService;
+    private AclPrivilegeService aclPrivilegeService;
 
-    String userRoleAll = "meiren.acl.user.all";
+    /**
+     * 用户列表
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/list")
+    public VueResult list(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("nicknameLike", RequestUtil.getStringTrans(request, "name"));
+        searchParamMap.put("businessId", RequestUtil.getLong(request, "businessId"));
 
-    private String[] necessaryParam = {
-            "userName",
-            "mobile",
-    };
+        ApiResult apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+
+    }
+
+    /**
+     * 删除单个
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public VueResult delete(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
+        Map<String, Object> delMap = new HashMap<>();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasGroupAll(user)) {
+            result.setError("您没有权限操作用户！");
+            return result;
+        }
+        Long id = RequestUtil.getLong(request, "id");
+        delMap.put("id", id);
+        aclUserService.deleteAclUser(delMap).check();
+        return result;
+    }
+
+    /**
+     * 查找用户
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/find", method = RequestMethod.GET)
+    public VueResult find(HttpServletRequest request) {
+        Long id = RequestUtil.getLong(request, "id");
+        //搜索名称和对应值
+        ApiResult apiResult = aclUserService.findAclUser(id);
+        AclUserEntity userEntity = (AclUserEntity) apiResult.getData();
+        UserVO vo = this.entityToVo(userEntity);
+        vo.setPassword(null);
+        return new VueResult(vo);
+    }
+
+    /**
+     * 添加编辑用户
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public VueResult save(HttpServletRequest request, UserVO vo) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
+            return result;
+        }
+        Long id = RequestUtil.getLong(request, "id");
+        ApiResult apiResult;
+        if (id != null) {
+            apiResult = aclUserService.updateAclUserByPassword(id, ObjectUtils.entityToMap(vo));
+        } else {
+            if (vo.getPassword() == null) {
+                return result.setResultCode(VueResultCode.NO_PASSWORD);
+            }
+            apiResult = aclUserService.createAclUser(this.voToEntity(vo));
+        }
+        return new VueResult(apiResult.getData());
+    }
+
+    private UserVO entityToVo(AclUserEntity entity) {
+        UserVO vo = new UserVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
+    }
+
+    private AclUserEntity voToEntity(UserVO vo) {
+        AclUserEntity entity = new AclUserEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
 
     /**
      * 离职
@@ -64,34 +170,37 @@ public class UserModule extends BaseController {
      */
     @RequestMapping(value = "/resign", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult resign(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long userId = RequestUtil.getLong(request, "id");
-            if (userId == null) {
-                result.setError("id not null");
-                return result;
-            }
-            Map<String, Object> delMap = new HashMap<String, Object>();
-            delMap.put("userId", userId);
-            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
-            aclUserHasRoleService.deleteAclUserHasRole(delMap);
-            aclGroupHasUserService.deleteAclGroupHasUser(delMap);
-            Map<String, Object> delMap_leader = new HashMap<String, Object>();
-            delMap_leader.put("leaderId", userId);
-            aclGroupLeaderService.deleteAclGroupLeader(delMap_leader);
-            delMap.put("status", UserStatusEnum.DISABLE.name());
-            result = aclUserService.updateAclUser(userId, delMap);
-
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult resign(HttpServletRequest request, HttpServletResponse response) {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
         }
+        Long userId = RequestUtil.getLong(request, "userId");
+        if (userId == null) {
+            result.setError("请选择要离职的用户！");
+            return result;
+        }
+        Map<String, Object> delMap = new HashMap<String, Object>();
+        delMap.put("userId", userId);
+        aclUserHasPrivilegeService.deleteAclUserHasPrivilege(delMap);
+        aclUserHasRoleService.deleteAclUserHasRole(delMap);
+        aclGroupHasUserService.deleteAclGroupHasUser(delMap);
+        aclPrivilegeOwnerService.deleteAclPrivilegeOwner(delMap);
+
+        Map<String, Object> delMap_owner = new HashMap<String, Object>();
+        delMap_owner.put("ownerId", userId);
+        aclRoleOwnerService.deleteAclRoleOwner(delMap_owner);
+
+        Map<String, Object> delMap_leader = new HashMap<String, Object>();
+        delMap_leader.put("leaderId", userId);
+        aclGroupLeaderService.deleteAclGroupLeader(delMap_leader);
+
+        Map<String, Object> updateMap = new HashMap<String, Object>();
+        updateMap.put("status", UserStatusEnum.DISABLE.name());
+        aclUserService.updateAclUser(userId, updateMap);
+        result.setData("操作成功！");
         return result;
     }
 
@@ -103,35 +212,29 @@ public class UserModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/group/changeGroup", method = RequestMethod.POST)
+    @RequestMapping(value = "/changeGroup", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult changeGroup(HttpServletRequest request,
+    public VueResult changeGroup(HttpServletRequest request,
                                  HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long userId = RequestUtil.getLong(request, "userId");
-            if (userId == null) {
-                result.setError("id not null");
-                return result;
-            }
-            Long fromGroupId = RequestUtil.getLong(request, "fromGroupId");
-            Long toGroupId = RequestUtil.getLong(request, "toGroupId");
-            result = this.changeGroup(userId, fromGroupId, toGroupId);     //转岗
-
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
         }
+        Long userId = RequestUtil.getLong(request, "userId");
+        if (userId == null) {
+            result.setError("请选择要转岗的用户！");
+            return result;
+        }
+        Long fromGroupId = RequestUtil.getLong(request, "fromGroupId");
+        Long toGroupId = RequestUtil.getLong(request, "toGroupId");
+        result = this.changeGroup(userId, fromGroupId, toGroupId);     //转岗
         return result;
     }
 
-    private ApiResult changeGroup(Long userId, Long fromGroupId, Long toGroupId) throws Exception {
-        ApiResult result = new ApiResult();
+    private VueResult changeGroup(Long userId, Long fromGroupId, Long toGroupId) {
+        VueResult result = new VueResult();
         Map<String, Object> searchParamMap = new HashMap<String, Object>();
         //1、查询fromGroupId拥有的权限id和角色id
         //2、根据权限id和角色id，删除用户拥有的原部门下关联的权限和角色
@@ -164,122 +267,63 @@ public class UserModule extends BaseController {
         AclGroupHasUserEntity entity = new AclGroupHasUserEntity();
         entity.setUserId(userId);
         entity.setGroupId(toGroupId);
-        result = aclGroupHasUserService.createAclGroupHasUser(entity);
-
+        aclGroupHasUserService.createAclGroupHasUser(entity);
+        result.setData("操作成功！");
         return result;
     }
 
-
     /**
-     * 判断进行权限的哪种操作
+     * 禁用单个用户
      *
      * @param request
      * @param response
-     * @param type
      * @return
      */
-    @RequestMapping(value = "/privilege/control/{type}", method = RequestMethod.POST)
+    @RequestMapping(value = "/disable", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult privilegeControl(HttpServletRequest request,
-                                      HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long selectedId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.privilegeControlInit(initId);  //查询所有（当前拥有的权限、未拥有权限）
-                    result.setData(data);
-                    break;
-                case "add":
-                    result = this.privilegeControlAdd(selectedId, uid);     //禁用
-                    break;
-                case "del":
-                    result = this.privilegeControlDel(selectedId, uid);     //取消禁用
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult disable(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
+        Map<String, Object> updateMap = new HashMap<>();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
         }
+        Long userId = RequestUtil.getLong(request, "userId");
+        String status = RequestUtil.getString(request, "status");
+        UserStatusEnum userStatusEnum = status.toLowerCase().equals("disable")
+            ? UserStatusEnum.NORMAL : UserStatusEnum.DISABLE;
+        updateMap.put("status", userStatusEnum.name());
+        aclUserService.updateAclUser(userId, updateMap);
+
+        AclUserEntity userEntity = (AclUserEntity) aclUserService.findAclUser(userId).getData();
+        this.forcedLogout(userEntity);
         return result;
     }
 
     /**
-     * 删除权限控制
+     * 用户层级修改
      *
-     * @param selectedId
-     * @param uid
-     * @return
-     * @throws Exception
-     */
-    private ApiResult privilegeControlDel(Long selectedId, Long uid) throws Exception {
-        AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
-        entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
-        entity.setUserId(uid);
-        entity.setPrivilegeId(selectedId);
-        return aclUserHasPrivilegeService.deleteAclUserHasPrivilege(ObjectUtils.reflexToMap(entity));
-    }
-
-    /**
-     * 添加权限控制
-     *
-     * @param selectedId
-     * @param uid
+     * @param request
+     * @param response
      * @return
      */
-    private ApiResult privilegeControlAdd(Long selectedId, Long uid) {
-        AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
-        entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
-        entity.setUserId(uid);
-        entity.setPrivilegeId(selectedId);
-        return aclUserHasPrivilegeService.createAclUserHasPrivilege(entity);
-    }
-
-    /**
-     * 初始化用户拥有的权限和被禁用的权限
-     *
-     * @param userId
-     * @return
-     */
-    private Map<String, Object> privilegeControlInit(Long userId) {
-        Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("hasStatus", UserPrivilegeStatusEnum.DELETE.name());
-        searchParamMap.put("userId", userId);
-        List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>)
-                aclPrivilegeService.getAllPrivilegeByUser(userId).getData();
-        List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>)
-                aclPrivilegeService.loadAclPrivilegeJoinUserHas(searchParamMap).getData();
-
-        all.addAll(selected);
-        List<SelectVO> selectedVOs = new ArrayList<>();
-        List<SelectVO> selectDataVOs = new ArrayList<>();
-
-        for (AclPrivilegeEntity entity : selected) {
-            SelectVO vo = new SelectVO();
-            vo.setId(entity.getId());
-            vo.setName(entity.getName());
-            selectedVOs.add(vo);
+    @RequestMapping(value = {"/setHierarchy"}, method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult hierarchySet(HttpServletRequest request, HttpServletResponse response) {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
+            return result;
         }
-        for (AclPrivilegeEntity entity : all) {
-            SelectVO vo = new SelectVO();
-            vo.setId(entity.getId());
-            vo.setName(entity.getName());
-            selectDataVOs.add(vo);
-        }
-
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("selected", selectedVOs);
-        dataMap.put("selectData", selectDataVOs);
-        return dataMap;
+        Long userId = RequestUtil.getLong(request, "userId");
+        Long hierarchyId = RequestUtil.getLong(request, "hierarchyId");
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("hierarchyId", hierarchyId);
+        aclUserService.updateAclUser(userId, paramMap);
+        result.setData("操作成功！");
+        return result;
     }
 
     /**
@@ -287,40 +331,42 @@ public class UserModule extends BaseController {
      *
      * @param request
      * @param response
-     * @param type     init:初始化；add:禁用；del:取消禁用
+     * @param type     init:初始化；right:禁用；left:取消禁用
      * @return
      */
     @RequestMapping(value = "/role/control/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult roleControl(HttpServletRequest request,
-                                 HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long initId = RequestUtil.getLong(request, "dataId");
-            Long selectedId = RequestUtil.getLong(request, "selectedId");
-            Long uid = RequestUtil.getLong(request, "uid");
-            switch (type) {
-                case "init":
-                    Map<String, Object> data = this.roleControlInit(initId);  //查询所有（当前拥有的角色、被禁用角色）
-                    result.setData(data);
-                    break;
-                case "add":
-                    result = this.roleControlAdd(selectedId, uid);     //禁用
-                    break;
-                case "del":
-                    result = this.roleControlDel(selectedId, uid);     //取消禁用
-                    break;
-                default:
-                    throw new Exception("type not find");
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult roleControl(HttpServletRequest request,
+                                 HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
+        }
+        Long userId = RequestUtil.getLong(request, "initId");
+        if (userId == null) {
+            result.setError("用户为空");
+            return result;
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.roleControlInit(userId);  //查询所有（当前可用的角色、被禁用角色）
+                result.setData(data);
+                break;
+            case "right":
+                this.roleControlAdd(selectedIds_arr, userId);     //禁用
+                break;
+            case "left":
+                this.roleControlDel(selectedIds_arr, userId);     //取消禁用
+                break;
+            default:
+                throw new Exception("type not find");
         }
         return result;
     }
@@ -328,32 +374,40 @@ public class UserModule extends BaseController {
     /**
      * 取消禁用角色
      *
-     * @param selectedId
+     * @param selectedIds_arr
      * @param uid
      * @return ApiResult
      * @throws Exception
      */
-    private ApiResult roleControlDel(Long selectedId, Long uid) throws Exception {
-        AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
-        entity.setStatus(UserRoleStatusEnum.DELETE.name());
-        entity.setUserId(uid);
-        entity.setRoleId(selectedId);
-        return aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.reflexToMap(entity));
+    private VueResult roleControlDel(String[] selectedIds_arr, Long uid) throws Exception {
+        VueResult result = new VueResult();
+        for (String id : selectedIds_arr) {
+            AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+            entity.setStatus(UserRoleStatusEnum.DELETE.name());
+            entity.setUserId(uid);
+            entity.setRoleId(Long.parseLong(id));
+            aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.entityToMap(entity));
+        }
+        return result;
     }
 
     /**
      * 禁用角色
      *
-     * @param selectedId
+     * @param selectedIds_arr
      * @param uid
      * @return ApiResult
      */
-    private ApiResult roleControlAdd(Long selectedId, Long uid) {
-        AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
-        entity.setStatus(UserRoleStatusEnum.DELETE.name());
-        entity.setUserId(uid);
-        entity.setRoleId(selectedId);
-        return aclUserHasRoleService.createAclUserHasRole(entity);
+    private VueResult roleControlAdd(String[] selectedIds_arr, Long uid) {
+        VueResult result = new VueResult();
+        for (String id : selectedIds_arr) {
+            AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+            entity.setStatus(UserRoleStatusEnum.DELETE.name());
+            entity.setUserId(uid);
+            entity.setRoleId(Long.parseLong(id));
+            aclUserHasRoleService.createAclUserHasRole(entity);
+        }
+        return result;
     }
 
     /**
@@ -367,9 +421,9 @@ public class UserModule extends BaseController {
         searchParamMap.put("hasStatus", UserRoleStatusEnum.DELETE.name());
         searchParamMap.put("userId", initId);
         List<AclRoleEntity> all = (List<AclRoleEntity>)
-                aclRoleService.getAllRoleByUser(initId).getData();
+            aclRoleService.getAllRoleByUser(initId).getData();
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
-                aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData();
+            aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData();
 
         all.addAll(selected);
         List<SelectVO> selectedVOs = new ArrayList<>();
@@ -395,273 +449,125 @@ public class UserModule extends BaseController {
     }
 
     /**
-     * 用户层级修改
+     * 判断进行权限的哪种操作
      *
      * @param request
      * @param response
-     * @param aclUserEntity
+     * @param type     init:初始化；right:禁用；left:取消禁用
      * @return
      */
-    @RequestMapping(value = {"hierarchy/set"}, method = RequestMethod.POST)
+    @RequestMapping(value = "/privilege/control/{type}", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult hierarchySet(HttpServletRequest request, HttpServletResponse response, AclUserEntity aclUserEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long id = this.checkId(request);
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("hierarchyId", aclUserEntity.getHierarchyId());
-            result = aclUserService.updateAclUser(id, paramMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
+    public VueResult privilegeControl(HttpServletRequest request,
+                                      HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限操作用户！");
             return result;
+        }
+        Long userId = RequestUtil.getLong(request, "initId");
+        if (userId == null) {
+            result.setError("用户为空");
+            return result;
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (selectedIds != null) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+            case "init":
+                Map<String, Object> data = this.privilegeControlInit(userId);  //查询所有（当前可用的权限、被禁用拥有权限）
+                result.setData(data);
+                break;
+            case "right":
+                this.privilegeControlAdd(selectedIds_arr, userId);     //禁用
+                break;
+            case "left":
+                this.privilegeControlDel(selectedIds_arr, userId);     //取消禁用
+                break;
+            default:
+                throw new Exception("type not find");
         }
         return result;
     }
 
-
     /**
-     * 用户列表
+     * 删除权限控制
      *
-     * @param request
-     * @param response
+     * @param selectedIds_arr
+     * @param uid
      * @return
      * @throws Exception
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("acl/user/index");
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
+    private VueResult privilegeControlDel(String[] selectedIds_arr, Long uid) throws Exception {
+        VueResult result = new VueResult();
+        for (String id : selectedIds_arr) {
+            AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
+            entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
+            entity.setUserId(uid);
+            entity.setPrivilegeId(Long.parseLong(id));
+            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(com.meiren.common.utils.ObjectUtils.entityToMap(entity));
         }
-        int pageSize = DEFAULT_ROWS;
-        AclUserEntity user = this.getUser(request);
+        return result;
+    }
+
+    /**
+     * 添加权限控制
+     *
+     * @param selectedIds_arr
+     * @param uid
+     * @return
+     */
+    private VueResult privilegeControlAdd(String[] selectedIds_arr, Long uid) {
+        VueResult result = new VueResult();
+        for (String id : selectedIds_arr) {
+            AclUserHasPrivilegeEntity entity = new AclUserHasPrivilegeEntity();
+            entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
+            entity.setUserId(uid);
+            entity.setPrivilegeId(Long.parseLong(id));
+            aclUserHasPrivilegeService.createAclUserHasPrivilege(entity);
+        }
+        return result;
+    }
+
+    /**
+     * 初始化用户拥有的权限和被禁用的权限
+     *
+     * @param userId
+     * @return
+     */
+    private Map<String, Object> privilegeControlInit(Long userId) {
         Map<String, Object> searchParamMap = new HashMap<>();
-        //搜索名称和对应值
-        Map<String, String> userPrams = new HashMap<>();
-        userPrams.put("nicknameLike", "nickname");
+        searchParamMap.put("hasStatus", UserPrivilegeStatusEnum.DELETE.name());
+        searchParamMap.put("userId", userId);
+        List<AclPrivilegeEntity> all = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.getAllPrivilegeByUser(userId).getData();
+        List<AclPrivilegeEntity> selected = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.loadAclPrivilegeJoinUserHas(searchParamMap).getData();
 
-        this.mapPrams(request, userPrams, searchParamMap, modelAndView);
+        all.addAll(selected);
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        List<SelectVO> selectDataVOs = new ArrayList<>();
 
-        boolean isInside = this.isMeiren(user);
-
-        Long businessId = RequestUtil.getLong(request, "businessId");
-        if (businessId == null) {
-            businessId = user.getBusinessId();
+        for (AclPrivilegeEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getName());
+            selectedVOs.add(vo);
         }
-        modelAndView.addObject("businessId", businessId);
-        searchParamMap.put("businessId", businessId);
-
-        ApiResult apiResult = aclUserService.searchAclUser(searchParamMap, pageNum, pageSize);  //如果是内部用户则返回内部所有用户 且可查询任何商家用户
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
-        }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
+        for (AclPrivilegeEntity entity : all) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getName());
+            selectDataVOs.add(vo);
         }
 
-        if (resultMap.get("data") != null) {
-            List<AclUserEntity> resultList = (List<AclUserEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-        boolean isUserManager = this.checkToken(user, userRoleAll);
-        modelAndView.addObject("isUserManager", isUserManager);
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-        modelAndView.addObject("inSide", isInside);
-
-        return modelAndView;
-
-    }
-
-    /**
-     * 删除单个
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        Map<String, Object> delMap = new HashMap<>();
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            result = aclUserService.deleteAclUser(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 禁用单个用户
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "disable", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult disable(HttpServletRequest request, HttpServletResponse response, String status) {
-        ApiResult result = new ApiResult();
-        Map<String, Object> delMap = new HashMap<>();
-        try {
-            AclUserEntity userEntity = this.getUser(request);
-            if (!this.hasUserAll(userEntity)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            UserStatusEnum userStatusEnum = !status.toLowerCase().equals("disable") ? UserStatusEnum.NORMAL : UserStatusEnum.DISABLE;
-            Long id = this.checkId(request);
-            delMap.put("id", id);
-            delMap.put("status", userStatusEnum.name());
-            result = aclUserService.updateAclUser(id, delMap);
-            AclUserEntity user = (AclUserEntity) aclUserService.findAclUser(id).getData();
-            this.forcedLogout(user);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 批量删除       --禁用
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult deleteBatch(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        Map<String, Object> delMap = new HashMap<>();
-        String[] ids = request.getParameterValues("ids[]");
-        List<String> idsList = Arrays.asList(ids);
-        try {
-            AclUserEntity user = this.getUser(request);
-            if (!this.hasUserAll(user)) {
-                result.setError("您没有权限操作用户！");
-                return result;
-            }
-            delMap.put("inIds", idsList);
-            result = aclUserService.deleteAclUser(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 查找单个
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult find(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            ApiResult apiResult = aclUserService.findAclUser(id);
-            AclUserEntity entity = (AclUserEntity) apiResult.getData();
-            entity.setPassword(null);
-            result.setData(entity);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 添加/修改
-     *
-     * @param request
-     * @param response
-     * @param aclUserEntity
-     * @return
-     */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult add(HttpServletRequest request, HttpServletResponse response, AclUserEntity aclUserEntity) {
-        ApiResult result = new ApiResult();
-        try {
-            String id = request.getParameter("id");
-            this.checkParamMiss(request, this.necessaryParam);
-            if (!StringUtils.isBlank(id)) {
-                Map<String, Object> paramMap = this.converRequestMap(request.getParameterMap());
-                result = aclUserService.updateAclUserByPassword(Long.valueOf(id), paramMap);
-            } else {
-                if (aclUserEntity.getPassword() == null || StringUtils.isBlank(aclUserEntity.getPassword())) {
-                    result.setError("password is missing");
-                    return result;
-                }
-                result = aclUserService.createAclUser(aclUserEntity);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-    /**
-     * 跳转添加/修改页面，test
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @AuthorityToken(needToken = {"meiren.acl.user.all"})
-    @RequestMapping(value = "goTo/{type}", method = RequestMethod.GET)
-    @ResponseBody
-    public ModelAndView goTo(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ModelAndView modelAndView = new ModelAndView();
-        AclUserEntity userEntity = this.getUser(request);
-        boolean isInside = isMeiren(userEntity);
-        modelAndView.addObject("isInside", isInside);
-        switch (type) {
-            case "add":
-                modelAndView.addObject("title", "添加用户");
-                modelAndView.addObject("id", "");
-                modelAndView.addObject("add", "add");
-                modelAndView.addObject("businessId", userEntity.getBusinessId());
-                break;
-            case "modify":
-                modelAndView.addObject("title", "编辑用户");
-                modelAndView.addObject("id", RequestUtil.getInteger(request, "id"));
-                break;
-        }
-        modelAndView.setViewName("acl/user/edit");
-        return modelAndView;
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        dataMap.put("selectData", selectDataVOs);
+        return dataMap;
     }
 }
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="false"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:acl.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="com.meiren.web"/>
+    <context:annotation-config/>
+    <!--默认的mvc注解映射的支持 -->
+    <mvc:annotation-driven/>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--设置拦截的路径-->
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/dist/**" />
+            <mvc:exclude-mapping path="/static/**" />
+            <bean class="com.meiren.interceptor.LoginInterceptor">
+                <property name="loginUrl" value="${account.login.url}"/>
+            </bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--设置拦截的路径-->
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/userInfo" />
+            <mvc:exclude-mapping path="/dist/**" />
+            <mvc:exclude-mapping path="/static/**" />
+            <bean class="com.meiren.interceptor.PathInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <!--设置拦截的路径-->
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/dist/**" />
+            <mvc:exclude-mapping path="/static/**" />
+            <bean class="com.meiren.interceptor.AuthorityInterceptor">
+                <property name="applyUrl" value="${account.privilege.url}"/>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <mvc:resources mapping="/dist/**" location="/dist/"/>
+    <mvc:resources mapping="/static/**" location="/dist/static/"/>
+
+    <!-- 文件上传解析器 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- one of the properties available; the maximum file size in bytes -->
+        <property name="maxUploadSize" value="-1"/>
+    </bean>
+
+    <bean class="com.meiren.sso.web.SsoHelper" id="ssoHelper"/>
+    <import resource="classpath:cache/redis-beans.xml"/>
+    <import resource="classpath:dubbo/dubbo.xml"/>
+</beans>

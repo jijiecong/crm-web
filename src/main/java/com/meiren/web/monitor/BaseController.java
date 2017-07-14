@@ -1,7 +1,6 @@
 package com.meiren.web.monitor;
 
 import com.meiren.acl.service.entity.AclUserEntity;
-import com.meiren.common.constant.BossConstant;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 public class BaseController {
-
-    @Autowired
-    protected BossConstant bossConstant;
 
     public static final int DEFAULT_ROWS = 10;
 

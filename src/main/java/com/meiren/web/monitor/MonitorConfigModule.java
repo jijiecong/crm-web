@@ -1,46 +1,37 @@
 package com.meiren.web.monitor;
 
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
+import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.monitor.service.PavepawsMonitorConfigHasUserService;
 import com.meiren.monitor.service.PavepawsMonitorConfigService;
-import com.meiren.monitor.service.PavepawsMonitorResultService;
 import com.meiren.monitor.service.entity.PavepawsMonitorConfigEntity;
 import com.meiren.monitor.service.entity.PavepawsMonitorConfigHasUserEntity;
-import com.meiren.monitor.utils.ObjectUtils;
+import com.meiren.utils.RequestUtil;
+import com.meiren.vo.PavepawsMonitorConfigVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/monitor/config")
+@RequestMapping("{uuid}/monitor/config")
+@ResponseBody
 public class MonitorConfigModule extends BaseController {
 
     @Autowired
     protected PavepawsMonitorConfigService configService;
     @Autowired
-    protected PavepawsMonitorResultService resultService;
-    @Autowired
     protected PavepawsMonitorConfigHasUserService configHasUserService;
-
-    private String[] necessaryParam = {
-            "name",
-            "method",
-            "router",
-            "domain",
-    };
-
 
     /**
      * 列表
@@ -49,54 +40,18 @@ public class MonitorConfigModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping("/index")
-    public ModelAndView index(HttpServletRequest request,
-                              HttpServletResponse response) {
-
-        String page = request.getParameter("page") == null ? "1" : request
-                .getParameter("page");
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("monitor/index");
-
-        int pageNum = Integer.valueOf(page);
-        if (pageNum <= 0) {
-            pageNum = 1;
-        }
-        int pageSize = DEFAULT_ROWS;
-
+    @RequestMapping("/list")
+    public VueResult index(HttpServletRequest request) {
+        int rowsNum = com.meiren.utils.RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = com.meiren.utils.RequestUtil.getInteger(request, "page", 1);
+        //搜索
         Map<String, Object> searchParamMap = new HashMap<>();
-        if (!StringUtils.isBlank(request.getParameter("id"))) {
-            searchParamMap.put("id", request.getParameter("id"));
-            modelAndView.addObject("id", request.getParameter("id"));
+        ApiResult apiResult = configService.searchPavepawsMonitorConfig(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
         }
-        if (!StringUtils.isBlank(RequestUtil.getString(request, "name"))) {
-            searchParamMap.put("name", RequestUtil.getString(request, "name"));
-            modelAndView.addObject("name", RequestUtil.getString(request, "name"));
-        }
-        ApiResult apiResult = configService.searchPavepawsMonitorConfig(searchParamMap, pageNum, pageSize);
-
-        String message = this.checkApiResult(apiResult);
-        if (message != null) {
-            modelAndView.addObject("message", message);
-            return modelAndView;
-        }
-
-        Map<String, Object> resultMap = (Map<String, Object>) apiResult.getData();
-
-        if (resultMap.get("totalCount") != null) {
-            modelAndView.addObject("totalCount", Integer.valueOf(resultMap.get("totalCount").toString()));
-        }
-        if (resultMap.get("data") != null) {
-            List<PavepawsMonitorConfigEntity> resultList =
-                    (List<PavepawsMonitorConfigEntity>) resultMap.get("data");
-            modelAndView.addObject("basicVOList", resultList);
-        }
-
-        modelAndView.addObject("curPage", pageNum);
-        modelAndView.addObject("pageSize", pageSize);
-
-        return modelAndView;
-
+        return new VueResult(rMap);
     }
 
     /**
@@ -106,9 +61,8 @@ public class MonitorConfigModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "delete", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult delete(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "del", method = RequestMethod.POST)
+    public ApiResult delete(HttpServletRequest request) {
         ApiResult result = new ApiResult();
         Map<String, Object> delMap = new HashMap<>();
         try {
@@ -123,51 +77,35 @@ public class MonitorConfigModule extends BaseController {
     }
 
     /**
-     * 批量删除
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
-    @ResponseBody
-    public ApiResult deleteBatch(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        Map<String, Object> delMap = new HashMap<>();
-        String[] ids = request.getParameterValues("ids[]");
-        List<String> idsList = Arrays.asList(ids);
-        try {
-            delMap.put("inIds", idsList);
-            result = configService.deletePavepawsMonitorConfig(delMap);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
-        }
-        return result;
-    }
-
-
-    /**
      * 查找单个
      *
      * @param request
      * @param response
      * @return
      */
-    @RequestMapping(value = "find", method = RequestMethod.POST)
+    @RequestMapping(value = "find", method = RequestMethod.GET)
     @ResponseBody
-    public ApiResult findById(HttpServletRequest request, HttpServletResponse response) {
-        ApiResult result = new ApiResult();
-        try {
-            Long id = this.checkId(request);
-            PavepawsMonitorConfigEntity entity = (PavepawsMonitorConfigEntity)
-                    configService.findPavepawsMonitorConfig(id).getData();
-            result.setData(entity);
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+    public ApiResult find(HttpServletRequest request) {
+        Long id = RequestUtil.getLong(request, "id");
+        ApiResult apiResult = configService.findPavepawsMonitorConfig(id);
+        PavepawsMonitorConfigEntity pavepawsMonitorConfigEntity = (PavepawsMonitorConfigEntity) apiResult.getData();
+        PavepawsMonitorConfigVO vo = this.entityToVo(pavepawsMonitorConfigEntity);
+        Map<String, Object> map = new HashMap<>();
+        map.put("configId", id);
+        List<PavepawsMonitorConfigHasUserEntity> pavepawsMonitorConfigHasUserEntities =
+            (List<PavepawsMonitorConfigHasUserEntity>) configHasUserService.loadPavepawsMonitorConfigHasUser(map).getData();
+        List<Long> userIds = new ArrayList<>();
+        for(PavepawsMonitorConfigHasUserEntity pavepawsMonitorConfigHasUserEntity : pavepawsMonitorConfigHasUserEntities){
+            userIds.add(pavepawsMonitorConfigHasUserEntity.getUserId());
         }
-        return result;
+        vo.setUserIds(userIds);
+        return new VueResult(vo);
+    }
+
+    private PavepawsMonitorConfigVO entityToVo(PavepawsMonitorConfigEntity entity) {
+        PavepawsMonitorConfigVO vo = new PavepawsMonitorConfigVO();
+        BeanUtils.copyProperties(entity, vo);
+        return vo;
     }
 
     /**
@@ -177,26 +115,27 @@ public class MonitorConfigModule extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping(value = {"add", "modify"}, method = RequestMethod.POST)
+    @RequestMapping(value = "save", method = RequestMethod.POST)
     @ResponseBody
-    public ApiResult addOrUpdate(HttpServletRequest request, HttpServletResponse response, PavepawsMonitorConfigEntity entity) {
+    public ApiResult addOrUpdate(HttpServletRequest request,PavepawsMonitorConfigVO vo) {
         ApiResult result = new ApiResult();
         try {
             Long configId;
+            PavepawsMonitorConfigEntity pavepawsMonitorConfigEntity = this.voToEntity(vo);
             String id = request.getParameter("id");
-            this.checkParamMiss(request, this.necessaryParam);
-            Map<String, String[]> paramMap = request.getParameterMap();
-            entity.setParamType(paramMap.get("paramtype[]"));
-            entity.setParamValue(paramMap.get("paramvalue[]"));
+            String paramTypes = RequestUtil.getString(request,"paramTypes");
+            String paramValues = RequestUtil.getString(request,"paramValues");
+            pavepawsMonitorConfigEntity.setParamType(paramTypes);
+            pavepawsMonitorConfigEntity.setParamValue(paramValues);
             if (!StringUtils.isBlank(id)) {
-                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id),
-                        ObjectUtils.reflexToMap(entity));
+                result = configService.updatePavepawsMonitorConfig(Long.valueOf(id), ObjectUtils.entityToMap(pavepawsMonitorConfigEntity));
                 configId = Long.valueOf(id);
             } else {
-                result = configService.createPavepawsMonitorConfig(entity);
+                result = configService.createPavepawsMonitorConfig(pavepawsMonitorConfigEntity);
                 configId = (Long) result.getData();
             }
-            this.updateConfigHasUser(request.getParameter("userIds"), configId);
+            List<String> userIds = RequestUtil.getArray(request, "userIds");
+            this.updateConfigHasUser(userIds, configId);
         } catch (Exception e) {
             result.setError(e.getMessage());
             return result;
@@ -204,15 +143,30 @@ public class MonitorConfigModule extends BaseController {
         return result;
     }
 
-    private void updateConfigHasUser(String idsString, Long configId) {
+    /**
+     * vo转换为Entity
+     * @param vo
+     * @return
+     */
+    private PavepawsMonitorConfigEntity voToEntity(PavepawsMonitorConfigVO vo) {
+        PavepawsMonitorConfigEntity entity = new PavepawsMonitorConfigEntity();
+        BeanUtils.copyProperties(vo, entity);
+        return entity;
+    }
+
+    /**
+     * 添加监控通知人
+     * @param userIds
+     * @param configId
+     */
+    private void updateConfigHasUser(List<String> userIds, Long configId) {
         Map<String, Object> delmap = new HashMap<>();
         delmap.put("configId", configId);
         configHasUserService.deletePavepawsMonitorConfigHasUser(delmap);
-        if (!StringUtils.isBlank(idsString)) {
-            String[] Ids = idsString.split(",");
-            for (String id : Ids) {
-                PavepawsMonitorConfigHasUserEntity entity =
-                        new PavepawsMonitorConfigHasUserEntity();
+
+        if (!userIds.isEmpty()) {
+            for (String id : userIds) {
+                PavepawsMonitorConfigHasUserEntity entity = new PavepawsMonitorConfigHasUserEntity();
                 entity.setUserId(Long.valueOf(id));
                 entity.setConfigId(configId);
                 configHasUserService.createPavepawsMonitorConfigHasUser(entity);

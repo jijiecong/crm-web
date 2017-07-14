@@ -6,9 +6,6 @@
 	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
 	   ">
 
-   <dubbo:application name="${dubbo.application.name}" owner="programmer" organization="dubbox"/>
-   <dubbo:registry address="${dubbo.registry.address}" timeout="20000"/>
-
 	<!-- 权限审批 -->
     <dubbo:reference id="aclApiService" interface="com.meiren.acl.api.AclApiService" check="false"/>
     <dubbo:reference id="aclApplyService"   interface="com.meiren.acl.service.AclApplyService" check="false"/>
@@ -20,7 +17,7 @@
 	<dubbo:reference id="aclPrivilegeProcessService" interface="com.meiren.acl.service.AclPrivilegeProcessService" check="false"/>
 	<dubbo:reference id="aclRoleProcessService" interface="com.meiren.acl.service.AclRoleProcessService" check="false"/>
 	<dubbo:reference id="aclGroupHasRoleService" interface="com.meiren.acl.service.AclGroupHasRoleService" check="false"/>
-    
+
     <!--用户-权限-->
     <dubbo:reference id="aclUserService" interface="com.meiren.acl.service.AclUserService"  check="false"/>
     <dubbo:reference id="aclPrivilegeService" interface="com.meiren.acl.service.AclPrivilegeService" check="false"/>

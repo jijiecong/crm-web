@@ -1,10 +1,15 @@
 package com.meiren.web.acl;
 
 import com.meiren.acl.service.*;
-import com.meiren.acl.service.entity.AclGroupEntity;
-import com.meiren.acl.service.entity.AclUserEntity;
+import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
-import com.meiren.common.utils.RequestUtil;
+import com.meiren.common.result.VueResult;
+import com.meiren.utils.RequestUtil;
+import com.meiren.common.utils.StringUtils;
+import com.meiren.vo.GroupVO;
+import com.meiren.vo.SelectVO;
+import com.meiren.vo.SessionUserVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,12 +19,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Controller
-@RequestMapping("/acl/search")
+@RequestMapping("{uuid}/acl/search")
+@ResponseBody
 public class SearchModule extends BaseController {
 
     @Autowired
@@ -37,46 +41,165 @@ public class SearchModule extends BaseController {
     @Autowired
     protected AclBusinessService aclBusinessService;
 
-    @RequestMapping("/hierarchy/{type}")
-    @ResponseBody
-    public ApiResult hierarchy(HttpServletRequest request,
-                               HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            if (Objects.equals(type, "init")) {
-                Long id = this.checkId(request);
-                result = aclHierarchyService.findAclHierarchy(id);
-            } else {
-                String q = RequestUtil.getStringTrans(request, "q");
-                Map<String, Object> paramMap = new HashMap<String, Object>();
-                paramMap.put("hierarchyNameLike", q);
-                result = aclHierarchyService.loadAclHierarchy(paramMap);
-            }
-            result.setData(result.getData());
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+
+    /**
+     * 查询商家信息列表
+     */
+    @RequestMapping("/business")
+    public VueResult business(HttpServletRequest request) {
+        Map<String, Object> searchParamMap = new HashMap<>();
+        List<AclBusinessEntity> businessList = (List<AclBusinessEntity>)
+            aclBusinessService.loadAclBusiness(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclBusinessEntity entity : businessList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
         }
-        return result;
+        return new VueResult(all);
     }
 
-    @RequestMapping("/biz/{type}")
-    @ResponseBody
-    public ApiResult select2(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
-        ApiResult result = new ApiResult();
-        try {
-            if (Objects.equals(type, "init")) {
-                Long id = this.checkId(request);
-                result = aclBizService.findAclBiz(id);
-            } else {
-                String q = RequestUtil.getStringTrans(request, "q");
-                result = aclBizService.loadAclBizLikeName(q);
-            }
-        } catch (Exception e) {
-            result.setError(e.getMessage());
-            return result;
+    /**
+     * 查询部门列表
+     */
+    @RequestMapping("/group")
+    public VueResult group(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", user.getBusinessId());
+        List<AclGroupEntity> groupList = (List<AclGroupEntity>)
+            aclGroupService.loadAclGroup(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclGroupEntity entity : groupList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
         }
-        return result;
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询角色列表
+     */
+    @RequestMapping("/applyRole")
+    public VueResult applyRole(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", user.getBusinessId());
+        List<AclRoleEntity> roleList = (List<AclRoleEntity>)
+            aclRoleService.loadAclRole(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclRoleEntity entity : roleList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询权限列表
+     */
+    @RequestMapping("/privilege")
+    public VueResult privilege(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("businessId", user.getBusinessId());
+        List<AclPrivilegeEntity> privilegeList = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.loadAclPrivilege(searchParamMap).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclPrivilegeEntity entity : privilegeList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询层级列表
+     */
+    @RequestMapping("/hierarchy")
+    public VueResult hierarchy(HttpServletRequest request) {
+        List<AclHierarchyEntity> groupList = (List<AclHierarchyEntity>)
+            aclHierarchyService.loadAclHierarchy(null).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclHierarchyEntity entity : groupList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(entity.getId());
+            selectVO.setName(entity.getHierarchyName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询用户列表
+     */
+    @RequestMapping("/user")
+    public VueResult user(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        List<String> initId = RequestUtil.getArray(request, "initId");
+        String query = RequestUtil.getStringTrans(request, "query");
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (initId.isEmpty()) {
+            map.put("nicknameLike", query);
+            map.put("businessId", user.getBusinessId());
+        } else {
+            map.put("inIds", initId);
+        }
+        List<AclUserEntity> userList = (List<AclUserEntity>) aclUserService.loadAclUser(map).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclUserEntity userEntity : userList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(userEntity.getId());
+            selectVO.setName(userEntity.getUserName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 查询角色列表
+     */
+    @RequestMapping("/role")
+    public VueResult role(HttpServletRequest request) {
+        SessionUserVO user = this.getUser(request);
+        String query = RequestUtil.getStringTrans(request, "query");
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (StringUtils.isBlank(query)) {
+            return new VueResult(null);
+        }
+        map.put("roleNameLike", query);
+        map.put("businessId", user.getBusinessId());
+        List<AclRoleEntity> roleList = (List<AclRoleEntity>) aclRoleService.loadAclRole(map).getData();
+        List<SelectVO> all = new ArrayList<>();
+        for (AclRoleEntity roleEntity : roleList) {
+            SelectVO selectVO = new SelectVO();
+            selectVO.setId(roleEntity.getId());
+            selectVO.setName(roleEntity.getName());
+            all.add(selectVO);
+        }
+        return new VueResult(all);
+    }
+
+    /**
+     * 根据用户查询所在部门信息
+     */
+    @RequestMapping("/findByUserId")
+    public VueResult findByUserId(HttpServletRequest request) {
+        AclGroupEntity groupEntity = (AclGroupEntity)
+            aclGroupService.findAclGroupJoinHasUser(RequestUtil.getLong(request, "userId")).getData();
+        GroupVO vo = new GroupVO();
+        if (groupEntity == null) {
+            return new VueResult(null);
+        }
+        BeanUtils.copyProperties(groupEntity, vo);
+        return new VueResult(vo);
     }
 
 
@@ -87,7 +210,7 @@ public class SearchModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> map = new HashMap<String, Object>();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             switch (type) {
                 case "notUsed":
                     map.put("nicknameLike", RequestUtil.getStringTrans(request, "q"));
@@ -128,7 +251,7 @@ public class SearchModule extends BaseController {
         ApiResult result = new ApiResult();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             if (Objects.equals(type, "init")) {
                 Long id = this.checkId(request);
                 if (id == 0) {
@@ -163,21 +286,21 @@ public class SearchModule extends BaseController {
      */
     @RequestMapping("/privilege/{type}")
     @ResponseBody
-    public ApiResult select2biz(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
+    public ApiResult select2biz(HttpServletRequest request, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "init":
                     Long id = this.checkId(request);
                     result = aclPrivilegeService.findAclPrivilege(id);
                     break;
-                case "initBiz":
-                    Long initBizId = this.checkId(request);
-                    map.put("bizId", initBizId);
-                    result = aclPrivilegeService.loadAclPrivilegeJoinBizHas(map);
-                    break;
+//                case "initBiz":
+//                    Long initBizId = this.checkId(request);
+//                    map.put("bizId", initBizId);
+//                    result = aclPrivilegeService.loadAclPrivilegeJoinBizHas(map);
+//                    break;
                 case "query":
                     String q = RequestUtil.getStringTrans(request, "q");
                     map.put("businessId", userEntity.getBusinessId());
@@ -197,7 +320,7 @@ public class SearchModule extends BaseController {
     public ApiResult role(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            AclUserEntity userEntity = this.getUser(request);
+            SessionUserVO userEntity = this.getUser(request);
             Map<String, Object> map = new HashMap<>();
             switch (type) {
                 case "query":
@@ -231,16 +354,17 @@ public class SearchModule extends BaseController {
 
     /**
      * 查找单个
+     *
      * @param request
      * @param response
      * @return
      */
     @RequestMapping(value = "/business/findByName/{type}")
     @ResponseBody
-    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String  type) {
+    public ApiResult findByName(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) {
         ApiResult result = new ApiResult();
         try {
-            switch (type){
+            switch (type) {
                 case "query":
                     result = aclBusinessService.loadAclBusinessLikeName(RequestUtil.getStringTrans(request, "q"));
                     break;
