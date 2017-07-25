@@ -31,15 +31,16 @@ public class PathInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
-        SessionUserVO user = RequestUtil.getSessionUser(request);
-        String paths[] = request.getServletPath().split("/");
-        if (paths.length > 2 && paths[1].equals(user.getUuid())) {
-            return true;
-        }
-        VueResult result = new VueResult();
-        result.setResultCode(VueResultCode.API_NOT_FIND);
-        this.returnJson(response, result);
-        return false;
+        return true;
+//        SessionUserVO user = RequestUtil.getSessionUser(request);
+//        String paths[] = request.getServletPath().split("/");
+//        if (paths.length > 2 && paths[1].equals(user.getUuid())) {
+//            return true;
+//        }
+//        VueResult result = new VueResult();
+//        result.setResultCode(VueResultCode.API_NOT_FIND);
+//        this.returnJson(response, result);
+//        return false;
     }
 
 
