@@ -68,14 +68,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 BeanUtils.copyProperties(user, userVO);
                 //当老的session没有失效且用户信息和sso校验得到的用户信息一致时，直接用老的session
                 //避免uuid每次sso校验后都重置
-                logger.info("session里的user是否为空："+(oldUserVO != null));
-                if(oldUserVO != null){
-                    logger.info("sessionuserId："+oldUserVO.getId());
-                    logger.info("mbcuserId："+userVO.getId());
-                    logger.info("结果："+(oldUserVO.getId() == userVO.getId()));
-                }
-
-                if(oldUserVO != null && (oldUserVO.getId() == userVO.getId())){
+                if(oldUserVO != null && (oldUserVO.getId().longValue() == userVO.getId().longValue())){
                     return true;
                 }
                 userVO.setInSide(this.isInSide(user.getId()));
