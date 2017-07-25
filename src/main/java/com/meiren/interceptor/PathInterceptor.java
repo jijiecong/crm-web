@@ -33,19 +33,13 @@ public class PathInterceptor implements HandlerInterceptor {
                              HttpServletResponse response, Object handler) throws Exception {
         SessionUserVO user = RequestUtil.getSessionUser(request);
         String paths[] = request.getServletPath().split("/");
-        logger.info("session中的uuid："+user.getUuid());
-        logger.info("paths长度："+paths.length);
-        logger.info("paths中的uuid："+paths[1]);
-        logger.info("paths长度判断结果："+ (paths.length > 2));
-        logger.info("uuid比较结果："+ (paths[1].equals(user.getUuid())));
-        return true;
-//        if (paths.length > 2 && paths[1].equals(user.getUuid())) {
-//            return true;
-//        }
-//        VueResult result = new VueResult();
-//        result.setResultCode(VueResultCode.API_NOT_FIND);
-//        this.returnJson(response, result);
-//        return false;
+        if (paths.length > 2 && paths[1].equals(user.getUuid())) {
+            return true;
+        }
+        VueResult result = new VueResult();
+        result.setResultCode(VueResultCode.API_NOT_FIND);
+        this.returnJson(response, result);
+        return false;
     }
 
 
