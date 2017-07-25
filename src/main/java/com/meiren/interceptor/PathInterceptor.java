@@ -31,12 +31,12 @@ public class PathInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
+        SessionUserVO user = RequestUtil.getSessionUser(request);
+        String paths[] = request.getServletPath().split("/");
+        logger.info("session中的uuid"+user.getUuid());
+        logger.info("paths长度："+paths.length);
+        logger.info("paths中的uuid："+paths[1]);
         return true;
-//        SessionUserVO user = RequestUtil.getSessionUser(request);
-//        String paths[] = request.getServletPath().split("/");
-//        if (paths.length > 2 && paths[1].equals(user.getUuid())) {
-//            return true;
-//        }
 //        VueResult result = new VueResult();
 //        result.setResultCode(VueResultCode.API_NOT_FIND);
 //        this.returnJson(response, result);
