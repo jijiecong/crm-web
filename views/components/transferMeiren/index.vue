@@ -11,6 +11,15 @@
     .el-transfer-panel__filter .el-input__inner {
       height: 30px
     }
+    .el-transfer-panel{
+      width: 350px;
+    }
+    .el-transfer-panel__body {
+      height: 532px;
+    }
+    .el-transfer-panel__list.is-filterable {
+      height: 500px;
+    }
   }
 
 </style >
