@@ -7,10 +7,10 @@
       <el-row>
         <el-col>
           <el-form>
-            <el-form-item style="width: 600px">
+            <el-form-item style="width: 900px">
               <transfer-meiren ref="transferMeiren" :initUrl="data_url" :initId="route_id" :titles="['可拥有的权限', '已拥有的权限']"></transfer-meiren>
             </el-form-item>
-            <el-form-item style="margin-left: 150px">
+            <el-form-item style="margin-left: 310px">
               <el-button @click="$router.back()">取消</el-button>
               <el-button @click="sure_privilege()" type="primary">确定</el-button>
             </el-form-item>
