@@ -38,6 +38,9 @@
     methods: {
       sure_role(){
         this.$refs.transferMeiren.sure()
+        setTimeout(() => {
+          this.$router.back()
+        }, 500)
       }
     },
     components: {
