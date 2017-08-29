@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column
           prop="applyContent"
-          width="200"
+          width="261"
           label="申请描述">
         </el-table-column>
         <el-table-column

@@ -107,7 +107,7 @@ public class UserRoleModule extends BaseController {
         }
         switch (type) {
             case "init":
-                Map<String, Object> data = this.setRoleInit(initId, user.getBusinessId(), user.getId());
+                Map<String, Object> data = this.setRoleInit(initId, user.getId());
                 result.setData(data);
                 break;
             case "right":
@@ -149,13 +149,14 @@ public class UserRoleModule extends BaseController {
      * @param dataId
      * @return
      */
-    private Map<String, Object> setRoleInit(Long initId, Long businessId, Long userId) {
+    private Map<String, Object> setRoleInit(Long initId, Long userId) {
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("userId", initId);
         searchParamMap.put("hasStatus", UserRoleStatusEnum.NORMAL.name());
         List<AclRoleEntity> selected = (List<AclRoleEntity>)
             aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData(); // 根据查询用户查询拥有的角色
 
+        Long businessId = aclUserService.findAclUserById(initId).getBusinessId();// 查询被授权用户所属的商家
         List<AclRoleEntity> all = (List<AclRoleEntity>)
             aclRoleService.getManageableRole(userId, businessId).getData(); // 查询登陆用户可授权的所有角色
 

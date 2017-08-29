@@ -7,7 +7,7 @@ package com.meiren.common.result;
 public enum VueResultCode {
     SUCCESS(200, "sucessful"),
     ERROR(500, "exception occur:%s"),
-    API_NOT_FIND(404, "api not find"),
+    API_NOT_FIND(404, "登录超时，请刷新页面！"),
     UNLOGIN(555, "UNLOGIN"),
     PRIVILEGE_REQUIRED(300, "privilege required"),
     NO_PASSWORD(11001, "密码不能为空"),;
