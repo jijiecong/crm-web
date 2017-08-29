@@ -60,7 +60,7 @@
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>meiren-dubbox-all</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba</groupId>
