@@ -8,7 +8,9 @@ import * as types from './types'
 const state = {
   businessId: null,
   is_login: false,
-  user_info: null
+  user_info: null,
+  user_search_data: null,
+  user_current_page: 1
 }
 
 // getters
@@ -21,6 +23,12 @@ const getters = {
   },
   getBusinessId: state => {
     return state.businessId
+  },
+  getUserSearchData: state => {
+    return state.user_search_data
+  },
+  getUserCurrentPage: state => {
+    return state.user_current_page
   }
 }
 
@@ -38,6 +46,12 @@ const actions = {
   },
   setBusinessId({ commit }, data){
     commit(types.SET_BUSINESS_ID, data)
+  },
+  setUserSearchData({ commit }, data){
+    commit(types.SET_USER_SEARCH_DATA, data)
+  },
+  setUserCurrentPage({ commit }, data){
+    commit(types.SET_USER_CURRENT_PAGE, data)
   }
 }
 
@@ -52,6 +66,12 @@ const mutations = {
   [types.SET_USER_INFO](state, data){
     state.user_info = data || {}
     state.businessId = data.businessId || null
+  },
+  [types.SET_USER_SEARCH_DATA](state, data){
+    state.user_search_data = data || null
+  },
+  [types.SET_USER_CURRENT_PAGE](state, data){
+    state.user_current_page = data || null
   }
 }
 
