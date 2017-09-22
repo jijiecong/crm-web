@@ -5,10 +5,10 @@
     <div class="panel-title-down">
       <el-row>
         <el-col :span="20">
-          <form @submit.prevent="on_refresh">
+          <form @submit.prevent="on_search">
             <el-row :gutter="10">
               <el-col :span="6">
-                <el-input size="small" placeholder="名称或token" v-model="search_data.name"></el-input>
+                <el-input size="small" placeholder="名称或token" v-model="getSearchData"></el-input>
               </el-col>
               <el-col :span="1">
                 <el-button type="primary" size="small" native-type="submit">查询</el-button>
@@ -105,7 +105,7 @@
         <div slot="page">
           <el-pagination
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page="getCurrentPage"
             :page-size="10"
             layout="total, prev, pager, next"
             :total="total_count">
@@ -118,13 +118,12 @@
 <script type="text/javascript">
   import {panelTitle, bottomToolBar} from 'components'
   import {request_privilege as request_uri} from 'common/request_api'
+  import {mapGetters,mapActions} from 'vuex'
 
   export default{
     data(){
       return {
         table_data: null,
-        //当前页码
-        currentPage: 1,
         //数据总条目
         total_count: 0,
         //每页显示多少条数据
@@ -140,10 +139,30 @@
       panelTitle,
       bottomToolBar
     },
+    computed: {
+      ...mapGetters(['getPrivilegeSearchData','getPrivilegeCurrentPage']),
+      getSearchData: {
+        get(){
+          return this.getPrivilegeSearchData
+        },
+        set(val){
+          this.setPrivilegeSearchData(val)
+        }
+      },
+      getCurrentPage: {
+        get(){
+          return this.getPrivilegeCurrentPage
+        },
+        set(val){
+          this.setPrivilegeCurrentPage(val)
+        }
+      },
+    },
     created(){
       this.get_table_data()
     },
     methods: {
+      ...mapActions(['setPrivilegeSearchData','setPrivilegeCurrentPage']),
       riskText(level){
         const text = ['无', '低', '中', '高']
         if (text.length - 1 < level && level < 0) {
@@ -154,8 +173,14 @@
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
       },
+      //查询
+      on_search(){
+        this.get_table_data()
+      },
       //刷新
       on_refresh(){
+        this.getCurrentPage = 1
+        this.getSearchData = null
         this.get_table_data()
       },
       //获取数据
@@ -163,9 +188,9 @@
         this.load_data = true
         this.$http.get(request_uri.list, {
           params: {
-            page: this.currentPage,
+            page: this.getCurrentPage,
             rows: this.rows,
-            ...this.search_data
+            name: this.getSearchData
           }
         }).then(({data}) => {
           this.table_data = data.data
@@ -202,7 +227,7 @@
       },
       //页码选择
       handleCurrentChange(val) {
-        this.currentPage = val
+        this.getCurrentPage = val
         this.get_table_data()
       },
       //批量选择

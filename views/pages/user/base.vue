@@ -5,14 +5,14 @@
     <div class="panel-title-down" >
       <el-row >
         <el-col :span="20" >
-          <form @submit.prevent="on_refresh" >
+          <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
               <el-col :span="6" v-if="getUserInfo.inSide" >
                 <simple-select :selectUrl="select_url" v-model="getBid" title="商家"
                   size="small" ></simple-select >
               </el-col >
               <el-col :span="6" >
-                <el-input size="small" placeholder="名称" v-model="search_data.name" ></el-input >
+                <el-input size="small" placeholder="名称" v-model="getSearchData" ></el-input >
               </el-col >
               <el-col :span="2" >
                 <el-button type="primary" size="small" native-type="submit" >查询</el-button >
@@ -130,7 +130,7 @@
         <div slot="page" >
           <el-pagination
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page="getCurrentPage"
             :page-size="10"
             layout="total, prev, pager, next"
             :total="total_count" >
@@ -150,8 +150,6 @@
       return {
         select_url: request_business.search,
         table_data: null,
-        //当前页码
-        currentPage: 1,
         //数据总条目
         total_count: 0,
         //每页显示多少条数据
@@ -160,7 +158,7 @@
         load_data: true,
         //批量选择数组
         batch_select: [],
-        search_data: {},
+
       }
     },
     watch: {},
@@ -173,7 +171,7 @@
       this.get_table_data()
     },
     computed: {
-      ...mapGetters(['getUserInfo', 'getBusinessId']),
+      ...mapGetters(['getUserInfo', 'getBusinessId','getUserSearchData', 'getUserCurrentPage']),
       getBid: {
         get(){
           return this.getBusinessId
@@ -182,9 +180,25 @@
           this.setBusinessId(val)
         }
       },
+      getSearchData: {
+        get(){
+          return this.getUserSearchData
+        },
+        set(val){
+          this.setUserSearchData(val)
+        }
+      },
+      getCurrentPage: {
+        get(){
+          return this.getUserCurrentPage
+        },
+        set(val){
+          this.setUserCurrentPage(val)
+        }
+      },
     },
     methods: {
-      ...mapActions(['setBusinessId']),
+      ...mapActions(['setBusinessId','setUserSearchData','setUserCurrentPage']),
       disable_text(status){
         let text = '禁用'
         if (status === 'DISABLE') {
@@ -198,8 +212,14 @@
       to_router_hierarchy(routerName, row){
         this.$router.push({ name: routerName, params: { id: row.id, hierarchyId: row.hierarchyId } })
       },
+      //查询
+      on_search(){
+        this.get_table_data()
+      },
       //刷新
       on_refresh(){
+        this.getCurrentPage = 1
+        this.getSearchData = null
         this.get_table_data()
       },
       //获取数据
@@ -207,10 +227,10 @@
         this.load_data = true
         this.$http.get(request_user.list, {
           params: {
-            page: this.currentPage,
+            page: this.getCurrentPage,
             rows: this.rows,
             businessId: this.getBid,
-            ...this.search_data
+            name: this.getSearchData
           }
         }).then(({ data }) => {
           this.table_data = data.data
@@ -278,7 +298,7 @@
       },
       //页码选择
       handleCurrentChange(val) {
-        this.currentPage = val
+        this.getCurrentPage = val
         this.get_table_data()
       },
       //批量选择
