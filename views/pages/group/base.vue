@@ -7,7 +7,7 @@
         <el-col :span="20">
           <form @submit.prevent="on_search">
             <el-row :gutter="10">
-              <el-col :span="6" v-if="getUserInfo.inSide">
+              <el-col :span="4" v-if="getUserInfo.inSide">
                 <simple-select :selectUrl="select_url" v-model="getBid" title="商家"
                                size="small"></simple-select>
               </el-col>

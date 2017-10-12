@@ -7,7 +7,7 @@
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
-              <el-col :span="6" v-if="getUserInfo.inSide" >
+              <el-col :span="4" v-if="getUserInfo.inSide" >
                 <simple-select :selectUrl="select_url" v-model="getBid" title="商家"
                   size="small" ></simple-select >
               </el-col >
@@ -70,7 +70,7 @@
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)" >删除</el-button >
               </el-col >
               <el-col class="operation-col" >
-                <el-button type="success" size="small" icon="edit" :disabled="props.row.status !== 'NORMAL' " @click="to_router('userRoleEdit',props.row)" >角色授权
+                <el-button type="success" size="small" icon="edit" :disabled="props.row.status !== 'NORMAL' " @click="to_router('userSetRole',props.row)" >角色授权
                 </el-button >
               </el-col >
               <el-col class="operation-col" >
@@ -105,11 +105,11 @@
                         <span >权限禁用</span >
                       </a >
                     </el-dropdown-item >
-                    <!--<el-dropdown-item >-->
-                      <!--<a @click="to_router_hierarchy('setHierarchy',props.row)" >-->
-                        <!--<span >设置层级</span >-->
-                      <!--</a >-->
-                    <!--</el-dropdown-item >-->
+                    <el-dropdown-item >
+                      <a @click="to_router('viewPrivilege',props.row)" >
+                        <span >视图权限</span >
+                      </a >
+                    </el-dropdown-item >
                   </el-dropdown-menu >
                 </el-dropdown >
               </el-col >

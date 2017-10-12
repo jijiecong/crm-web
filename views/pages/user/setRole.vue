@@ -1,4 +1,3 @@
-//该页面不再使用
 <template>
   <div class="panel">
     <panel-title :title="$route.meta.title"></panel-title>
@@ -23,12 +22,12 @@
 </template>
 <script>
   import {panelTitle, transferMeiren} from 'components'
-  import {request_userAndRole} from 'common/request_api'
+  import {request_user} from 'common/request_api'
 
   export default {
     data() {
       return {
-        data_url: request_userAndRole.setUserHasRole,
+        data_url: request_user.setRole,
         route_id: this.$route.params.id,
         load_data: false
       };

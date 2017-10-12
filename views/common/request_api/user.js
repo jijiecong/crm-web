@@ -28,3 +28,7 @@ exports.roleControl = "/acl/user/role/control"
 exports.privilegeControl = "/acl/user/privilege/control"
 //用户查询select
 exports.search = "/acl/search/user"
+//用户获取视图权限
+exports.getViewPrivilege = "/acl/user/getViewPrivilege"
+//用户授予角色
+exports.setRole = "/acl/user/setRole"

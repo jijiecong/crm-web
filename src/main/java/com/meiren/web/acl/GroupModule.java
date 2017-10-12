@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.meiren.acl.enums.CheckCanDoEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
@@ -7,6 +8,7 @@ import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.GroupVO;
 import com.meiren.vo.SelectVO;
@@ -120,12 +122,13 @@ public class GroupModule extends BaseController {
      * @param aclGroupEntity
      * @return
      */
+    @ActionControllerLog(descriptions = "添加编辑部门")
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public VueResult add(HttpServletRequest request, GroupVO vo) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
-            result.setError("您没有权限操作用户！");
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.GROUP.typeName)) {
+            result.setError("您没有权限操作部门！");
             return result;
         }
         Long id = RequestUtil.getLong(request, "id");
@@ -156,7 +159,7 @@ public class GroupModule extends BaseController {
     public VueResult setUser(HttpServletRequest request, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasGroupAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.GROUP.typeName)) {
             result.setError("您没有权限操作部门！");
             return result;
         }
@@ -254,7 +257,7 @@ public class GroupModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             SessionUserVO user = this.getUser(request);
-            if (!this.hasGroupAll(user)) {
+            if (!this.checkCanDo(user, null, CheckCanDoEnum.GROUP.typeName)) {
                 result.setError("您没有权限操作部门！");
                 return result;
             }
@@ -349,7 +352,7 @@ public class GroupModule extends BaseController {
         ApiResult result = new ApiResult();
         try {
             SessionUserVO user = this.getUser(request);
-            if (!this.hasGroupAll(user)) {
+            if (!this.checkCanDo(user, null, CheckCanDoEnum.GROUP.typeName)) {
                 result.setError("您没有权限操作部门！");
                 return result;
             }

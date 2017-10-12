@@ -24,4 +24,15 @@ exports.setRoleHasPrivilege = "/acl/role/setRoleHasPrivilege"
 exports.search = "/acl/search/role"
 //角色查询下拉
 exports.applyRole = "/acl/search/applyRole"
-
+//角色视图权限
+exports.getRoleViewPrivilege = "/acl/role/getRoleViewPrivilege"
+//关联用户
+exports.getJoinUserList = "/acl/role/getJoinUserList"
+//删除角色的关联用户
+exports.delUserHasRole = "/acl/role/delUserHasRole"
+//关联部门
+exports.getJoinGroupList = "/acl/role/getJoinGroupList"
+//删除角色的关联部门
+exports.delGroupHasRole = "/acl/role/delGroupHasRole"
+//角色被申请中记录
+exports.getJoinApplyList = "/acl/role/getJoinApplyList"

@@ -22,3 +22,13 @@ exports.setOwner = "/acl/privilege/setOwner"
 exports.search = "/acl/search/privilege"
 //设置owner
 exports.getOwner = "/acl/privilege/getOwner"
+//关联用户
+exports.getJoinUserList = "/acl/privilege/getJoinUserList"
+//删除权限的关联用户
+exports.delUserHasPrivilege = "/acl/privilege/delUserHasPrivilege"
+//关联角色
+exports.getJoinRoleList = "/acl/privilege/getJoinRoleList"
+//删除权限的关联角色
+exports.delRoleHasPrivilege = "/acl/privilege/delRoleHasPrivilege"
+//权限被申请中记录
+exports.getJoinApplyList = "/acl/privilege/getJoinApplyList"

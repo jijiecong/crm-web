@@ -1,6 +1,7 @@
 package com.meiren.web.acl;
 
 import com.meiren.acl.enums.BusinessEnum;
+import com.meiren.acl.enums.CheckCanDoEnum;
 import com.meiren.acl.enums.PrivilegeTokenEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
@@ -23,6 +24,10 @@ public class BaseController {
 
     @Autowired
     private AclBusinessService aclBusinessService;
+    @Autowired
+    protected AclRoleOwnerService aclRoleOwnerService;
+    @Autowired
+    protected AclPrivilegeOwnerService aclPrivilegeOwnerService;
 
     SessionUserVO getUser(HttpServletRequest request) {
         return RequestUtil.getSessionUser(request);
@@ -192,5 +197,46 @@ public class BaseController {
     public Boolean isMeiren(SessionUserVO user) {
         AclBusinessEntity aclBusinessEntity = (AclBusinessEntity) aclBusinessService.findAclBusiness(user.getBusinessId()).getData();
         return aclBusinessEntity.getToken().equals(BusinessEnum.INSIDE.name);
+    }
+
+    /**
+     * 判断是否有权限操作
+     *
+     * */
+    public Boolean checkCanDo(SessionUserVO user, String id, String type){
+        boolean canDo = false;
+        HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("userId", user.getId());
+        if(this.hasSuperAdmin(user)){// 超级管理员
+            return true;
+        }
+        if(type.equals(CheckCanDoEnum.PRIVILEGE.typeName)){
+            if (!StringUtils.isBlank(id)) {
+                searchParamMap.put("privilegeId", Long.valueOf(id));
+            }
+            if (!StringUtils.isBlank(id) && (aclPrivilegeOwnerService.countAclPrivilegeOwner(searchParamMap) > 0)) {// 编辑情况，owner可以操作
+                canDo = true;
+            } else if (this.hasPrivilegeAll(user)) {// 有权限管理权限
+                canDo = true;
+            }
+        }else if(type.equals(CheckCanDoEnum.ROLE.typeName)){
+            if (!StringUtils.isBlank(id)) {
+                searchParamMap.put("roleId", Long.valueOf(id));
+            }
+            if (!StringUtils.isBlank(id) && (aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)) {// 编辑情况，owner可以操作
+                canDo = true;
+            } else if (this.hasRoleAll(user)) {// 有角色管理权限
+                canDo = true;
+            }
+        }else if(type.equals(CheckCanDoEnum.USER.typeName)){
+            if (this.hasUserAll(user)) {// 有用户管理权限
+                canDo = true;
+            }
+        }else if(type.equals(CheckCanDoEnum.GROUP.typeName)){
+            if (this.hasGroupAll(user)) {// 有部门管理权限
+                canDo = true;
+            }
+        }
+        return canDo;
     }
 }

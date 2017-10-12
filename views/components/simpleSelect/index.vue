@@ -84,9 +84,10 @@
       this.selectUrl && this.get_select_data()
     },
     watch: {
-      value(val) {
-        this.setCurrentValue(val)
-      },
+//      value(val) {
+//          console.log("value"+val)
+//        this.setCurrentValue(val)
+//      },
     },
     computed: {
       select_span(){
