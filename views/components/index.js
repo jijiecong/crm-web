@@ -28,6 +28,8 @@ import imageUpload from 'components/imageUpload'
 import tree from 'components/tree'
 //树2
 import treeMeiren from 'components/treeMeiren'
+//chart
+import chartMeiren from 'components/chartMeiren'
 export {
   simpleSelect,
   mainContent,
@@ -40,5 +42,6 @@ export {
   searchSelect,
   imageUpload,
   tree,
-  treeMeiren
+  treeMeiren,
+  chartMeiren
 }

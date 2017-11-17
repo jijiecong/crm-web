@@ -48,14 +48,14 @@
         <el-table-column
           prop="hasPrivilegeStatus"
           label="使用状态">
-          <template scope="props">
+          <template slot-scope="props">
             <span v-text="statusText(props.row.hasPrivilegeStatus)"></span>
           </template>
         </el-table-column>
         <el-table-column
           label="操作"
           width="100">
-          <template scope="props">
+          <template slot-scope="props">
             <el-row class="operation-row">
               <el-col class="operation-col">
                 <el-button type="warning" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>

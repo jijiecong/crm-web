@@ -17,6 +17,12 @@
 
     <dependencies>
         <!--meiren api start-->
+        <!-- MEMBER -->
+        <dependency>
+            <groupId>org.meiren</groupId>
+            <artifactId>member-api</artifactId>
+            <version>1.0.3.6-SNAPSHOT</version>
+        </dependency>
         <!-- API -->
         <dependency>
             <groupId>org.meiren</groupId>
@@ -374,6 +380,11 @@
             <groupId>net.logstash.log4j</groupId>
             <artifactId>jsonevent-layout</artifactId>
             <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>RELEASE</version>
         </dependency>
     </dependencies>
     <profiles>

@@ -56,7 +56,7 @@
         <el-table-column
           label="操作"
           width="180">
-          <template scope="props">
+          <template slot-scope="props">
             <el-row>
               <el-col :span="11">
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>

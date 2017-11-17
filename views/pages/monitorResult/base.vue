@@ -37,7 +37,7 @@
           prop="content"
           width="200"
           label="内容">
-          <template scope="props">
+          <template slot-scope="props">
             <label v-text="to_content(props.row.content)" ></label>
           </template>
         </el-table-column>
@@ -46,7 +46,7 @@
           prop="resultTime"
           width="200"
           label="时间">
-          <template scope="props">
+          <template slot-scope="props">
             <label v-text="to_date(props.row.resultTime)" ></label>
           </template>
         </el-table-column>

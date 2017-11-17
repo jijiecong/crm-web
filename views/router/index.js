@@ -345,6 +345,17 @@ const routes = [{
     components: { fullView: () => import('pages/error/404') }
   },
 
+  // app用户管理
+  {
+    path: '/appUser/base', name: 'appUserBase',
+    meta: { title: "app用户列表" },
+    components: { default: () => import('pages/appUser/base') },
+  },
+  {
+    path: '/appUser/dataAnalyse', name: 'appUserDataAnalyse',
+    meta: { title: "app用户注册统计" },
+    components: { default: () => import('pages/appUser/dataAnalyse') },
+  },
 ]
 
 const router = new VueRouter({

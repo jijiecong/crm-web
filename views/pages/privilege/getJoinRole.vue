@@ -48,7 +48,7 @@
         <el-table-column
           label="操作"
           width="100">
-          <template scope="props">
+          <template slot-scope="props">
             <el-row class="operation-row">
               <el-col class="operation-col">
                 <el-button type="warning" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>

@@ -56,7 +56,7 @@
           prop="applyTime"
           width="200"
           label="申请时间">
-          <template scope="props">
+          <template slot-scope="props">
             <label v-text="to_date(props.row.applyTime)" ></label>
           </template>
         </el-table-column>
