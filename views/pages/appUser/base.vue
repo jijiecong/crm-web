@@ -85,6 +85,8 @@
           width="280" >
           <template slot-scope="props" >
             <el-row class="operation-row" >
+              <el-button type="warning" size="small" >拉黑</el-button>
+              <el-button type="danger" size="small" >删除</el-button>
             </el-row >
           </template >
         </el-table-column >

@@ -53,5 +53,6 @@
     <dubbo:reference id="mbcMenuService" interface="com.meiren.tech.mbc.service.MbcMenuService" check="false"  />
 
     <!-- MEMBER -->
-    <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" url="192.168.4.52" />
+    <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" />
+    <dubbo:reference id="memberService" interface="com.meiren.member.service.MemberService" check="false" />
 </beans>
