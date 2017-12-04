@@ -229,10 +229,8 @@
     },
     methods: {
       ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue','setAppUserSelectQueryStr']),
-      to_date(row){
-        console.log(row)
-        console.log(row.regTime)
-        return this.$dateFormat(row.regTime,'yyyy-MM-dd hh:mm')
+      to_date(regTime){
+        return this.$dateFormat(regTime,'yyyy-MM-dd hh:mm')
       },
       //查询
       on_search(){

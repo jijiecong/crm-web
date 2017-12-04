@@ -80,14 +80,14 @@
         <el-table-column
           prop="regTime"
           label="注册时间" >
-          <template slot-scope="props">
+          <template scope="props">
             <label v-text="to_date(props.row.regTime)" ></label>
           </template>
         </el-table-column >
         <el-table-column
           label="操作"
           width="130" >
-          <template slot-scope="props" >
+          <template scope="props" >
             <el-row class="operation-row" >
               <el-button type="warning" size="small" @click="createBlackList(props.row.userId)">移除黑名单</el-button>
             </el-row >
