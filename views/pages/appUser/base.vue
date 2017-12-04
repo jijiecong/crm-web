@@ -100,6 +100,9 @@
         <el-table-column
           prop="regTime"
           label="注册时间" >
+          <template slot-scope="props">
+            <label v-text="to_date(props.row)" ></label>
+          </template>
           <!--<template slot-scope="props">-->
             <!--<label v-text="to_date(props.row.regTime)" ></label>-->
           <!--</template>-->
@@ -109,8 +112,8 @@
           width="130" >
           <template slot-scope="props" >
             <el-row class="operation-row" >
-              <!--<el-button type="warning" size="small" @click="createBlackList(props.row.userId)">拉黑</el-button>-->
-              <!--<el-button type="danger" size="small" @click="removeUser(props.row.userId)">删除</el-button>-->
+              <el-button type="warning" size="small" @click="createBlackList(props.row)">拉黑</el-button>
+              <el-button type="danger" size="small" @click="removeUser(props.row)">删除</el-button>
             </el-row >
           </template >
         </el-table-column >
@@ -229,8 +232,10 @@
     },
     methods: {
       ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue','setAppUserSelectQueryStr']),
-      to_date(time){
-        return this.$dateFormat(time,'yyyy-MM-dd hh:mm')
+      to_date(row){
+        console.log(row)
+        console.log(row.regTime)
+        return this.$dateFormat(row.regTime,'yyyy-MM-dd hh:mm')
       },
       //查询
       on_search(){
@@ -308,7 +313,9 @@
         this.get_table_data()
       },
       //添加黑名单
-      createBlackList(id) {
+      createBlackList(row) {
+        console.log("createBlackList"+row.userId)
+        let id = row.userId;
         this.$confirm('您确定要把userId为' + id + '的用户添加黑名单吗？', '提示', { type: 'warning' })
           .then(() => {
             debugger
@@ -337,7 +344,9 @@
           });
       },
       //删除用户
-      removeUser(id) {
+      removeUser(row) {
+        console.log("removeUser"+row)
+        let id = row.userId;
         this.$confirm('您确定要删除userId为 ' + id + '的用户吗？', '提示', { type: 'warning' })
           .then(() => {
             // 向请求服务端删除
