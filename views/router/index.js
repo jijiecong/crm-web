@@ -350,6 +350,10 @@ const routes = [{
     path: '/appUser/base', name: 'appUserBase',
     meta: { title: "app用户列表" },
     components: { default: () => import('pages/appUser/base') },
+  },{
+    path: '/appUser/blackList', name: 'appUserBlackList',
+    meta: { title: "app黑名单列表" },
+    components: { default: () => import('pages/appUser/blackList') },
   },
   {
     path: '/appUser/dataAnalyse', name: 'appUserDataAnalyse',

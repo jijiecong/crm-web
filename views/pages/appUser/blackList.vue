@@ -7,26 +7,9 @@
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
-              <!--
-               <el-col :span="6" >
-               <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
+              <el-col :span="6" >
+                <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
-               -->
-              <el-col :span="2" >
-                <template>
-                  <el-select v-model="getSelectQueryStr" placeholder="请选择">
-                    <el-option
-                      v-for="queryStr in queryString"
-                      :key="queryStr.value"
-                      :label="queryStr.label"
-                      :value="queryStr.value">
-                    </el-option>
-                  </el-select>
-                </template>
-              </el-col >
-              <el-col :span="3" >
-                <el-input size="middle" placeholder="请输入关键字" v-model="getSearchData" ></el-input >
-              </el-col>
               <el-col :span="4" >
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
@@ -48,10 +31,7 @@
         <el-col :span="4" >
           <div class="fr" >
             <el-button type="warning" size="middle" @click="createBlackListBatch()">
-              批量拉黑
-            </el-button >
-            <el-button type="danger" size="middle" @click="removeUserBatch()">
-              批量删除
+              批量解黑
             </el-button >
             <el-button @click.stop="on_refresh" size="middle" >
               <i class="fa fa-refresh" ></i >
@@ -109,8 +89,7 @@
           width="130" >
           <template slot-scope="props" >
             <el-row class="operation-row" >
-              <el-button type="warning" size="small" @click="createBlackList(props.row.userId)">拉黑</el-button>
-              <el-button type="danger" size="small" @click="removeUser(props.row.userId)">删除</el-button>
+              <el-button type="warning" size="small" @click="createBlackList(props.row.userId)">移除黑名单</el-button>
             </el-row >
           </template >
         </el-table-column >
@@ -146,17 +125,6 @@
         load_data: true,
         //批量选择数组
         batch_select: [],
-        //ID/昵称/手机号
-        queryString: [{
-          value: 'userId',
-          label: '用户ID'
-        }, {
-          value: 'nickname',
-          label: '昵称'
-        }, {
-          value: 'mobile',
-          label: '手机号'
-        }],
         //APP名称
         options: []
       }
@@ -193,7 +161,7 @@
 //      this.load_data = false
     },
     computed: {
-      ...mapGetters(['getAppUserSearchData', 'getAppUserCurrentPage', 'getAppUserSelectValue', 'getAppUserSelectQueryStr']),
+      ...mapGetters(['getAppUserSearchData', 'getAppUserCurrentPage', 'getAppUserSelectValue']),
       getSearchData: {
         get(){
           return this.getAppUserSearchData
@@ -210,14 +178,6 @@
           this.setAppUserSelectValue(val)
         }
       },
-      getSelectQueryStr: {
-        get(){
-          return this.getAppUserSelectQueryStr
-        },
-        set(val){
-          this.setAppUserSelectQueryStr(val)
-        }
-      },
       getCurrentPage: {
         get(){
           return this.getAppUserCurrentPage
@@ -228,7 +188,7 @@
       },
     },
     methods: {
-      ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue','setAppUserSelectQueryStr']),
+      ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue']),
       to_date(time){
         return this.$dateFormat(time,'yyyy-MM-dd hh:mm')
       },
@@ -241,18 +201,16 @@
         this.getCurrentPage = 1
         this.getSearchData = ''
         this.getSelectValue = ''
-        this.getSelectQueryStr = ''
         this.get_table_data()
       },
       //获取数据
       get_table_data(){
         this.load_data = true
-        this.$http.get(request_appUser.list, {
+        this.$http.get(request_appUser.blackList, {
           params: {
             page: this.getCurrentPage,
             rows: this.rows,
             projectName: this.getSelectValue,
-            queryStr:this.getSelectQueryStr,
             commonFile: this.getSearchData
           }
         }).then(({ data }) => {
@@ -262,27 +220,6 @@
         }).catch(() => {
           this.load_data = false
         })
-//        this.table_data = [{
-//          id: '1',
-//          phone: '1235678910',
-//          nickName: '小王',
-//          appName: '简拼',
-//          registrationMode: '手机注册',
-//          area: '杭州',
-//          registerTime: '2017-05-02',
-//          lastLoginTime: '2017-05-02'
-//        }, {
-//          id: '2',
-//          phone: '1235678910',
-//          nickName: '聪聪',
-//          appName: '美人相机',
-//          registrationMode: '手机注册',
-//          area: '杭州',
-//          registerTime: '2017-05-03',
-//          lastLoginTime: '2017-06-02'
-//        }]
-//        this.total_count = 2
-//        this.load_data = false
       },
       //查询全部工程名
       getProjects(){
@@ -307,63 +244,40 @@
         this.getCurrentPage = val
         this.get_table_data()
       },
-      //添加黑名单
+      //移除黑名单
       createBlackList(id) {
-        this.$confirm('您确定要把userId为' + id + '的用户添加黑名单吗？', '提示', { type: 'warning' })
+        this.$confirm('您确定要把userId为' + id + '的用户移除黑名单吗？', '提示', { type: 'warning' })
           .then(() => {
             debugger
             this.$http.get(request_appUser.createBlackListUserById, {
               params: {
                 userId:id,
-                blacklistType:1,
+                blacklistType:2,
                 projectName:'all'
               }
             }).then(({ data }) => {
               if(data.success){
                 var doc = this
-                this.$message.success('添加黑名单成功！')
+                this.$message.success('移除黑名单成功！')
                 setTimeout(function () {
                   doc.get_table_data()
                 }, 800);
               }else{
-                this.$message.error('添加黑名单失败,错误代码：'+data.code+',原因：'+data.error)
+                this.$message.error('移除黑名单失败,错误代码：'+data.code+',原因：'+data.error)
               }
             }).catch(() => {
-              this.$message.error('添加黑名单失败！')
+              this.$message.error('移除黑名单失败！')
             })
           })
           .catch(() => {
             this.$message('已取消操作!');
           });
       },
-      //删除用户
-      removeUser(id) {
-        this.$confirm('您确定要删除userId为 ' + id + '的用户吗？', '提示', { type: 'warning' })
-          .then(() => {
-            // 向请求服务端删除
-            this.$http.get(request_appUser.deleteUserById, {
-              params: {
-                userId:id
-              }
-            }).then(({ data }) => {
-              if(data.success){
-                var doc = this
-                this.$message.success('删除成功！')
-                setTimeout(function () {
-                  doc.get_table_data()
-                }, 800);
-              }else{
-                this.$message.error('删除失败,错误代码：'+data.code+',原因：'+data.error)
-              }
-            }).catch(() => {
-              this.$message.error('删除失败！')
-            })
-          })
-          .catch(() => {
-            this.$message('已取消操作!');
-          });
+      //获取选中
+      tableSelectionChange(val) {
+        this.selected = val;
       },
-      //批量拉黑用户
+      //批量解黑用户
       createBlackListBatch(){
         var ids = [];
         this.selected.forEach(function (value, index) {
@@ -374,7 +288,7 @@
             this.$http.get(request_appUser.createBlackListBatch, {
               params: {
                 userIds:ids,
-                blacklistType:1,
+                blacklistType:2,
                 projectName:'all'
               }
             }).then(({ data }) => {
@@ -396,43 +310,7 @@
           .catch(() => {
             this.$message('已取消操作!');
           });
-      },
-      //批量删除用户
-      removeUserBatch() {
-        var ids = [];
-        this.selected.forEach(function (value, index) {
-          ids.push(value.userId);
-        })
-        this.$confirm('您确定要删除userId为'+ids+'的用户吗？', '提示', { type: 'warning' })
-          .then(() => {
-            this.$http.get(request_appUser.deleteUserByIdsBatch, {
-              params: {
-                userIds:ids
-              }
-            }).then(({ data }) => {
-              if(data.success && data.data==null){
-                var doc = this
-                this.$message.success('批量删除成功！')
-                setTimeout(function () {
-                  doc.get_table_data()
-                }, 800);
-              } else if(data.data != null){
-                this.$message.error('批量删除失败的userId为：'+data.data)
-              } else{
-                this.$message.error('批量删除失败,错误代码：'+data.code+',原因：'+data.error)
-              }
-            }).catch(() => {
-              this.$message.error('批量删除失败！')
-            })
-          })
-          .catch(() => {
-            this.$message('已取消操作!');
-          });
-      },
-      //获取选中
-      tableSelectionChange(val) {
-        this.selected = val;
-      },
+      }
     }
   }
 </script >

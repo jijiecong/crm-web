@@ -53,6 +53,6 @@
     <dubbo:reference id="mbcMenuService" interface="com.meiren.tech.mbc.service.MbcMenuService" check="false"  />
 
     <!-- MEMBER -->
-    <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" />
-    <dubbo:reference id="memberService" interface="com.meiren.member.service.MemberService" check="false" />
+    <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" timeout="${dubbo.service.timeout}" />
+    <dubbo:reference id="memberService" interface="com.meiren.member.service.MemberService" check="false" timeout="${dubbo.service.timeout}" />
 </beans>

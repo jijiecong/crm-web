@@ -8,7 +8,8 @@ import * as types from './types'
 const state = {
   appUser_search_data: null,
   appUser_current_page: 1,
-  appUser_select_value: null
+  appUser_select_value: null,
+  appUser_select_queryStr: null
 }
 
 // getters
@@ -21,6 +22,9 @@ const getters = {
   },
   getAppUserSelectValue: state => {
     return state.appUser_select_value
+  },
+  getAppUserSelectQueryStr: state => {
+    return state.appUser_select_queryStr
   }
 }
 
@@ -34,6 +38,9 @@ const actions = {
   },
   setAppUserSelectValue({ commit }, data){
     commit(types.SET_APPUSER_SELECT_VALUE, data)
+  },
+  setAppUserSelectQueryStr({ commit }, data){
+    commit(types.SET_APPUSER_SELECT_QUERYSTR, data)
   }
 }
 
@@ -47,6 +54,9 @@ const mutations = {
   },
   [types.SET_APPUSER_SELECT_VALUE](state, data){
     state.appUser_select_value = data || null
+  },
+  [types.SET_APPUSER_SELECT_QUERYSTR](state, data){
+    state.appUser_select_queryStr = data || null
   }
 }
 

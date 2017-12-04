@@ -14,4 +14,13 @@ exports.registerToPieStatistics = "/member/appUser/registerToPieStatistics"
 exports.registerByProjectNameStatistics = "/member/appUser/registerByProjectNameStatistics"
 //获取所有projects
 exports.getProjects = "/member/appUser/getProjects"
-
+//根据id添加或取消黑名单
+exports.createBlackListUserById = "/member/appUser/createBlackListUserById"
+//查询黑名单列表
+exports.blackList = "/member/appUser/blackList"
+//根据id删除用户
+exports.deleteUserById = "/member/appUser/deleteUserById"
+//批量删除用户
+exports.deleteUserByIdsBatch = "/member/appUser/deleteUserByIdsBatch"
+//批量拉黑或解黑用户
+exports.createBlackListBatch = "/member/appUser/createBlackListBatch"

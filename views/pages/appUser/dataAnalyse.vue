@@ -181,19 +181,7 @@
         chartIdRegisterWay: 'chartIdRegisterWay',
         chartIdUserSex: 'chartIdUserSex',
         chartIdUserAge: 'chartIdUserAge',
-        optionsApp: [{
-          value: 'jane_plus',
-          label: '简客'
-        }, {
-          value: 'xmen',
-          label: '在一起'
-        }, {
-          value: 'beauty_camera',
-          label: '美人相机'
-        }, {
-          value: 'jianpin',
-          label: '简拼'
-        }],
+        optionsApp: [],
         optionsType: [{
           value: 'datetime',
           label: '小时'
@@ -203,11 +191,14 @@
         }, {
           value: 'month',
           label: '月'
+        }, {
+          value: 'year',
+          label: '年'
         }],
         optionRegisterFrom: null,
         chartIdRegisterFrom: 'chartIdRegisterFrom',
-        selectValueApps1: ['jane_plus'],
-        selectValueApp2: 'jane_plus',
+        selectValueApps1: [],
+        selectValueApp2: 'jianpin',
         selectValueType1: '',
         timeStart1: '',
         timeEnd1: '',
@@ -236,6 +227,7 @@
       this.getRegisterStatistics()
       this.getRegisterToPieStatistics()
       this.getRegisterByProjectNameStatistics()
+      this.getProjects()
     },
     components: {
       chartMeiren,
@@ -252,15 +244,15 @@
         if(type == '') {
             return true
         }else {
+          if(start == '' && end == '') {
+            return true
+          }
           if(start == '' || end == '') {
             return false
           }
           let temp = end.getTime() - start.getTime()
-          console.log(temp)
-          console.log(type)
           if(type == 'datetime') {//小时
               if(temp > (3600 * 1000 * 24)){
-                  console.log(111)
                   return false
               }
           }else if(type == 'date'){//天
@@ -275,6 +267,22 @@
         }
         return true
       },
+      getProjects(){
+        this.$http.get(request_appUser.getProjects, {
+          params: {
+          }
+        }).then(({ data }) => {
+          let projects = [];
+          for(var key in data ){
+            projects.push({
+              value:key,
+              label:data[key]
+            })
+          }
+          this.optionsApp = projects
+        }).catch(() => {
+        })
+      },
       getRegisterStatistics(){
         let timeStart = null
         let timeEnd = null
@@ -283,6 +291,7 @@
             message: '请选择正确的时间区间：开始结束时间不能为空，按小时查询最大区间为24小时，按日查询最大区间为31日，按月查询最大区间为12个月',
             type: 'warning'
           });
+          return;
         }
         if(this.timeStart1 != '' && this.timeEnd1 != '') {
           timeStart = this.timeStart1.getTime()
@@ -315,9 +324,6 @@
               stack: '总量',
               data:seriesData})
           }
-//          console.log(legendData)
-//          console.log(series)
-//          console.log(xAxisData)
         this.optionRegister = {
             title: {
               text: '用户注册统计图',
@@ -545,7 +551,7 @@
               {
                 name:'注册人数',
                 type:'bar',
-                barWidth: '60%',
+                barWidth: '30%',
                 data:seriesData
               }
             ]
