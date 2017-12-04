@@ -100,10 +100,7 @@
         <el-table-column
           prop="regTime"
           label="注册时间" >
-          <template scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.regTime }}</span>
-          </template>
-          <template slot-scope="props">
+          <template scope="props">
             <label v-text="to_date(props.row.regTime)" ></label>
           </template>
         </el-table-column >
