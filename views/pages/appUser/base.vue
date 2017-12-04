@@ -100,8 +100,8 @@
         <el-table-column
           prop="regTime"
           label="注册时间" >
-          <template slot-scope="props">
-            <label v-text="to_date(props.row)" ></label>
+          <template slot-scope="scope">
+            <label v-text="to_date(scope.row)" ></label>
           </template>
           <!--<template slot-scope="props">-->
             <!--<label v-text="to_date(props.row.regTime)" ></label>-->
@@ -110,10 +110,10 @@
         <el-table-column
           label="操作"
           width="130" >
-          <template slot-scope="props" >
+          <template slot-scope="scope" >
             <el-row class="operation-row" >
-              <el-button type="warning" size="small" @click="createBlackList(props.row)">拉黑</el-button>
-              <el-button type="danger" size="small" @click="removeUser(props.row)">删除</el-button>
+              <el-button type="warning" size="small" @click="createBlackList(scope.row)">拉黑</el-button>
+              <el-button type="danger" size="small" @click="removeUser(scope.row)">删除</el-button>
             </el-row >
           </template >
         </el-table-column >
