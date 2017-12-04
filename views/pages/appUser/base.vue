@@ -101,7 +101,7 @@
           prop="regTime"
           label="注册时间" >
           <template slot-scope="props">
-            <label v-text="to_date(props.row.regTime)" ></label>
+            <label v-text="props.row.regTime" ></label>
           </template>
         </el-table-column >
         <el-table-column

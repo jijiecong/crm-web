@@ -12,8 +12,8 @@ import com.meiren.member.entity.UserInfoStatisticsEO;
 import com.meiren.member.service.MemberService;
 import com.meiren.member.service.UserStatisticsService;
 import com.meiren.utils.RequestUtil;
-import com.meiren.utils.StringUtils;
 import com.meiren.web.acl.BaseController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -50,7 +50,7 @@ public class AppUserModule extends BaseController {
         QueryParamEO queryParamEO = new QueryParamEO();
         String commonFile = RequestUtil.getStringTrans(request, "commonFile");
         String queryStr = RequestUtil.getStringTrans(request, "queryStr");
-        if(StringUtils.isNotBlank(RequestUtil.getStringTrans(request, "queryStr"))) {
+        if(StringUtils.isNoneBlank(queryStr,commonFile)) {
             if ("userId".equals(queryStr)) {
                 queryParamEO.setUserId(Long.valueOf(commonFile));
             } else if ("nickname".equals(queryStr)){
