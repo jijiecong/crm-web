@@ -54,7 +54,7 @@
           prop="sex"
           label="性别"
           width="100">
-          <template slot-scope="props">
+          <template scope="props">
             <span v-text="props.row.sex == 1 ? '男' : '女'"></span>
           </template>
         </el-table-column>
@@ -80,7 +80,7 @@
         <el-table-column
           label="操作"
           width="180">
-          <template slot-scope="props">
+          <template scope="props">
             <router-link :to="{name: 'tableUpdate', params: {id: props.row.id}}" tag="span">
               <el-button type="info" size="small" icon="edit">修改</el-button>
             </router-link>

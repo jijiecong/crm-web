@@ -61,14 +61,14 @@
           prop="riskLevel"
           label="风险等级"
           width="100" >
-          <template slot-scope="props" >
+          <template scope="props" >
             <span v-text="riskText(props.row.riskLevel)" ></span >
           </template >
         </el-table-column >
         <el-table-column
           label="操作"
           width="180">
-          <template slot-scope="props">
+          <template scope="props">
             <el-row>
               <el-col :span="11">
                 <el-button type="danger" size="small" icon="delete" @click="delete_data(props.row)">删除</el-button>

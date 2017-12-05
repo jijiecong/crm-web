@@ -63,7 +63,7 @@
           prop="applyTime"
           width="150"
           label="申请时间">
-          <template slot-scope="props">
+          <template scope="props">
             <label v-text="to_date(props.row.applyTime)" ></label>
           </template>
         </el-table-column>
@@ -71,7 +71,7 @@
           prop="approvalTime"
           width="150"
           label="审核时间">
-          <template slot-scope="props">
+          <template scope="props">
             <label v-text="to_date(props.row.approvalTime)" ></label>
           </template>
         </el-table-column>
@@ -79,7 +79,7 @@
           label="操作"
           fixed="right"
           width="147">
-          <template slot-scope="props">
+          <template scope="props">
             <el-row>
               <el-col :span="13" v-if="props.row.approvalResult === 'NONE'">
                 <el-dropdown trigger="click" >

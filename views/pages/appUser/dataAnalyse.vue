@@ -305,6 +305,8 @@
             timeEnd: timeEnd
           }
         }).then(({ data }) => {
+          alert(data)
+          console.log("--"+data);
           let legendData = []
           let series = []
           let xAxisData = []
@@ -359,7 +361,6 @@
             series: series
           }
         }).catch(() => {
-
         })
       },
       getRegisterToPieStatistics(){
