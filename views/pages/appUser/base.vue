@@ -7,26 +7,9 @@
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
-              <!--
                <el-col :span="6" >
                <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
-               -->
-              <el-col :span="2" >
-                <template>
-                  <el-select v-model="getSelectQueryStr" placeholder="请选择">
-                    <el-option
-                      v-for="queryStr in queryString"
-                      :key="queryStr.value"
-                      :label="queryStr.label"
-                      :value="queryStr.value">
-                    </el-option>
-                  </el-select>
-                </template>
-              </el-col >
-              <el-col :span="3" >
-                <el-input size="middle" placeholder="请输入关键字" v-model="getSearchData" ></el-input >
-              </el-col>
               <el-col :span="4" >
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
@@ -146,17 +129,6 @@
         load_data: true,
         //批量选择数组
         batch_select: [],
-        //ID/昵称/手机号
-        queryString: [{
-          value: 'userId',
-          label: '用户ID'
-        }, {
-          value: 'nickname',
-          label: '昵称'
-        }, {
-          value: 'mobile',
-          label: '手机号'
-        }],
         //APP名称
         options: []
       }
@@ -193,7 +165,7 @@
 //      this.load_data = false
     },
     computed: {
-      ...mapGetters(['getAppUserSearchData', 'getAppUserCurrentPage', 'getAppUserSelectValue', 'getAppUserSelectQueryStr']),
+      ...mapGetters(['getAppUserSearchData', 'getAppUserCurrentPage', 'getAppUserSelectValue']),
       getSearchData: {
         get(){
           return this.getAppUserSearchData
@@ -210,14 +182,6 @@
           this.setAppUserSelectValue(val)
         }
       },
-      getSelectQueryStr: {
-        get(){
-          return this.getAppUserSelectQueryStr
-        },
-        set(val){
-          this.setAppUserSelectQueryStr(val)
-        }
-      },
       getCurrentPage: {
         get(){
           return this.getAppUserCurrentPage
@@ -228,7 +192,7 @@
       },
     },
     methods: {
-      ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue','setAppUserSelectQueryStr']),
+      ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue']),
       to_date(regTime){
         return this.$dateFormat(regTime,'yyyy-MM-dd hh:mm')
       },
@@ -241,7 +205,6 @@
         this.getCurrentPage = 1
         this.getSearchData = ''
         this.getSelectValue = ''
-        this.getSelectQueryStr = ''
         this.get_table_data()
       },
       //获取数据
@@ -252,7 +215,6 @@
             page: this.getCurrentPage,
             rows: this.rows,
             projectName: this.getSelectValue,
-            queryStr:this.getSelectQueryStr,
             commonFile: this.getSearchData
           }
         }).then(({ data }) => {

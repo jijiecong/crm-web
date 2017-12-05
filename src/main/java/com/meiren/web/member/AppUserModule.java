@@ -48,17 +48,7 @@ public class AppUserModule extends BaseController {
         int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
         int pageNum = RequestUtil.getInteger(request, "page", 1);
         QueryParamEO queryParamEO = new QueryParamEO();
-        String commonFile = RequestUtil.getStringTrans(request, "commonFile");
-        String queryStr = RequestUtil.getStringTrans(request, "queryStr");
-        if(StringUtils.isNoneBlank(queryStr,commonFile)) {
-            if ("userId".equals(queryStr)) {
-                queryParamEO.setUserId(Long.valueOf(commonFile));
-            } else if ("nickname".equals(queryStr)){
-                queryParamEO.setNickname(commonFile);
-            } else if ("mobile".equals(queryStr)){
-                queryParamEO.setMobile(commonFile);
-            }
-        }
+        queryParamEO.setCommonFile(RequestUtil.getStringTrans(request, "commonFile"));
         String projectName = RequestUtil.getStringTrans(request, "projectName");
         if(!"all".equals(projectName)){
             queryParamEO.setRegisterProjectName(projectName);
