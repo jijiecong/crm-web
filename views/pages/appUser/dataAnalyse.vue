@@ -62,7 +62,7 @@
               </el-col >
 
               <el-col :span="2" >
-                <el-button type="primary" size="middle  " native-type="submit" @click="search1()">查询</el-button >
+                <el-button type="primary" size="middle" native-type="button" @click="search1()">查询</el-button >
               </el-col >
             </el-row >
           </form >
@@ -124,7 +124,7 @@
               </el-col >
 
               <el-col :span="2" >
-                <el-button type="primary" size="middle  " native-type="submit" @click="search2()">查询</el-button >
+                <el-button type="primary" size="middle  " native-type="button" @click="search2()">查询</el-button >
               </el-col >
             </el-row >
           </form >
@@ -305,8 +305,6 @@
             timeEnd: timeEnd
           }
         }).then(({ data }) => {
-          alert(data)
-          console.log("--"+data);
           let legendData = []
           let series = []
           let xAxisData = []
