@@ -68,6 +68,10 @@
         type: Boolean,
         default: false
       },
+      hasAllOption: {
+        type: Boolean,
+        default: false
+      },
     },
     data() {
       return {
@@ -84,9 +88,10 @@
       this.selectUrl && this.get_select_data()
     },
     watch: {
-      value(val) {
-        this.setCurrentValue(val)
-      },
+//      value(val) {
+//          console.log("value"+val)
+//        this.setCurrentValue(val)
+//      },
     },
     computed: {
       select_span(){
@@ -110,7 +115,12 @@
         this.$http.get(this.selectUrl, {
           params: this.params
         }).then(({ data }) => {
+
           this.options = data
+          if(this.hasAllOption){
+            this.options.push({'id':null,'name':'全部','selected':null})
+          }
+          console.log(this.options)
           this.load_data = false
         }).catch(() => {
           this.load_data = false

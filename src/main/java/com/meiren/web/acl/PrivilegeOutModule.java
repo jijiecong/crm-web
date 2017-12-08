@@ -12,6 +12,7 @@ import com.meiren.acl.service.entity.AclPrivilegeProcessEntity;
 import com.meiren.acl.service.entity.AclProcessModelEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SessionUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class PrivilegeOutModule extends BaseController {
      * @param aclPrivilegeEntity
      * @return
      */
+    @ActionControllerLog(descriptions = "添加编辑权限")
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public VueResult add(HttpServletRequest request, AclPrivilegeEntity aclPrivilegeEntity) throws Exception {
         VueResult result = new VueResult();

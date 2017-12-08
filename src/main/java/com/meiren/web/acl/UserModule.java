@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.meiren.acl.enums.CheckCanDoEnum;
 import com.meiren.acl.enums.UserPrivilegeStatusEnum;
 import com.meiren.acl.enums.UserRoleStatusEnum;
 import com.meiren.acl.enums.UserStatusEnum;
@@ -11,10 +12,16 @@ import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.result.VueResultCode;
 import com.meiren.common.utils.ObjectUtils;
+import com.meiren.common.utils.StringUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
+import com.meiren.tech.mbc.service.MbcMenuService;
+import com.meiren.tech.mbc.service.entity.MbcMenuEntity;
+import com.meiren.utils.MBCEnum;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
 import com.meiren.vo.UserVO;
+import com.meiren.vo.ViewPrivilegeVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -54,6 +61,8 @@ public class UserModule extends BaseController {
     private AclPrivilegeOwnerService aclPrivilegeOwnerService;
     @Autowired
     private AclPrivilegeService aclPrivilegeService;
+    @Autowired
+    private MbcMenuService mbcMenuService;
 
     /**
      * 用户列表
@@ -92,7 +101,7 @@ public class UserModule extends BaseController {
         VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasGroupAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -127,11 +136,12 @@ public class UserModule extends BaseController {
      * @return
      * @throws Exception
      */
+    @ActionControllerLog(descriptions = "添加编辑用户")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, UserVO vo) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -173,7 +183,7 @@ public class UserModule extends BaseController {
     public VueResult resign(HttpServletRequest request, HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -218,7 +228,7 @@ public class UserModule extends BaseController {
                                  HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -285,7 +295,7 @@ public class UserModule extends BaseController {
         VueResult result = new VueResult();
         Map<String, Object> updateMap = new HashMap<>();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -313,7 +323,7 @@ public class UserModule extends BaseController {
     public VueResult hierarchySet(HttpServletRequest request, HttpServletResponse response) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -340,7 +350,7 @@ public class UserModule extends BaseController {
                                  HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -462,7 +472,7 @@ public class UserModule extends BaseController {
                                       HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasUserAll(user)) {
+        if (!this.checkCanDo(user, null, CheckCanDoEnum.USER.typeName)) {
             result.setError("您没有权限操作用户！");
             return result;
         }
@@ -508,7 +518,7 @@ public class UserModule extends BaseController {
             entity.setStatus(UserPrivilegeStatusEnum.DELETE.name());
             entity.setUserId(uid);
             entity.setPrivilegeId(Long.parseLong(id));
-            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(com.meiren.common.utils.ObjectUtils.entityToMap(entity));
+            aclUserHasPrivilegeService.deleteAclUserHasPrivilege(ObjectUtils.entityToMap(entity));
         }
         return result;
     }
@@ -558,6 +568,154 @@ public class UserModule extends BaseController {
             selectedVOs.add(vo);
         }
         for (AclPrivilegeEntity entity : all) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId());
+            vo.setName(entity.getName());
+            selectDataVOs.add(vo);
+        }
+
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("selected", selectedVOs);
+        dataMap.put("selectData", selectDataVOs);
+        return dataMap;
+    }
+
+    /**
+     * 获取用户视图权限
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getViewPrivilege", method = RequestMethod.GET)
+    public VueResult getViewPrivilege(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasUserAll(user)) {
+            result.setError("您没有权限查看用户视图权限！");
+            return result;
+        }
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("scope", MBCEnum.MenuScopeBackend.getType());
+        searchParamMap.put("status", MBCEnum.MenusStatusOpen.getType());
+        Long userId = RequestUtil.getLong(request, "userId");
+        ApiResult apiResult = mbcMenuService.loadMbcMenus(searchParamMap, userId).check();
+        List<MbcMenuEntity> menuEntityList = (List<MbcMenuEntity>) apiResult.getData();
+        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList);
+        result.setData(viewPrivilegeVOList);
+        return result;
+    }
+
+    private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList) {
+        List<ViewPrivilegeVO> viewPrivilegeVOList = new ArrayList<ViewPrivilegeVO>();
+        for(MbcMenuEntity mbcMenuEntity : menuEntityList){
+            ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
+            if(mbcMenuEntity.getSubMenus().size() > 0) {
+                viewPrivilegeVO.setId(mbcMenuEntity.getId());
+                viewPrivilegeVO.setName(mbcMenuEntity.getName());
+                viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
+                viewPrivilegeVO.setChildren(formatList(mbcMenuEntity.getSubMenus()));
+            }else {
+                viewPrivilegeVO.setId(mbcMenuEntity.getId());
+                viewPrivilegeVO.setName(mbcMenuEntity.getName());
+                viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
+            }
+            viewPrivilegeVOList.add(viewPrivilegeVO);
+        }
+        return viewPrivilegeVOList;
+    }
+
+    /**
+     * 给用户授予角色
+     *
+     * @param request
+     * @param response
+     * @param type
+     * @return
+     */
+    @RequestMapping(value = "/setRole/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult setRole(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        if (!this.hasRoleAuthorized(user)) {
+            result.setError("您没有权限操作授予角色！");
+            return result;
+        }
+        Long initId = RequestUtil.getLong(request, "initId");
+        if (initId == null) {
+            throw new Exception("请选择要操作的用户！");
+        }
+        String selectedIds = RequestUtil.getString(request, "selectedIds");
+        String[] selectedIds_arr = null;
+        if (!StringUtils.isBlank(selectedIds)) {
+            selectedIds_arr = selectedIds.split(",");
+        }
+        switch (type) {
+        case "init":
+            Map<String, Object> data = this.setRoleInit(initId, user.getId());
+            result.setData(data);
+            break;
+        case "right":
+            result = this.setRoleAdd(initId, selectedIds_arr);
+            break;
+        case "left":
+            result = this.setRoleDel(initId, selectedIds_arr);
+            break;
+        default:
+            throw new Exception("type not find");
+        }
+        return result;
+    }
+
+    private VueResult setRoleDel(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            Map<String, Object> delMap = new HashMap<>();
+            delMap.put("userId", initId);
+            delMap.put("roleId", Long.parseLong(id));
+            aclUserHasRoleService.deleteAclUserHasRole(delMap);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    private VueResult setRoleAdd(Long initId, String[] selectedIds_arr) {
+        for (String id : selectedIds_arr) {
+            AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+            entity.setUserId(initId);
+            entity.setRoleId(Long.parseLong(id));
+            entity.setStatus(UserRoleStatusEnum.NORMAL.name());
+            aclUserHasRoleService.createAclUserHasRole(entity);
+        }
+        return new VueResult("操作成功！");
+    }
+
+    /**
+     * 查询用户拥有的角色
+     *
+     * @param dataId
+     * @return
+     */
+    private Map<String, Object> setRoleInit(Long initId, Long userId) {
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("userId", initId);
+        searchParamMap.put("hasStatus", UserRoleStatusEnum.NORMAL.name());
+        List<AclRoleEntity> selected = (List<AclRoleEntity>)
+            aclRoleService.loadAclRoleJoinUserHas(searchParamMap).getData(); // 根据查询用户查询拥有的角色
+
+        Long businessId = aclUserService.findAclUserById(initId).getBusinessId();// 查询被授权用户所属的商家
+        List<AclRoleEntity> all = (List<AclRoleEntity>)
+            aclRoleService.getManageableRole(userId, businessId).getData(); // 查询登陆用户可授权的所有角色
+
+        List<SelectVO> selectedVOs = new ArrayList<>();
+        List<SelectVO> selectDataVOs = new ArrayList<>();
+
+        for (AclRoleEntity entity : selected) {
+            SelectVO vo = new SelectVO();
+            vo.setId(entity.getId()); // 将信息转换为id name 类型
+            vo.setName(entity.getName());
+            selectedVOs.add(vo);
+        }
+        for (AclRoleEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
             vo.setName(entity.getName());

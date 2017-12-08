@@ -88,6 +88,15 @@
         }, {
           title: "定时监控结果",
           path: "/monitorResult/base",
+        },{
+          title: "app用户管理",
+          path: "/appUser/base",
+        },{
+          title: "app黑名单管理",
+          path: "/appUser/blackList",
+        },{
+          title: "app用户注册统计",
+          path: "/appUser/dataAnalyse",
         },
 
 //          {

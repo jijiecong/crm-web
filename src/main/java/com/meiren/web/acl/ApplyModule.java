@@ -5,6 +5,7 @@ import com.meiren.acl.service.AclApplyService;
 import com.meiren.acl.service.entity.AclApplyEntity;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.ApplyVO;
 import com.meiren.vo.SessionUserVO;
@@ -87,6 +88,8 @@ public class ApplyModule extends BaseController {
         BeanUtils.copyProperties(vo, entity);
         return entity;
     }
+
+    @ActionControllerLog(descriptions = "申请权限")
     @RequestMapping(value = "savePrivilege", method = RequestMethod.POST)
     public ApiResult createApplyPrivilege(HttpServletRequest request,ApplyVO vo) {
         VueResult result = new VueResult();
@@ -97,12 +100,14 @@ public class ApplyModule extends BaseController {
 
         return result;
     }
+
+    @ActionControllerLog(descriptions = "申请角色")
     @RequestMapping(value = "saveRole", method = RequestMethod.POST)
     public ApiResult createApplyRole (HttpServletRequest request, ApplyVO vo) {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         vo.setUserId(user.getId());
-        vo.setApplyType(ApplyTypeEnum.APPLY_ROLE.name());//权限申请
+        vo.setApplyType(ApplyTypeEnum.APPLY_ROLE.name());//角色申请
         aclApplyService.createAclApply(this.voToEntity(vo));
         return result;
     }

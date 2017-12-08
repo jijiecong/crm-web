@@ -14,6 +14,7 @@ import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.ProcessVO;
 import com.meiren.vo.RoleVO;
@@ -89,6 +90,7 @@ public class ProcessModule extends BaseController {
     /**
      * 添加编辑
      */
+    @ActionControllerLog(descriptions = "添加编辑流程")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, ProcessVO vo) throws Exception {
         VueResult result = new VueResult();

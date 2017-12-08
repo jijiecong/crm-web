@@ -80,11 +80,21 @@
                         <span>设置审核流程</span>
                       </a>
                     </el-dropdown-item>
-                    <!--<el-dropdown-item>-->
-                      <!--<a @click="to_router('setPrivilegeOwner',props.row)">-->
-                        <!--<span>设置权限owner</span>-->
-                      <!--</a>-->
-                    <!--</el-dropdown-item>-->
+                    <el-dropdown-item>
+                      <a @click="to_router('getPrivilegeJoinUser',props.row)">
+                        <span>关联用户</span>
+                      </a>
+                    </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getPrivilegeJoinRole',props.row)">
+                      <span>关联角色</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getPrivilegeJoinApply',props.row)">
+                      <span>关联申请中记录</span>
+                    </a>
+                  </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-col>
@@ -210,7 +220,7 @@
             h('span', null, '此操作将删除选择数据, 是否继续?'),
             h('br'),
             h('br'),
-            h('span', null, 'ps:1、当有用户拥有或者申请该权限时，2、当有角色拥有该权限时，需要先取消关联才能删除，否则删除失败！'),
+            h('span', null, 'ps:1、当有用户或者角色拥有该权限时，2、当有用户申请该权限时，需要先取消关联才能删除，否则删除失败！'),
           ]),
           showCancelButton: true,
         }).then((action) => {

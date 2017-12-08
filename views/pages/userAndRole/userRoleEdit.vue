@@ -1,3 +1,4 @@
+//该页面不再使用
 <template>
   <div class="panel">
     <panel-title :title="$route.meta.title"></panel-title>

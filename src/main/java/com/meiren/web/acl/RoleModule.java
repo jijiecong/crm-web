@@ -1,9 +1,7 @@
 package com.meiren.web.acl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.meiren.acl.enums.ApprovalConditionEnum;
-import com.meiren.acl.enums.RiskLevelEnum;
-import com.meiren.acl.enums.RoleStatusEnum;
+import com.meiren.acl.enums.*;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
@@ -11,11 +9,11 @@ import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
+import com.meiren.tech.mbc.service.MbcMenuService;
+import com.meiren.tech.mbc.service.entity.MbcMenuEntity;
 import com.meiren.utils.RequestUtil;
-import com.meiren.vo.ProcessVO;
-import com.meiren.vo.RoleVO;
-import com.meiren.vo.SelectVO;
-import com.meiren.vo.SessionUserVO;
+import com.meiren.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,6 +45,14 @@ public class RoleModule extends BaseController {
     protected AclUserService aclUserService;
     @Autowired
     protected AclProcessModelService aclProcessModelService;
+    @Autowired
+    private MbcMenuService mbcMenuService;
+    @Autowired
+    protected AclUserHasRoleService aclUserHasRoleService;
+    @Autowired
+    protected AclGroupHasRoleService aclGroupHasRoleService;
+    @Autowired
+    protected AclApplyService aclApplyService;
     private String[] necessaryParam = {
         "name","businessId",
     };
@@ -96,24 +102,14 @@ public class RoleModule extends BaseController {
     /**
      * 添加编辑
      */
+    @ActionControllerLog(descriptions = "添加编辑角色")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, RoleVO vo) throws Exception {
         VueResult result = new VueResult();
         this.checkParamMiss(request, this.necessaryParam);
         String id = request.getParameter("id");
         SessionUserVO user = this.getUser(request);
-        HashMap<String, Object> searchParamMap = new HashMap<String, Object>();
-        searchParamMap.put("userId", user.getId());
-        if (!StringUtils.isBlank(id)) {
-            searchParamMap.put("roleId", Long.valueOf(id));
-        }
-        boolean canDo = false;
-        if (!StringUtils.isBlank(id) && (aclRoleOwnerService.countAclRoleOwner(searchParamMap) > 0)) {// 编辑情况
-            canDo = true;
-        } else if (this.hasRoleAll(user)) {// 有权限管理权限
-            canDo = true;
-        }
-        if (canDo) {
+        if (this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
             AclRoleEntity entity = this.voToEntity(vo);
             Integer riskLevel = RequestUtil.getInteger(request, "riskLevel");
             if (riskLevel == null) {
@@ -139,7 +135,7 @@ public class RoleModule extends BaseController {
             this.addRoleProcess(roleId, RiskLevelEnum.getByTypeValue(riskLevel).typeValue, oldRiskLevel);
             result.setData(true);
         } else {
-            result.setError("您无权添加编辑该权限");
+            result.setError("您无权添加编辑该角色");
             return result;
         }
         return result;
@@ -187,15 +183,13 @@ public class RoleModule extends BaseController {
     @ResponseBody
     public VueResult setOwner(HttpServletRequest request, HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
+        String id = request.getParameter("initId");
         SessionUserVO user = this.getUser(request);
-        if (!this.hasPrivilegeAll(user)) {
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
             result.setError("您没有权限操作角色！");
             return result;
         }
-        Long initId = RequestUtil.getLong(request, "initId");
-        if (initId == null) {
-            throw new Exception("请选择要操作的角色！");
-        }
+        Long initId = Long.parseLong(id);
         String selectedIds = RequestUtil.getString(request, "selectedIds");
         String[] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
@@ -324,7 +318,12 @@ public class RoleModule extends BaseController {
     public VueResult delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         VueResult result = new VueResult();
         Map<String, Object> delMap = new HashMap<>();
-        Long id = this.checkId(request);
+        String id = request.getParameter("id");
+        SessionUserVO user = this.getUser(request);
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
         delMap.put("id", id);
         aclRoleService.deleteAclRole(delMap).check();
         result.setData("操作成功！");
@@ -368,14 +367,16 @@ public class RoleModule extends BaseController {
                                   HttpServletResponse response, @PathVariable String type) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
+        String id = request.getParameter("initId");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
         if (!this.hasPrivilegeAuthorized(user)) {
             result.setError("您没有权限授权权限！");
             return result;
         }
-        Long initId = RequestUtil.getLong(request, "initId");
-        if (initId == null) {
-            throw new Exception("请选择要操作的角色！");
-        }
+        Long initId = Long.parseLong(id);
         String selectedIds = RequestUtil.getString(request, "selectedIds");
         String[] selectedIds_arr = null;
         if (!StringUtils.isBlank(selectedIds)) {
@@ -480,12 +481,12 @@ public class RoleModule extends BaseController {
 
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
-        if (!this.hasRoleAll(user)) {
+        String id = request.getParameter("id");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
             result.setError("您没有权限操作角色！");
             return result;
         }
         Map<String, Object> searchParamMap = new HashMap<>();
-        Long id = this.checkId(request);
         searchParamMap.put("roleId", id);
         if (Objects.equals(type, "init")) {
             Map<String, Object> map = new HashMap<>();
@@ -516,7 +517,7 @@ public class RoleModule extends BaseController {
             aclRoleProcessService.deleteAclRoleProcess(searchParamMap);
             for (AclRoleProcessEntity entity : list) {
                 if (entity.getChecked()) {
-                    entity.setRoleId(id);
+                    entity.setRoleId(Long.parseLong(id));
                     entity.setApprovalCondition(entity.getApprovalCondition().toUpperCase().equals("AND")
                         ? ApprovalConditionEnum.AND.name() : ApprovalConditionEnum.OR.name());
                     aclRoleProcessService.createAclRoleProcess(entity);
@@ -527,5 +528,172 @@ public class RoleModule extends BaseController {
         return result;
     }
 
+    /**
+     * 获取角色视图权限
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getRoleViewPrivilege", method = RequestMethod.GET)
+    public VueResult getRoleViewPrivilege(HttpServletRequest request) throws
+        Exception {
+        VueResult result = new VueResult();
 
+        Long roleId = RequestUtil.getLong(request, "roleId");
+        if (roleId == null) {
+            throw new Exception("请选择要操作的角色！");
+        }
+        Map<String, Object> searchParamMap = new HashMap<>();
+        searchParamMap.put("roleId", roleId);
+        List<AclPrivilegeEntity> haveList = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData();
+
+        ApiResult apiResult = mbcMenuService.loadAllBackendMenus().check();
+        List<MbcMenuEntity> menuEntityList = (List<MbcMenuEntity>) apiResult.getData();
+        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList, haveList);
+        result.setData(viewPrivilegeVOList);
+        return result;
+    }
+
+    private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList, List<AclPrivilegeEntity> haveList) {
+        List<ViewPrivilegeVO> viewPrivilegeVOList = new ArrayList<ViewPrivilegeVO>();
+        //没有权限的菜单不给看
+        List<MbcMenuEntity> viewMenus = new ArrayList<>();
+        for (MbcMenuEntity menuEntity : menuEntityList) {
+            for(AclPrivilegeEntity privilegeEntity : haveList) {
+                if (!menuEntity.getPrivilege() || privilegeEntity.getToken().equals(menuEntity.getToken())) {
+                    viewMenus.add(menuEntity);
+                    break;
+                }
+            }
+        }
+        Map<Long, ViewPrivilegeVO> ViewPrivilegeVOMap = new HashMap<>();
+        //先把所有菜单放进缓存map
+        for (MbcMenuEntity mbcMenuEntity : viewMenus) {
+            ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
+            viewPrivilegeVO.setId(mbcMenuEntity.getId());
+            viewPrivilegeVO.setName(mbcMenuEntity.getName());
+            viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
+            viewPrivilegeVO.setChildren(new ArrayList<ViewPrivilegeVO>());
+            ViewPrivilegeVOMap.put(mbcMenuEntity.getId(), viewPrivilegeVO);
+            if (mbcMenuEntity.getParentId() == -1L) {
+                //根菜单
+                viewPrivilegeVOList.add(viewPrivilegeVO);
+            }
+        }
+
+        for (MbcMenuEntity subMenuEntity : viewMenus) {
+            //寻找父菜单并加入进子菜单列表
+            if (subMenuEntity.getParentId() != -1L &&
+                ViewPrivilegeVOMap.get(subMenuEntity.getParentId()) != null) {
+                ViewPrivilegeVO viewPrivilegeVO = ViewPrivilegeVOMap.get(subMenuEntity.getId());
+                ViewPrivilegeVOMap.get(subMenuEntity.getParentId()).getChildren().add(viewPrivilegeVO);
+            }
+        }
+
+        return viewPrivilegeVOList;
+    }
+
+    /**
+     * 角色关联用户列表
+     */
+    @RequestMapping("/getJoinUserList")
+    public VueResult getJoinUserList(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索名称和对应值
+        Map<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("roleId", RequestUtil.getLong(request, "roleId"));
+        ApiResult apiResult = aclUserHasRoleService.searchAclUserHasRoleJoin(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+
+    }
+
+    /**
+     * 删除角色和用户关联
+     */
+    @RequestMapping(value = "delUserHasRole", method = RequestMethod.POST)
+    @ResponseBody
+    private VueResult delUserHasRole(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        String id = request.getParameter("roleId");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        Long userId = RequestUtil.getLong(request, "userId");
+        Long roleId = Long.parseLong(id);
+        AclUserHasRoleEntity entity = new AclUserHasRoleEntity();
+        entity.setUserId(userId);
+        entity.setRoleId(roleId);
+        aclUserHasRoleService.deleteAclUserHasRole(ObjectUtils.entityToMap(entity));
+        return result;
+    }
+
+    /**
+     * 角色关联部门列表
+     */
+    @RequestMapping("/getJoinGroupList")
+    public VueResult getJoinGroupList(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索名称和对应值
+        Map<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("roleId", RequestUtil.getLong(request, "roleId"));
+        ApiResult apiResult = aclGroupHasRoleService.searchAclGroupHasRoleJoin(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+
+    }
+
+    /**
+     * 删除角色和部门关联
+     */
+    @RequestMapping(value = "delGroupHasRole", method = RequestMethod.POST)
+    @ResponseBody
+    private VueResult delGroupHasRole(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        String id = request.getParameter("roleId");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        Long groupId = RequestUtil.getLong(request, "groupId");
+        Long roleId = Long.parseLong(id);
+        AclGroupHasRoleEntity entity = new AclGroupHasRoleEntity();
+        entity.setGroupId(groupId);
+        entity.setRoleId(roleId);
+        aclGroupHasRoleService.deleteAclGroupHasRole(ObjectUtils.entityToMap(entity));
+        return result;
+    }
+
+    /**
+     * 角色关联申请中的列表
+     */
+    @RequestMapping("/getJoinApplyList")
+    public VueResult getJoinApplyList(HttpServletRequest request) {
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        //搜索名称和对应值
+        Map<String, Object> searchParamMap = new HashMap<String, Object>();
+        searchParamMap.put("wantId", RequestUtil.getLong(request, "roleId"));
+        searchParamMap.put("applyType", ApplyTypeEnum.APPLY_ROLE.name);
+        ApiResult apiResult = aclApplyService.searchAclApply(searchParamMap, pageNum, rowsNum);
+        Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.getData() != null) {
+            rMap = (Map<String, Object>) apiResult.getData();
+        }
+        return new VueResult(rMap);
+
+    }
 }

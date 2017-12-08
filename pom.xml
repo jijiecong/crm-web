@@ -17,17 +17,30 @@
 
     <dependencies>
         <!--meiren api start-->
+        <!-- MEMBER -->
+        <dependency>
+            <groupId>org.meiren</groupId>
+            <artifactId>member-api</artifactId>
+            <version>1.0.4.4-SNAPSHOT</version>
+        </dependency>
         <!-- API -->
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>acl-api</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>monitor-api</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <!-- MBC -->
+        <dependency>
+            <groupId>org.meiren</groupId>
+            <artifactId>mbc-api</artifactId>
+            <version>1.0.8</version>
+        </dependency>
+
         <!-- 路由API -->
         <dependency>
             <groupId>org.meiren</groupId>
@@ -367,6 +380,11 @@
             <groupId>net.logstash.log4j</groupId>
             <artifactId>jsonevent-layout</artifactId>
             <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>RELEASE</version>
         </dependency>
     </dependencies>
     <profiles>

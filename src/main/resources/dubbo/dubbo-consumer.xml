@@ -6,6 +6,9 @@
 	   http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
 	   ">
 
+    <!-- 用户行为记录 -->
+    <dubbo:reference id="mbcMonitorService" interface="com.meiren.tech.mbc.service.MbcMonitorService" check="false"/>
+
 	<!-- 权限审批 -->
     <dubbo:reference id="aclApiService" interface="com.meiren.acl.api.AclApiService" check="false"/>
     <dubbo:reference id="aclApplyService"   interface="com.meiren.acl.service.AclApplyService" check="false"/>
@@ -46,4 +49,10 @@
     <dubbo:reference id="notifyLogService" interface="com.meiren.monitor.service.NotifyLogService" check="false"/>
     <dubbo:reference id="pavepawsMonitorConfigHasUserService" interface="com.meiren.monitor.service.PavepawsMonitorConfigHasUserService" check="false"/>
 
+    <!-- MBC -->
+    <dubbo:reference id="mbcMenuService" interface="com.meiren.tech.mbc.service.MbcMenuService" check="false"  />
+
+    <!-- MEMBER -->
+    <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" timeout="${dubbo.service.timeout}" />
+    <dubbo:reference id="memberService" interface="com.meiren.member.service.MemberService" check="false" timeout="${dubbo.service.timeout}" />
 </beans>

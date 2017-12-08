@@ -7,6 +7,7 @@ import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.HierarchyVO;
 import com.meiren.vo.SessionUserVO;
@@ -76,6 +77,7 @@ public class HierarchyModule extends BaseController {
      * @return
      * @throws Exception
      */
+    @ActionControllerLog(descriptions = "添加编辑层级")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, HierarchyVO vo) throws Exception {
         VueResult result = new VueResult();

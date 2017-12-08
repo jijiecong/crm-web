@@ -17,6 +17,7 @@
               <el-input v-model="form.token" placeholder="请输入内容" ></el-input >
             </el-form-item >
             <el-form-item label="权限owner:" prop="ownerId" >
+              <!--这里ownerId会作为value属性传入searchSelect组件, 组件更新数据时通过$emit('input', value)传给ownerId-->
               <search-select
                 multiple
                 :selectUrl="select_user_url"

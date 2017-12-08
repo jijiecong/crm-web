@@ -10,6 +10,7 @@ import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
+import com.meiren.tech.mbc.action.ActionControllerLog;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.BusinessVO;
 import com.meiren.vo.SelectVO;
@@ -81,12 +82,13 @@ public class BusinessModule extends BaseController {
     }
 
     /**
-     * 添加编辑用户
+     * 添加编辑商家
      *
      * @param request
      * @return
      * @throws Exception
      */
+    @ActionControllerLog(descriptions = "添加编辑商家")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public VueResult save(HttpServletRequest request, BusinessVO vo) throws Exception {
         VueResult result = new VueResult();

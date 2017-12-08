@@ -46,6 +46,16 @@ const routes = [{
     meta: { title: "权限禁用" },
     components: { default: () => import('pages/user/disablePrivilege') },
   },
+  {
+    path: '/user/viewPrivilege/:id', name: 'viewPrivilege',
+    meta: { title: "视图权限" },
+    components: { default: () => import('pages/user/viewPrivilege') },
+  },
+  {
+    path: '/user/setRole/:id', name: 'userSetRole',
+    meta: { title: "用户角色授权" },
+    components: { default: () => import('pages/user/setRole') },
+  },
   // 用户管理路由   结束
 
   // 权限管理路由   开始
@@ -70,6 +80,21 @@ const routes = [{
     path: '/privilege/setOwner/:id', name: 'setPrivilegeOwner',
     meta: { title: "设置权限owner" },
     components: { default: () => import('pages/privilege/setOwner') },
+  },
+  {
+    path: '/privilege/getJoinUser/:id', name: 'getPrivilegeJoinUser',
+    meta: { title: "权限关联用户" },
+    components: { default: () => import('pages/privilege/getJoinUser') },
+  },
+  {
+    path: '/privilege/getJoinRole/:id', name: 'getPrivilegeJoinRole',
+    meta: { title: "权限关联角色" },
+    components: { default: () => import('pages/privilege/getJoinRole') },
+  },
+  {
+    path: '/privilege/getJoinApply/:id', name: 'getPrivilegeJoinApply',
+    meta: { title: "权限被申请中列表" },
+    components: { default: () => import('pages/privilege/getJoinApply') },
   },
   // 权限管理路由   结束
 
@@ -100,6 +125,26 @@ const routes = [{
     path: '/role/setRoleHasPrivilege/:id', name: 'setRoleHasPrivilege',
     meta: { title: "设置角色拥有权限" },
     components: { default: () => import('pages/role/setRoleHasPrivilege') },
+  },
+  {
+    path: '/role/getRoleViewPrivilege/:id', name: 'getRoleViewPrivilege',
+    meta: { title: "角色视图权限" },
+    components: { default: () => import('pages/role/getRoleViewPrivilege') },
+  },
+  {
+    path: '/role/getJoinUser/:id', name: 'getRoleJoinUser',
+    meta: { title: "角色关联用户" },
+    components: { default: () => import('pages/role/getJoinUser') },
+  },
+  {
+    path: '/role/getJoinGroup/:id', name: 'getRoleJoinGroup',
+    meta: { title: "角色关联部门" },
+    components: { default: () => import('pages/role/getJoinGroup') },
+  },
+  {
+    path: '/role/getJoinApply/:id', name: 'getRoleJoinApply',
+    meta: { title: "角色被申请中列表" },
+    components: { default: () => import('pages/role/getJoinApply') },
   },
   // 角色管理路由   结束
 
@@ -236,15 +281,7 @@ const routes = [{
   // 审核管理路由   结束
 
   // 用户角色授权管理路由   开始
-  {
-    path: '/userAndRole/base', name: 'userAndRoleBase',
-    meta: { title: "用户角色授权列表" },
-    components: { default: () => import('pages/userAndRole/base') },
-  }, {
-    path: '/userAndRole/userRoleEdit/:id', name: 'userRoleEdit',
-    meta: { title: "用户角色授权" },
-    components: { default: () => import('pages/userAndRole/userRoleEdit') },
-  },
+
   // 用户角色授权管理路由   结束
 
   //申请管理路由 开始
@@ -308,6 +345,21 @@ const routes = [{
     components: { fullView: () => import('pages/error/404') }
   },
 
+  // app用户管理
+  {
+    path: '/appUser/base', name: 'appUserBase',
+    meta: { title: "app用户列表" },
+    components: { default: () => import('pages/appUser/base') },
+  },{
+    path: '/appUser/blackList', name: 'appUserBlackList',
+    meta: { title: "app黑名单列表" },
+    components: { default: () => import('pages/appUser/blackList') },
+  },
+  {
+    path: '/appUser/dataAnalyse', name: 'appUserDataAnalyse',
+    meta: { title: "app用户注册统计" },
+    components: { default: () => import('pages/appUser/dataAnalyse') },
+  },
 ]
 
 const router = new VueRouter({

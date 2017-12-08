@@ -7,7 +7,7 @@
         <el-col :span="20">
           <form @submit.prevent="on_search">
             <el-row :gutter="10">
-              <el-col :span="6" v-if="getUserInfo.inSide">
+              <el-col :span="4" v-if="getUserInfo.inSide">
                 <simple-select :selectUrl="select_url" v-model="getBid" title="商家"
                                size="small"></simple-select>
               </el-col>
@@ -90,6 +90,26 @@
                   <el-dropdown-item>
                     <a @click="to_router('setRoleHasPrivilege',props.row)">
                       <span>设置角色权限</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getRoleViewPrivilege',props.row)">
+                      <span>视图权限</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getRoleJoinUser',props.row)">
+                      <span>关联用户</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getRoleJoinGroup',props.row)">
+                      <span>关联部门</span>
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a @click="to_router('getRoleJoinApply',props.row)">
+                      <span>关联申请中记录</span>
                     </a>
                   </el-dropdown-item>
                   </el-dropdown-menu>

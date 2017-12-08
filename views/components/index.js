@@ -24,6 +24,12 @@ import transferMeiren from 'components/transferMeiren'
 import searchSelect from 'components/searchSelect'
 //照片墙
 import imageUpload from 'components/imageUpload'
+//树
+import tree from 'components/tree'
+//树2
+import treeMeiren from 'components/treeMeiren'
+//chart
+import chartMeiren from 'components/chartMeiren'
 export {
   simpleSelect,
   mainContent,
@@ -34,5 +40,8 @@ export {
   bottomToolBar,
   transferMeiren,
   searchSelect,
-  imageUpload
+  imageUpload,
+  tree,
+  treeMeiren,
+  chartMeiren
 }
