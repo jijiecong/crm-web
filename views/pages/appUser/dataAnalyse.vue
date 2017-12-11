@@ -321,7 +321,7 @@
             flag = false
             series.push({name:key,
               type:'line',
-              stack: '总量',
+              //stack: '总量',
               data:seriesData})
           }
         this.optionRegister = {
