@@ -24,3 +24,7 @@ exports.deleteUserById = "/member/appUser/deleteUserById"
 exports.deleteUserByIdsBatch = "/member/appUser/deleteUserByIdsBatch"
 //批量拉黑或解黑用户
 exports.createBlackListBatch = "/member/appUser/createBlackListBatch"
+//导出数据到表格
+exports.exportLine = "/member/appUser/exportLine"
+
+

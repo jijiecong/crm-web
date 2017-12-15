@@ -1,25 +1,24 @@
 package com.meiren.web.member;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.member.entity.PageEO;
 import com.meiren.member.entity.QueryParamEO;
-import com.meiren.member.entity.StatisticsReturnEO;
+import com.meiren.member.entity.StatisticsProjectNameReturnEO;
 import com.meiren.member.entity.UserInfoStatisticsEO;
 import com.meiren.member.service.MemberService;
 import com.meiren.member.service.UserStatisticsService;
 import com.meiren.utils.RequestUtil;
 import com.meiren.web.acl.BaseController;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -106,13 +105,20 @@ public class AppUserModule extends BaseController {
             dateFormat = "d";
         }
         ApiResult apiResult = userStatisticsService.statisticsByUserRegFromMbc(dateFormat, timeStart,timeEnd, projectNames);
-        System.out.println(JSONObject.toJSON(apiResult));
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {
             rMap = (Map<String, Object>) apiResult.getData();
         }
         return new VueResult(rMap);
     }
+
+    @RequestMapping("/exportLine")
+    public String exportLine(HttpServletRequest request,HttpServletResponse response) throws Exception {
+        //TODO
+        System.out.println("成功");
+        return null;
+    }
+
 
     //饼状图统计注册用户 - 第二个图
     @RequestMapping("/registerToPieStatistics")
@@ -132,11 +138,22 @@ public class AppUserModule extends BaseController {
     @RequestMapping("/registerByProjectNameStatistics")
     public VueResult registerByProjectNameStatistics(HttpServletRequest request) {
         ApiResult apiResult = userStatisticsService.statisticsByProjectNameFromMbc();
-        ArrayList<StatisticsReturnEO> arrayList = new ArrayList<StatisticsReturnEO>();
+        List<StatisticsProjectNameReturnEO> result = new ArrayList<>();
         if (apiResult.getData() != null) {
-            arrayList = (ArrayList<StatisticsReturnEO>) apiResult.getData();
+            List<StatisticsProjectNameReturnEO> statisticsProjectNameReturnEOList = (List<StatisticsProjectNameReturnEO>) apiResult.getData();
+            for (StatisticsProjectNameReturnEO statisticsProjectNameReturnEO : statisticsProjectNameReturnEOList) {
+                StatisticsProjectNameReturnEO statisticsProjectNameReturnEO1 = new StatisticsProjectNameReturnEO();
+                if("任务大厅".equals(statisticsProjectNameReturnEO.getProjectName())){
+                    continue;
+                }else if("素材平台".equals(statisticsProjectNameReturnEO.getProjectName())){
+                    continue;
+                }else{
+                    BeanUtils.copyProperties(statisticsProjectNameReturnEO,statisticsProjectNameReturnEO1);
+                    result.add(statisticsProjectNameReturnEO1);
+                }
+            }
         }
-        return new VueResult(arrayList);
+        return new VueResult(result);
     }
 
     //获取所有projects

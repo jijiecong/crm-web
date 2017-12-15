@@ -28,7 +28,8 @@ module.exports = {
       'store': resolve('views/store'),
       'pages': resolve('views/pages'),
       'plugins': resolve('views/plugins'),
-      'components': resolve('views/components')
+      'components': resolve('views/components'),
+      'vendor': resolve('views/vendor'),
     }
   },
   module: {
