@@ -70,9 +70,9 @@
               <!--    <form id="form1">
                     <button >导出表格</button>
                   </form>-->
-                  <el-button type="info" size="middle" @click="exportLine()" >
+                 <!-- <el-button type="" size="middle" @click="exportLine()" >
                     导出表格
-                  </el-button >
+                  </el-button >-->
                 </div >
               </el-col >
             </el-row >
@@ -251,7 +251,7 @@
         this.getRegisterToPieStatistics()
       },
       exportLine() {
-        this.getExportLine()
+        //this.getExportLine()
       },
       checkTime(start, end, type){
         if(type == '') {
@@ -355,9 +355,6 @@
               right: '4%',
               bottom: '3%',
               containLabel: true
-            },
-            toolbox: {
-
             },
             xAxis: {
               type: 'category',
@@ -517,13 +514,19 @@
         }).then(({ data }) => {
           let regSeriesData = []
           let logSeriesData = []
+          let logSeriesData2 = []
           let xAxisData = []
           data.forEach(function (value, index) {
             xAxisData.push(value.projectName)
             regSeriesData.push(value.registerCount)
-            logSeriesData.push(value.loginCount)
+            logSeriesData2.push(parseInt(value.loginCount))
+            logSeriesData.push(parseInt(value.loginCount)- parseInt(value.registerCount))
           })
-          var option= {
+          console.log(xAxisData)
+          console.log(regSeriesData)
+          console.log(logSeriesData)
+          console.log("2:"+logSeriesData2)
+          var option = {
             title: {
               text: '注册和登录过的用户统计图',
               left: 'center',
@@ -537,7 +540,7 @@
               formatter: function (params){
                 return params[0].name + '<br/>'
                   + params[0].seriesName + ' : ' + params[0].value + '<br/>'
-                  + params[1].seriesName + ' : ' + (params[1].value);
+                  + params[1].seriesName + ' : ' + (parseInt(params[1].value)+parseInt(params[0].value) );
               }
             },
             legend: {
@@ -545,17 +548,12 @@
               top: 35,
               data:['登录', '注册']
             },
-            toolbox: {
-              feature : {
-                saveAsImage : {show: true}
-              }
-            },
             calculable : true,
             xAxis : [
               {
                 type : 'category',
                 name : 'APP名称',
-                data : xAxisData
+                data :  xAxisData
               }
             ],
             yAxis : [
@@ -566,24 +564,6 @@
               }
             ],
             series : [
-              {
-                name:'登录',
-                type:'bar',
-                stack: 'sum',
-                barCategoryGap: '50%',
-                itemStyle: {
-                  normal: {
-                    color: '#B6A2DE',
-                    barBorderColor: '#B6A2DE',
-                    barBorderWidth: 6,
-                    barBorderRadius:0,
-                    label : {
-                      show: true, position: 'insideTop'
-                    }
-                  }
-                },
-                data:logSeriesData
-              },
               {
                 name:'注册',
                 type:'bar',
@@ -596,22 +576,42 @@
                     barBorderRadius:0,
                     label : {
                       show: true,
-                      position: 'top',
-                      formatter: function (params) {
-                        for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) {
-                          if (option.xAxis[0].data[i] == params.name) {
-                            return parseInt(option.series[0].data[i]) + parseInt(params.value);
-                          }
-                        }
-                      },
+                      position: 'insideTop',
                       textStyle: {
-                        color: 'tomato'
+                        color: '#FFF'
                       }
                     }
                   }
                 },
                 data:regSeriesData
+              },
+              {
+                name:'登录',
+                type:'bar',
+                stack: 'sum',
+                barCategoryGap: '50%',
+                itemStyle: {
+                  normal: {
+                    color: '#B6A2DE',
+                    barBorderColor: '#B6A2DE',
+                    barBorderWidth: 6,
+                    barBorderRadius:0,
+                    label : {
+                      show: true,
+                      position: 'top',
+                      formatter: function (params) {
+                        for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) {
+                          if (option.xAxis[0].data[i] == params.name) {
+                            return parseInt(option.series[0].data[i])+ parseInt(params.value);
+                          }
+                        }
+                      },
+                    }
+                  }
+                },
+                data:logSeriesData
               }
+
             ]
           }
           this.optionRegisterFrom = option
