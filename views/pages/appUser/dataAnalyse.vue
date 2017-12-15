@@ -64,6 +64,17 @@
               <el-col :span="2" >
                 <el-button type="primary" size="middle" native-type="button" @click="search1()">查询</el-button >
               </el-col >
+
+              <el-col :span="4" >
+                <div class="fr" style="margin-right: -180px">
+              <!--    <form id="form1">
+                    <button >导出表格</button>
+                  </form>-->
+                 <!-- <el-button type="" size="middle" @click="exportLine()" >
+                    导出表格
+                  </el-button >-->
+                </div >
+              </el-col >
             </el-row >
           </form >
         </el-col >
@@ -122,7 +133,6 @@
                   </el-date-picker>
                 </template>
               </el-col >
-
               <el-col :span="2" >
                 <el-button type="primary" size="middle  " native-type="button" @click="search2()">查询</el-button >
               </el-col >
@@ -240,6 +250,9 @@
       search2() {
         this.getRegisterToPieStatistics()
       },
+      exportLine() {
+        //this.getExportLine()
+      },
       checkTime(start, end, type){
         if(type == '') {
             return true
@@ -321,30 +334,27 @@
             flag = false
             series.push({name:key,
               type:'line',
-              stack: '总量',
+              //stack: '总量',
               data:seriesData})
           }
         this.optionRegister = {
             title: {
               text: '用户注册统计图',
-              left: 'center',
-              top: 20
+              left: 'center'
             },
             tooltip: {
               trigger: 'axis'
             },
             legend: {
-                left: 'left',
-              data:legendData
+              data:legendData,
+              left: 'center',
+              top: 35
             },
             grid: {
               left: '3%',
               right: '4%',
               bottom: '3%',
               containLabel: true
-            },
-            toolbox: {
-
             },
             xAxis: {
               type: 'category',
@@ -404,7 +414,6 @@
           this.optionRegisterWay = {
             title : {
               text: '注册渠道统计',
-              subtext: '实时数据',
               x:'center'
             },
             tooltip : {
@@ -418,7 +427,7 @@
             },
             series : [
               {
-                name: '注册渠道',
+                name: '注册渠道统计',
                 type: 'pie',
                 radius : '55%',
                 center: ['50%', '60%'],
@@ -435,8 +444,7 @@
           }
           this.optionUserSex = {
             title : {
-              text: '用户性别',
-              subtext: '实时数据',
+              text: '用户性别统计',
               x:'center'
             },
             tooltip : {
@@ -450,7 +458,7 @@
             },
             series : [
               {
-                name: '用户性别',
+                name: '用户性别统计',
                 type: 'pie',
                 radius : '55%',
                 center: ['50%', '60%'],
@@ -467,8 +475,7 @@
           }
           this.optionUserAge = {
             title : {
-              text: '年龄',
-              subtext: '实时数据',
+              text: '年龄阶段统计',
               x:'center'
             },
             tooltip : {
@@ -505,56 +512,109 @@
           params: {
           }
         }).then(({ data }) => {
-          let seriesData = []
+          let regSeriesData = []
+          let logSeriesData = []
+          let logSeriesData2 = []
           let xAxisData = []
           data.forEach(function (value, index) {
-            xAxisData.push(value.commonField)
-            seriesData.push(value.counts)
+            xAxisData.push(value.projectName)
+            regSeriesData.push(value.registerCount)
+            logSeriesData2.push(parseInt(value.loginCount))
+            logSeriesData.push(parseInt(value.loginCount)- parseInt(value.registerCount))
           })
-          this.optionRegisterFrom = {
+          console.log(xAxisData)
+          console.log(regSeriesData)
+          console.log(logSeriesData)
+          console.log("2:"+logSeriesData2)
+          var option = {
             title: {
-              text: '注册来源统计图',
+              text: '注册和登录过的用户统计图',
               left: 'center',
               top: 10
             },
-            color: ['#3398DB'],
             tooltip : {
               trigger: 'axis',
               axisPointer : {            // 坐标轴指示器，坐标轴触发有效
                 type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+              },
+              formatter: function (params){
+                return params[0].name + '<br/>'
+                  + params[0].seriesName + ' : ' + params[0].value + '<br/>'
+                  + params[1].seriesName + ' : ' + (parseInt(params[1].value)+parseInt(params[0].value) );
               }
             },
-            grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true
+            legend: {
+              selectedMode:false,
+              top: 35,
+              data:['登录', '注册']
             },
+            calculable : true,
             xAxis : [
               {
                 type : 'category',
-                data : xAxisData,
                 name : 'APP名称',
-                axisTick: {
-                  alignWithLabel: true
-                }
+                data :  xAxisData
               }
             ],
             yAxis : [
               {
                 type : 'value',
-                name : '注册人数'
+                name : '注册/登录人数',
+                boundaryGap: [0, 0]
               }
             ],
             series : [
               {
-                name:'注册人数',
+                name:'注册',
                 type:'bar',
-                barWidth: '30%',
-                data:seriesData
+                stack: 'sum',
+                itemStyle: {
+                  normal: {
+                    color: '#2EC7C9',
+                    barBorderColor: '#2EC7C9',
+                    barBorderWidth: 6,
+                    barBorderRadius:0,
+                    label : {
+                      show: true,
+                      position: 'insideTop',
+                      textStyle: {
+                        color: '#FFF'
+                      }
+                    }
+                  }
+                },
+                data:regSeriesData
+              },
+              {
+                name:'登录',
+                type:'bar',
+                stack: 'sum',
+                barCategoryGap: '50%',
+                itemStyle: {
+                  normal: {
+                    color: '#B6A2DE',
+                    barBorderColor: '#B6A2DE',
+                    barBorderWidth: 6,
+                    barBorderRadius:0,
+                    label : {
+                      show: true,
+                      position: 'top',
+                      formatter: function (params) {
+                        for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) {
+                          if (option.xAxis[0].data[i] == params.name) {
+                            return parseInt(option.series[0].data[i])+ parseInt(params.value);
+                          }
+                        }
+                      },
+                    }
+                  }
+                },
+                data:logSeriesData
               }
+
             ]
           }
+          this.optionRegisterFrom = option
         }).catch(() => {
         })
       }

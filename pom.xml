@@ -21,13 +21,13 @@
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>member-api</artifactId>
-            <version>1.0.4.4-SNAPSHOT</version>
+            <version>1.0.4.6</version>
         </dependency>
         <!-- API -->
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>acl-api</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.meiren</groupId>
@@ -385,6 +385,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>RELEASE</version>
+        </dependency>
+        <!--POI-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.14</version>
         </dependency>
     </dependencies>
     <profiles>
