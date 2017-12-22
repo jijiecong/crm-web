@@ -3,13 +3,13 @@ package com.meiren.web.member;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
-import com.meiren.member.entity.PageEO;
-import com.meiren.member.entity.QueryParamEO;
-import com.meiren.member.entity.StatisticsProjectNameReturnEO;
-import com.meiren.member.entity.UserInfoStatisticsEO;
+import com.meiren.member.entity.*;
+import com.meiren.member.service.LocationInfoService;
 import com.meiren.member.service.MemberService;
 import com.meiren.member.service.UserStatisticsService;
 import com.meiren.utils.RequestUtil;
+import com.meiren.vo.SessionUserVO;
+import com.meiren.vo.UserInfoVO;
 import com.meiren.web.acl.BaseController;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
@@ -36,6 +36,7 @@ public class AppUserModule extends BaseController {
 
     @Resource UserStatisticsService userStatisticsService;
     @Resource MemberService memberService;
+    @Resource LocationInfoService locationInfoService;
 
     /**
      * 列表
@@ -58,8 +59,26 @@ public class AppUserModule extends BaseController {
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.isSuccess() && apiResult.getData() != null ) {
             PageEO<UserInfoStatisticsEO> pageEO = (PageEO<UserInfoStatisticsEO>) apiResult.getData();
+            List<UserInfoStatisticsEO> userInfoStatisticsEOList = pageEO.getData();
+            List<UserInfoVO> userInfoVOList = new ArrayList<>();
+            for (UserInfoStatisticsEO userInfoStatisticsEO : userInfoStatisticsEOList) {
+                UserInfoVO userInfoVO = new UserInfoVO();
+                BeanUtils.copyProperties(userInfoStatisticsEO, userInfoVO);
+                if(userInfoStatisticsEO.getLocationId() != 0){
+                    ApiResult topLocationByLocation = locationInfoService.getTopLocationByLocationId(userInfoStatisticsEO.getLocationId(), null);
+                    if(topLocationByLocation.isSuccess()){
+                        String locationInfo = (String) topLocationByLocation.getData();
+                        userInfoVO.setLocationInfo(locationInfo);
+                    }
+                }
+                if(userInfoStatisticsEO.getBirthdayYear() !=0 ){
+                    userInfoVO
+                        .setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
+                }
+                userInfoVOList.add(userInfoVO);
+            }
             rMap.put("totalCount", pageEO.getTotalCount());
-            rMap.put("data", pageEO.getData());
+            rMap.put("data", userInfoVOList);
         }
         return new VueResult(rMap);
     }
@@ -180,24 +199,35 @@ public class AppUserModule extends BaseController {
     //根据id删除用户
     @RequestMapping("/deleteUserById")
     public VueResult deleteUserById(HttpServletRequest request){
-        Long userId = RequestUtil.getLong(request, "userId");
-        ApiResult apiResult = memberService.delAccountByUserId(userId);
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
+        MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
+        mbcUserInfoEO.setUserId(RequestUtil.getLong(request, "userId"));
+        mbcUserInfoEO.setOperatorId(sessionUser.getId());
+        mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
+        ApiResult apiResult = memberService.delAccountByUserId(mbcUserInfoEO);
         return new VueResult(apiResult);
     }
 
     //批量删除用户
     @RequestMapping("/deleteUserByIdsBatch")
     public VueResult deleteUserByIdsBatch(HttpServletRequest request){
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         List<String> userIdList = RequestUtil.getArray(request, "userIds");
-        List<Long> userIds =new ArrayList<>();
+        List<MbcUserInfoEO> mbcUserInfoEOList = new ArrayList<>();
         try{
             for (String id : userIdList) {
-                userIds.add(Long.parseLong(id));
+                MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
+                mbcUserInfoEO.setUserId(Long.parseLong(id));
+                mbcUserInfoEO.setOperatorId(sessionUser.getId());
+                mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
+                mbcUserInfoEOList.add(mbcUserInfoEO);
             }
         }catch(Exception  e){
             e.printStackTrace();
         }
-        ApiResult apiResult = memberService.delAccountByUserIdsBatch(userIds);
+
+
+        ApiResult apiResult = memberService.delAccountByUserIdsBatch(mbcUserInfoEOList);
         return new VueResult(apiResult);
     }
 

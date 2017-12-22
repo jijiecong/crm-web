@@ -69,6 +69,27 @@
           label="昵称" >
         </el-table-column >
         <el-table-column
+          prop="nickname"
+          width="100"
+          label="头像" >
+          <template scope="scope">
+            <img :src="scope.row.userIcon" width="40" height="40"/>
+          </template>
+        </el-table-column >
+        <el-table-column
+          prop="sex"
+          width="60"
+          label="性别" >
+        </el-table-column >
+        <el-table-column
+          prop="birthday"
+          label="生日" >
+        </el-table-column >
+        <el-table-column
+          prop="locationInfo"
+          label="地理位置" >
+        </el-table-column >
+        <el-table-column
           prop="registerProjectName"
           label="注册来源" >
         </el-table-column >
@@ -317,7 +338,7 @@
                 this.$message.success('删除成功！')
                 setTimeout(function () {
                   doc.get_table_data()
-                }, 800);
+                }, 1000);
               }else{
                 this.$message.error('删除失败,错误代码：'+data.code+',原因：'+data.error)
               }
