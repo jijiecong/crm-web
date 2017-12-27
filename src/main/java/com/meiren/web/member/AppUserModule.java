@@ -1,5 +1,7 @@
 package com.meiren.web.member;
 
+import com.meiren.acl.service.AclPrivilegeService;
+import com.meiren.common.annotation.AuthorityToken;
 import com.alibaba.fastjson.JSONObject;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.annotation.AuthorityToken;
@@ -48,6 +50,7 @@ public class AppUserModule extends BaseController {
     @Resource UserStatisticsService userStatisticsService;
     @Resource MemberService memberService;
     @Resource LocationInfoService locationInfoService;
+    @Resource AclPrivilegeService aclPrivilegeService;
     @Resource WaistcoatService waistcoatService;
 
     /**
@@ -81,16 +84,15 @@ public class AppUserModule extends BaseController {
             for (UserInfoStatisticsEO userInfoStatisticsEO : userInfoStatisticsEOList) {
                 UserInfoVO userInfoVO = new UserInfoVO();
                 BeanUtils.copyProperties(userInfoStatisticsEO, userInfoVO);
-                if(userInfoStatisticsEO.getLocationId() != 0 || userInfoStatisticsEO.getLocationId() != null){
+                if(!(userInfoStatisticsEO.getLocationId() == null || userInfoStatisticsEO.getLocationId() == 0)){
                     ApiResult topLocationByLocation = locationInfoService.getTopLocationByLocationId(userInfoStatisticsEO.getLocationId(), null);
                     if(topLocationByLocation.isSuccess()){
                         String locationInfo = (String) topLocationByLocation.getData();
                         userInfoVO.setLocationInfo(locationInfo);
                     }
                 }
-                if(userInfoStatisticsEO.getBirthdayYear() !=0 ){
-                    userInfoVO
-                        .setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
+                if(!(userInfoStatisticsEO.getBirthdayYear() == null || userInfoStatisticsEO.getBirthdayYear() == 0)){
+                    userInfoVO.setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
                 }
                 userInfoVOList.add(userInfoVO);
             }
@@ -122,6 +124,26 @@ public class AppUserModule extends BaseController {
             rMap.put("data", pageEO.getData());
         }
         return new VueResult(rMap);
+    }
+
+    /**
+     * 权限查询
+     * @param request
+     * @return
+     */
+    @RequestMapping("/getAuthByToken")
+    public VueResult getAuthByToken(HttpServletRequest request) {
+//        String token = RequestUtil.getStringTrans(request, "token");
+        String token1 = "meiren.acl.mbc.member.user.createBlackList";
+        String token2 = "meiren.acl.mbc.member.user.remove";
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
+        Long userId = sessionUser.getId();
+        Boolean blackBoolean = aclPrivilegeService.hasPrivilege(userId, token1);
+        Boolean removeBoolean = aclPrivilegeService.hasPrivilege(userId, token2);
+        Map map = new HashMap();
+        map.put("blackBoolean",blackBoolean);
+        map.put("removeBoolean",removeBoolean);
+        return new VueResult(map);
     }
 
     //折线图统计注册用户 - 第一个图
@@ -215,8 +237,8 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id删除用户
-    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     @RequestMapping("/deleteUserById")
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     public VueResult deleteUserById(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
