@@ -67,16 +67,15 @@ public class AppUserModule extends BaseController {
             for (UserInfoStatisticsEO userInfoStatisticsEO : userInfoStatisticsEOList) {
                 UserInfoVO userInfoVO = new UserInfoVO();
                 BeanUtils.copyProperties(userInfoStatisticsEO, userInfoVO);
-                if(userInfoStatisticsEO.getLocationId() != 0){
+                if(!(userInfoStatisticsEO.getLocationId() == null || userInfoStatisticsEO.getLocationId() == 0)){
                     ApiResult topLocationByLocation = locationInfoService.getTopLocationByLocationId(userInfoStatisticsEO.getLocationId(), null);
                     if(topLocationByLocation.isSuccess()){
                         String locationInfo = (String) topLocationByLocation.getData();
                         userInfoVO.setLocationInfo(locationInfo);
                     }
                 }
-                if(userInfoStatisticsEO.getBirthdayYear() !=0 ){
-                    userInfoVO
-                        .setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
+                if(!(userInfoStatisticsEO.getBirthdayYear() == null || userInfoStatisticsEO.getBirthdayYear() == 0)){
+                    userInfoVO.setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
                 }
                 userInfoVOList.add(userInfoVO);
             }
