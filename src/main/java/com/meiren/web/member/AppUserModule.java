@@ -1,5 +1,8 @@
 package com.meiren.web.member;
 
+import com.alibaba.fastjson.JSONObject;
+import com.meiren.acl.service.entity.AclUserEntity;
+import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
@@ -7,18 +10,26 @@ import com.meiren.member.entity.*;
 import com.meiren.member.service.LocationInfoService;
 import com.meiren.member.service.MemberService;
 import com.meiren.member.service.UserStatisticsService;
+import com.meiren.member.service.WaistcoatService;
+import com.meiren.utils.ExcelUtil;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SessionUserVO;
 import com.meiren.vo.UserInfoVO;
 import com.meiren.web.acl.BaseController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,6 +48,7 @@ public class AppUserModule extends BaseController {
     @Resource UserStatisticsService userStatisticsService;
     @Resource MemberService memberService;
     @Resource LocationInfoService locationInfoService;
+    @Resource WaistcoatService waistcoatService;
 
     /**
      * 列表
@@ -57,14 +69,19 @@ public class AppUserModule extends BaseController {
         queryParamEO.setPageSize(rowsNum);
         ApiResult apiResult = userStatisticsService.getUserInfoByPage(queryParamEO);
         Map<String, Object> rMap = new HashMap<>();
-        if (apiResult.isSuccess() && apiResult.getData() != null ) {
+        if (apiResult.isSuccess() ) {
             PageEO<UserInfoStatisticsEO> pageEO = (PageEO<UserInfoStatisticsEO>) apiResult.getData();
+            if( pageEO.getData() == null){
+                rMap.put("totalCount", pageEO.getTotalCount());
+                rMap.put("data", null);
+                return new VueResult(rMap);
+            }
             List<UserInfoStatisticsEO> userInfoStatisticsEOList = pageEO.getData();
             List<UserInfoVO> userInfoVOList = new ArrayList<>();
             for (UserInfoStatisticsEO userInfoStatisticsEO : userInfoStatisticsEOList) {
                 UserInfoVO userInfoVO = new UserInfoVO();
                 BeanUtils.copyProperties(userInfoStatisticsEO, userInfoVO);
-                if(userInfoStatisticsEO.getLocationId() != 0){
+                if(userInfoStatisticsEO.getLocationId() != 0 || userInfoStatisticsEO.getLocationId() != null){
                     ApiResult topLocationByLocation = locationInfoService.getTopLocationByLocationId(userInfoStatisticsEO.getLocationId(), null);
                     if(topLocationByLocation.isSuccess()){
                         String locationInfo = (String) topLocationByLocation.getData();
@@ -187,6 +204,7 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id添加或取消黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListUserById")
     public VueResult createBlackListUserById(HttpServletRequest request){
         Long userId = RequestUtil.getLong(request, "userId");
@@ -197,6 +215,7 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id删除用户
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     @RequestMapping("/deleteUserById")
     public VueResult deleteUserById(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
@@ -204,11 +223,12 @@ public class AppUserModule extends BaseController {
         mbcUserInfoEO.setUserId(RequestUtil.getLong(request, "userId"));
         mbcUserInfoEO.setOperatorId(sessionUser.getId());
         mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
-        ApiResult apiResult = memberService.delAccountByUserId(mbcUserInfoEO);
+        ApiResult apiResult = memberService.delAccountByMbcUserInfo(mbcUserInfoEO);
         return new VueResult(apiResult);
     }
 
     //批量删除用户
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     @RequestMapping("/deleteUserByIdsBatch")
     public VueResult deleteUserByIdsBatch(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
@@ -227,11 +247,12 @@ public class AppUserModule extends BaseController {
         }
 
 
-        ApiResult apiResult = memberService.delAccountByUserIdsBatch(mbcUserInfoEOList);
+        ApiResult apiResult = memberService.delAccountByMbcUserInfoBatch(mbcUserInfoEOList);
         return new VueResult(apiResult);
     }
 
     //批量添加或解除黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListBatch")
     public VueResult createBlackListBatch(HttpServletRequest request){
         String projectName = RequestUtil.getStringTrans(request, "projectName");
@@ -249,6 +270,112 @@ public class AppUserModule extends BaseController {
         return new VueResult(apiResult);
     }
 
+//------------------------------------- 马甲账号开始 -------------------------------------------------
+    //查询马甲账号列表
+    @RequestMapping("/waistcoatList")
+    public VueResult waistcoatList(HttpServletRequest request){
+        String queryType = RequestUtil.getString(request, "queryType");
+        String queryKeyword = RequestUtil.getString(request, "queryKeyword");
+        int rowsNum = RequestUtil.getInteger(request, "rows", DEFAULT_ROWS);
+        int pageNum = RequestUtil.getInteger(request, "page", 1);
+        QueryParamEO queryParamEO = new QueryParamEO();
+        if(StringUtils.isNoneBlank(queryType,queryKeyword)){
+            if(queryType.equals("userId")){
+                queryParamEO.setUserId(Long.valueOf(queryKeyword));
+            }else if(queryType.equals("mobile")){
+                queryParamEO.setMobile(queryKeyword);
+            }else{
+                queryParamEO.setNickname(queryKeyword);
+            }
+        }
+        queryParamEO.setPageNum(pageNum);
+        queryParamEO.setPageSize(rowsNum);
+        ApiResult apiResult = waistcoatService.getWaistcoatUserByPage(queryParamEO);
+       /* Map<String, Object> rMap = new HashMap<>();
+        if (apiResult.isSuccess() && apiResult.getData() != null ) {
+            PageEO<UserInfoStatisticsEO> pageEO = (PageEO<UserInfoStatisticsEO>) apiResult.getData();
+            List<UserInfoStatisticsEO> userInfoStatisticsEOList = pageEO.getData();
+            rMap.put("totalCount", pageEO.getTotalCount());
+            rMap.put("data", userInfoStatisticsEOList);
+        }else{
+            return new VueResult(apiResult);
+        }*/
+        return new VueResult(apiResult);
+    }
+
+    //根据userId获取马甲账号
+    @RequestMapping("/getWaistcoatUser")
+    public VueResult getWaistcoatUser(HttpServletRequest request){
+        ApiResult apiResult = memberService.getUserInfoByUserId(RequestUtil.getLong(request, "userId"),false,false);
+        return new VueResult(apiResult);
+    }
+
+    //添加马甲账号
+    @RequestMapping("/addWaistcoatUser")
+    public VueResult addWaistcoatUser(HttpServletRequest request){
+        MemberDetailAndIndexEO memberDetailAndIndexEO = new MemberDetailAndIndexEO();
+        memberDetailAndIndexEO.setNickname(RequestUtil.getString(request, "nickname"));
+        memberDetailAndIndexEO.setUserIcon(RequestUtil.getString(request, "userIcon"));
+        memberDetailAndIndexEO.setPwdHash(RequestUtil.getString(request, "pwd"));
+        ApiResult apiResult = waistcoatService.addWaistcoatUser(memberDetailAndIndexEO);
+        return new VueResult(apiResult);
+    }
+
+    //修改马甲账号
+    @RequestMapping("/editWaistcoatUser")
+    public VueResult editWaistcoatUser(HttpServletRequest request){
+        MemberDetailAndIndexEO memberDetailAndIndexEO = new MemberDetailAndIndexEO();
+        memberDetailAndIndexEO.setUserId(RequestUtil.getLong(request, "userId"));
+        memberDetailAndIndexEO.setNickname(RequestUtil.getString(request, "nickname"));
+        String userIcon = RequestUtil.getString(request, "userIcon");
+        if(StringUtils.isNotBlank(userIcon)){
+            memberDetailAndIndexEO.setUserIcon(userIcon);
+        }
+        ApiResult apiResult = memberService.updateUserInfoByUserIdSecurity(memberDetailAndIndexEO.getUserId(), true, memberDetailAndIndexEO);
+        return new VueResult(apiResult);
+    }
+
+    //导入Excel表格
+    @RequestMapping(value = "importExcel", method = RequestMethod.POST)
+    public VueResult importExcel(HttpServletRequest request,HttpSession session,@RequestParam("file") MultipartFile file) throws Exception {
+        VueResult vueResult = new VueResult();
+        AclUserEntity user = (AclUserEntity) session.getAttribute("user");
+        if(user == null){
+            vueResult.setError(100, "exception occur: user not exsits");
+            return vueResult;
+        }
+        InputStream inputStream = file.getInputStream();
+        List<List<Object>> lists = ExcelUtil.readExcel(inputStream);
+        System.out.println("----:"+ JSONObject.toJSONString(lists));
+        /*if(CollectionUtils.isEmpty(lists)){
+            apiResult.setError(300, "参数缺失");
+            return apiResult;
+        }
+        Date date = new Date();
+        List<FamilySensitiveWordEntity>  sensitiveWordEntityList = new ArrayList<>();
+        for(int i=1;i<lists.size();i++){//过滤第一行标题
+            FamilySensitiveWordEntity familySensitiveWordEntity = new FamilySensitiveWordEntity();
+            SensitiveTypeEnum sensitiveTypeEnum = SensitiveTypeEnum.getEnumByName(String.valueOf(lists.get(i).get(0)));
+            familySensitiveWordEntity.setSensitiveType(sensitiveTypeEnum!=null?sensitiveTypeEnum.name():SensitiveTypeEnum.OTHERS.name());
+            familySensitiveWordEntity.setSensitiveWord(String.valueOf(lists.get(i).get(1)));
+            familySensitiveWordEntity.setBeginDateNum(0);
+            familySensitiveWordEntity.setCreatePerson(user.getUserName());
+            familySensitiveWordEntity.setCreatePersonId(user.getId());
+            familySensitiveWordEntity.setOperatorId(user.getId());
+            familySensitiveWordEntity.setOperator(user.getUserName());
+            familySensitiveWordEntity.setCreateTime(date);
+            familySensitiveWordEntity.setUpdateTime(date);
+            familySensitiveWordEntity.setIsMatchCase(1);
+            familySensitiveWordEntity.setValidTime(date);
+            familySensitiveWordEntity.setStatus(SensitiveWordStatusEnum.ON.getValue());
+            sensitiveWordEntityList.add(familySensitiveWordEntity);
+        }
+        familySensitiveWordDubboService.batchCreateSensitiveWord(sensitiveWordEntityList);
+        return new ApiResult();*/
+        return null;
+    }
+
+//------------------------------------- 马甲账号结束 -------------------------------------------------
     //UTC世界标准时间转时间戳
     public static Long formatDate(String dateStr){
         if(dateStr.equals("")){

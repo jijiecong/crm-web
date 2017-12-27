@@ -24,6 +24,8 @@ import transferMeiren from 'components/transferMeiren'
 import searchSelect from 'components/searchSelect'
 //照片墙
 import imageUpload from 'components/imageUpload'
+//单个图片
+import SingleImageUpload from 'components/SingleImageUpload'
 //树
 import tree from 'components/tree'
 //树2
@@ -37,6 +39,7 @@ export {
   headerSection,
   panelTitle,
   simpleImageUpload,
+  SingleImageUpload,
   bottomToolBar,
   transferMeiren,
   searchSelect,

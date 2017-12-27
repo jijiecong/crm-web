@@ -97,6 +97,9 @@
         },{
           title: "app用户注册统计",
           path: "/appUser/dataAnalyse",
+        },{
+          title: "马甲账号管理",
+          path: "/appUser/waistcoat",
         },
 
 //          {

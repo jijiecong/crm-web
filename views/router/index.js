@@ -360,6 +360,11 @@ const routes = [{
     meta: { title: "app用户注册统计" },
     components: { default: () => import('pages/appUser/dataAnalyse') },
   },
+  {
+    path: '/appUser/waistcoat', name: 'appUserWaistcoat',
+    meta: { title: "马甲账号管理" },
+    components: { default: () => import('pages/appUser/waistcoat') },
+  },
 ]
 
 const router = new VueRouter({

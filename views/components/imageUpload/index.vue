@@ -15,7 +15,9 @@
       list-type="picture-card"
       :http-request="httpRequest"
       :on-preview="handlePictureCardPreview"
-      :on-remove="handleRemove">
+      :on-remove="handleRemove"
+      :multiple="false"
+      >
       <i class="el-icon-plus"></i>
     </el-upload>
     <el-button v-if="!autoUpload" style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
@@ -34,6 +36,10 @@
       autoUpload: {
         type: Boolean,
         require: true
+      },
+      multiple: {
+        type: Boolean,
+        require: false
       }
     },
     data() {
@@ -47,17 +53,17 @@
     },
     methods: {
       async httpRequest(option) {//自定义上传方法
-//        console.log(option.action)
-        console.log(option)
+//        console.log(option)
         let imageData = new FormData();
           imageData.append(option.filename, option.file);
         this.axios.post(option.action, imageData)
           .then(({ data: responseData }) => {
             if (responseData !== null) {
-
+              this.$emit('uploadResponse', responseData)
             }
           }).catch(() => {
         })
+        console.log("bbb:")
       },
       submitUpload() {
         this.$refs.upload.submit();

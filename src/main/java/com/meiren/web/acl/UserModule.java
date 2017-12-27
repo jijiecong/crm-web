@@ -93,7 +93,6 @@ public class UserModule extends BaseController {
      * 删除单个
      *
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "del", method = RequestMethod.POST)

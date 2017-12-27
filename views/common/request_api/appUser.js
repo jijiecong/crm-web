@@ -26,5 +26,14 @@ exports.deleteUserByIdsBatch = "/member/appUser/deleteUserByIdsBatch"
 exports.createBlackListBatch = "/member/appUser/createBlackListBatch"
 //导出数据到表格
 exports.exportLine = "/member/appUser/exportLine"
+//导入数据到表格
+exports.importExcel = "/member/appUser/importExcel"
+//马甲账号
+exports.addWaistcoatUser = "/member/appUser/addWaistcoatUser"
+exports.delWaistcoatUser = "/member/appUser/delWaistcoatUser"
+exports.editWaistcoatUser = "/member/appUser/editWaistcoatUser"
+exports.waistcoatList = "/member/appUser/waistcoatList"
+exports.addWaistcoatUserBatch = "/member/appUser/addWaistcoatUserBatch"
+exports.getWaistcoatUser = "/member/appUser/getWaistcoatUser"
 
 

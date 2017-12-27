@@ -7,9 +7,6 @@
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
-               <el-col :span="6" >
-               <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
-              </el-col >
               <el-col :span="4" >
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
@@ -21,6 +18,9 @@
                     </el-option>
                   </el-select>
                 </template>
+              </el-col >
+              <el-col :span="6" >
+                <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
               <el-col :span="2" >
                 <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
