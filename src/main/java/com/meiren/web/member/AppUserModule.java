@@ -1,5 +1,6 @@
 package com.meiren.web.member;
 
+import com.meiren.acl.service.AclPrivilegeService;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
@@ -38,6 +39,7 @@ public class AppUserModule extends BaseController {
     @Resource UserStatisticsService userStatisticsService;
     @Resource MemberService memberService;
     @Resource LocationInfoService locationInfoService;
+    @Resource AclPrivilegeService aclPrivilegeService;
 
     /**
      * 列表
@@ -106,6 +108,26 @@ public class AppUserModule extends BaseController {
             rMap.put("data", pageEO.getData());
         }
         return new VueResult(rMap);
+    }
+
+    /**
+     * 权限查询
+     * @param request
+     * @return
+     */
+    @RequestMapping("/getAuthByToken")
+    public VueResult getAuthByToken(HttpServletRequest request) {
+//        String token = RequestUtil.getStringTrans(request, "token");
+        String token1 = "meiren.acl.mbc.member.user.createBlackList";
+        String token2 = "meiren.acl.mbc.member.user.remove";
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
+        Long userId = sessionUser.getId();
+        Boolean blackBoolean = aclPrivilegeService.hasPrivilege(userId, token1);
+        Boolean removeBoolean = aclPrivilegeService.hasPrivilege(userId, token2);
+        Map map = new HashMap();
+        map.put("blackBoolean",blackBoolean);
+        map.put("removeBoolean",removeBoolean);
+        return new VueResult(map);
     }
 
     //折线图统计注册用户 - 第一个图

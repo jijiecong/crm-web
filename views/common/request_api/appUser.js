@@ -26,5 +26,8 @@ exports.deleteUserByIdsBatch = "/member/appUser/deleteUserByIdsBatch"
 exports.createBlackListBatch = "/member/appUser/createBlackListBatch"
 //导出数据到表格
 exports.exportLine = "/member/appUser/exportLine"
+//黑名单权限用户
+exports.getAuthByToken = "/member/appUser/getAuthByToken"
+
 
 

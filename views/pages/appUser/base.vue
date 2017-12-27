@@ -30,10 +30,10 @@
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button type="warning" size="middle" @click="createBlackListBatch()">
+            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
               批量拉黑
             </el-button >
-            <el-button type="danger" size="middle" @click="removeUserBatch()">
+            <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
               批量删除
             </el-button >
             <el-button @click.stop="on_refresh" size="middle" >
@@ -109,12 +109,13 @@
           </template>
         </el-table-column >
         <el-table-column
+          v-if="allAuth"
           label="操作"
           width="130" >
           <template scope="scope" >
             <el-row class="operation-row" >
-              <el-button type="warning" size="small" @click="createBlackList(scope.row)">拉黑</el-button>
-              <el-button type="danger" size="small" @click="removeUser(scope.row)">删除</el-button>
+              <el-button v-if="blackAuth" type="warning" size="small" @click="createBlackList(scope.row)">拉黑</el-button>
+              <el-button v-if="removeAuth" type="danger" size="small" @click="removeUser(scope.row)">删除</el-button>
             </el-row >
           </template >
         </el-table-column >
@@ -141,6 +142,9 @@
   export default{
     data(){
       return {
+        allAuth:true,
+        blackAuth:false,
+        removeAuth:false,
         table_data: null,
         //数据总条目
         total_count: 0,
@@ -163,6 +167,7 @@
     created(){
       this.get_table_data()
       this.getProjects()
+      this.getAuth()
 //      this.table_data = [{
 //        id: '1',
 //        phone: '1235678910',
@@ -282,6 +287,21 @@
             })
           }
           this.options = projects
+        }).catch(() => {
+        })
+      },
+      //查询权限
+      getAuth(){
+        this.$http.get(request_appUser.getAuthByToken, {
+          params: {
+          }
+        }).then(({ data }) => {
+          console.log("data:"+JSON.stringify(data))
+          this.blackAuth = data.blackBoolean;
+          this.removeAuth = data.removeBoolean;
+          if(!data.blackBoolean && !data.removeBoolean){
+            this.allAuth = false
+          }
         }).catch(() => {
         })
       },
