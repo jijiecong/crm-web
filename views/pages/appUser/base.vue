@@ -30,10 +30,10 @@
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button type="warning" size="middle" @click="createBlackListBatch()">
+            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
               批量拉黑
             </el-button >
-            <el-button type="danger" size="middle" @click="removeUserBatch()">
+            <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
               批量删除
             </el-button >
             <el-button @click.stop="on_refresh" size="middle" >
@@ -69,6 +69,27 @@
           label="昵称" >
         </el-table-column >
         <el-table-column
+          prop="nickname"
+          width="100"
+          label="头像" >
+          <template scope="scope">
+            <img :src="scope.row.userIcon" width="40" height="40"/>
+          </template>
+        </el-table-column >
+        <el-table-column
+          prop="sex"
+          width="60"
+          label="性别" >
+        </el-table-column >
+        <el-table-column
+          prop="birthday"
+          label="生日" >
+        </el-table-column >
+        <el-table-column
+          prop="locationInfo"
+          label="地理位置" >
+        </el-table-column >
+        <el-table-column
           prop="registerProjectName"
           label="注册来源" >
         </el-table-column >
@@ -88,12 +109,13 @@
           </template>
         </el-table-column >
         <el-table-column
+          v-if="allAuth"
           label="操作"
           width="130" >
           <template scope="scope" >
             <el-row class="operation-row" >
-              <el-button type="warning" size="small" @click="createBlackList(scope.row)">拉黑</el-button>
-              <el-button type="danger" size="small" @click="removeUser(scope.row)">删除</el-button>
+              <el-button v-if="blackAuth" type="warning" size="small" @click="createBlackList(scope.row)">拉黑</el-button>
+              <el-button v-if="removeAuth" type="danger" size="small" @click="removeUser(scope.row)">删除</el-button>
             </el-row >
           </template >
         </el-table-column >
@@ -120,6 +142,9 @@
   export default{
     data(){
       return {
+        allAuth:true,
+        blackAuth:false,
+        removeAuth:false,
         table_data: null,
         //数据总条目
         total_count: 0,
@@ -142,6 +167,7 @@
     created(){
       this.get_table_data()
       this.getProjects()
+      this.getAuth()
 //      this.table_data = [{
 //        id: '1',
 //        phone: '1235678910',
@@ -264,6 +290,21 @@
         }).catch(() => {
         })
       },
+      //查询权限
+      getAuth(){
+        this.$http.get(request_appUser.getAuthByToken, {
+          params: {
+          }
+        }).then(({ data }) => {
+          console.log("data:"+JSON.stringify(data))
+          this.blackAuth = data.blackBoolean;
+          this.removeAuth = data.removeBoolean;
+          if(!data.blackBoolean && !data.removeBoolean){
+            this.allAuth = false
+          }
+        }).catch(() => {
+        })
+      },
       //页码选择
       handleCurrentChange(val) {
         this.getCurrentPage = val
@@ -317,7 +358,7 @@
                 this.$message.success('删除成功！')
                 setTimeout(function () {
                   doc.get_table_data()
-                }, 800);
+                }, 1000);
               }else{
                 this.$message.error('删除失败,错误代码：'+data.code+',原因：'+data.error)
               }

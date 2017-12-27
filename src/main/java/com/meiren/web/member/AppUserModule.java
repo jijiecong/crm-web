@@ -1,15 +1,17 @@
 package com.meiren.web.member;
 
+import com.meiren.acl.service.AclPrivilegeService;
+import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
-import com.meiren.member.entity.PageEO;
-import com.meiren.member.entity.QueryParamEO;
-import com.meiren.member.entity.StatisticsProjectNameReturnEO;
-import com.meiren.member.entity.UserInfoStatisticsEO;
+import com.meiren.member.entity.*;
+import com.meiren.member.service.LocationInfoService;
 import com.meiren.member.service.MemberService;
 import com.meiren.member.service.UserStatisticsService;
 import com.meiren.utils.RequestUtil;
+import com.meiren.vo.SessionUserVO;
+import com.meiren.vo.UserInfoVO;
 import com.meiren.web.acl.BaseController;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
@@ -36,6 +38,8 @@ public class AppUserModule extends BaseController {
 
     @Resource UserStatisticsService userStatisticsService;
     @Resource MemberService memberService;
+    @Resource LocationInfoService locationInfoService;
+    @Resource AclPrivilegeService aclPrivilegeService;
 
     /**
      * 列表
@@ -58,8 +62,26 @@ public class AppUserModule extends BaseController {
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.isSuccess() && apiResult.getData() != null ) {
             PageEO<UserInfoStatisticsEO> pageEO = (PageEO<UserInfoStatisticsEO>) apiResult.getData();
+            List<UserInfoStatisticsEO> userInfoStatisticsEOList = pageEO.getData();
+            List<UserInfoVO> userInfoVOList = new ArrayList<>();
+            for (UserInfoStatisticsEO userInfoStatisticsEO : userInfoStatisticsEOList) {
+                UserInfoVO userInfoVO = new UserInfoVO();
+                BeanUtils.copyProperties(userInfoStatisticsEO, userInfoVO);
+                if(userInfoStatisticsEO.getLocationId() != 0){
+                    ApiResult topLocationByLocation = locationInfoService.getTopLocationByLocationId(userInfoStatisticsEO.getLocationId(), null);
+                    if(topLocationByLocation.isSuccess()){
+                        String locationInfo = (String) topLocationByLocation.getData();
+                        userInfoVO.setLocationInfo(locationInfo);
+                    }
+                }
+                if(userInfoStatisticsEO.getBirthdayYear() !=0 ){
+                    userInfoVO
+                        .setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
+                }
+                userInfoVOList.add(userInfoVO);
+            }
             rMap.put("totalCount", pageEO.getTotalCount());
-            rMap.put("data", pageEO.getData());
+            rMap.put("data", userInfoVOList);
         }
         return new VueResult(rMap);
     }
@@ -86,6 +108,26 @@ public class AppUserModule extends BaseController {
             rMap.put("data", pageEO.getData());
         }
         return new VueResult(rMap);
+    }
+
+    /**
+     * 权限查询
+     * @param request
+     * @return
+     */
+    @RequestMapping("/getAuthByToken")
+    public VueResult getAuthByToken(HttpServletRequest request) {
+//        String token = RequestUtil.getStringTrans(request, "token");
+        String token1 = "meiren.acl.mbc.member.user.createBlackList";
+        String token2 = "meiren.acl.mbc.member.user.remove";
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
+        Long userId = sessionUser.getId();
+        Boolean blackBoolean = aclPrivilegeService.hasPrivilege(userId, token1);
+        Boolean removeBoolean = aclPrivilegeService.hasPrivilege(userId, token2);
+        Map map = new HashMap();
+        map.put("blackBoolean",blackBoolean);
+        map.put("removeBoolean",removeBoolean);
+        return new VueResult(map);
     }
 
     //折线图统计注册用户 - 第一个图
@@ -168,6 +210,7 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id添加或取消黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListUserById")
     public VueResult createBlackListUserById(HttpServletRequest request){
         Long userId = RequestUtil.getLong(request, "userId");
@@ -179,29 +222,43 @@ public class AppUserModule extends BaseController {
 
     //根据id删除用户
     @RequestMapping("/deleteUserById")
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     public VueResult deleteUserById(HttpServletRequest request){
-        Long userId = RequestUtil.getLong(request, "userId");
-        ApiResult apiResult = memberService.delAccountByUserId(userId);
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
+        MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
+        mbcUserInfoEO.setUserId(RequestUtil.getLong(request, "userId"));
+        mbcUserInfoEO.setOperatorId(sessionUser.getId());
+        mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
+        ApiResult apiResult = memberService.delAccountByMbcUserInfo(mbcUserInfoEO);
         return new VueResult(apiResult);
     }
 
     //批量删除用户
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     @RequestMapping("/deleteUserByIdsBatch")
     public VueResult deleteUserByIdsBatch(HttpServletRequest request){
+        SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         List<String> userIdList = RequestUtil.getArray(request, "userIds");
-        List<Long> userIds =new ArrayList<>();
+        List<MbcUserInfoEO> mbcUserInfoEOList = new ArrayList<>();
         try{
             for (String id : userIdList) {
-                userIds.add(Long.parseLong(id));
+                MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
+                mbcUserInfoEO.setUserId(Long.parseLong(id));
+                mbcUserInfoEO.setOperatorId(sessionUser.getId());
+                mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
+                mbcUserInfoEOList.add(mbcUserInfoEO);
             }
         }catch(Exception  e){
             e.printStackTrace();
         }
-        ApiResult apiResult = memberService.delAccountByUserIdsBatch(userIds);
+
+
+        ApiResult apiResult = memberService.delAccountByMbcUserInfoBatch(mbcUserInfoEOList);
         return new VueResult(apiResult);
     }
 
     //批量添加或解除黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListBatch")
     public VueResult createBlackListBatch(HttpServletRequest request){
         String projectName = RequestUtil.getStringTrans(request, "projectName");
