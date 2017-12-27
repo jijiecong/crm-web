@@ -1,5 +1,6 @@
 package com.meiren.web.member;
 
+import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
@@ -187,6 +188,7 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id添加或取消黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListUserById")
     public VueResult createBlackListUserById(HttpServletRequest request){
         Long userId = RequestUtil.getLong(request, "userId");
@@ -198,17 +200,19 @@ public class AppUserModule extends BaseController {
 
     //根据id删除用户
     @RequestMapping("/deleteUserById")
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     public VueResult deleteUserById(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
         mbcUserInfoEO.setUserId(RequestUtil.getLong(request, "userId"));
         mbcUserInfoEO.setOperatorId(sessionUser.getId());
         mbcUserInfoEO.setOperatorName(sessionUser.getUserName());
-        ApiResult apiResult = memberService.delAccountByUserId(mbcUserInfoEO);
+        ApiResult apiResult = memberService.delAccountByMbcUserInfo(mbcUserInfoEO);
         return new VueResult(apiResult);
     }
 
     //批量删除用户
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
     @RequestMapping("/deleteUserByIdsBatch")
     public VueResult deleteUserByIdsBatch(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
@@ -227,11 +231,12 @@ public class AppUserModule extends BaseController {
         }
 
 
-        ApiResult apiResult = memberService.delAccountByUserIdsBatch(mbcUserInfoEOList);
+        ApiResult apiResult = memberService.delAccountByMbcUserInfoBatch(mbcUserInfoEOList);
         return new VueResult(apiResult);
     }
 
     //批量添加或解除黑名单
+    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
     @RequestMapping("/createBlackListBatch")
     public VueResult createBlackListBatch(HttpServletRequest request){
         String projectName = RequestUtil.getStringTrans(request, "projectName");
