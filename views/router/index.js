@@ -361,9 +361,9 @@ const routes = [{
     components: { default: () => import('pages/appUser/dataAnalyse') },
   },
   {
-    path: '/appUser/waistcoat', name: 'appUserWaistcoat',
+    path: '/appUser/waistcoatList', name: 'appUserWaistcoat',
     meta: { title: "马甲账号管理" },
-    components: { default: () => import('pages/appUser/waistcoat') },
+    components: { default: () => import('pages/appUser/waistcoatList') },
   },
 ]
 

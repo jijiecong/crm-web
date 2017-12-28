@@ -99,7 +99,7 @@
           path: "/appUser/dataAnalyse",
         },{
           title: "马甲账号管理",
-          path: "/appUser/waistcoat",
+          path: "/appUser/waistcoatList",
         },
 
 //          {
