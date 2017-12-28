@@ -316,7 +316,6 @@
         let id = row.userId;
         this.$confirm('您确定要把userId为' + id + '的用户添加黑名单吗？', '提示', { type: 'warning' })
           .then(() => {
-            debugger
             this.$http.get(request_appUser.createBlackListUserById, {
               params: {
                 userId:id,

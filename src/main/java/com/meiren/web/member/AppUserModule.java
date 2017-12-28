@@ -1,8 +1,7 @@
 package com.meiren.web.member;
 
-import com.meiren.acl.service.AclPrivilegeService;
-import com.meiren.common.annotation.AuthorityToken;
 import com.alibaba.fastjson.JSONObject;
+import com.meiren.acl.service.AclPrivilegeService;
 import com.meiren.acl.service.entity.AclUserEntity;
 import com.meiren.common.annotation.AuthorityToken;
 import com.meiren.common.constants.VueConstants;
@@ -133,13 +132,10 @@ public class AppUserModule extends BaseController {
      */
     @RequestMapping("/getAuthByToken")
     public VueResult getAuthByToken(HttpServletRequest request) {
-//        String token = RequestUtil.getStringTrans(request, "token");
-        String token1 = "meiren.acl.mbc.member.user.createBlackList";
-        String token2 = "meiren.acl.mbc.member.user.remove";
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         Long userId = sessionUser.getId();
-        Boolean blackBoolean = aclPrivilegeService.hasPrivilege(userId, token1);
-        Boolean removeBoolean = aclPrivilegeService.hasPrivilege(userId, token2);
+        Boolean blackBoolean = aclPrivilegeService.hasPrivilege(userId, VueConstants.BLACKLIST_AUTH);
+        Boolean removeBoolean = aclPrivilegeService.hasPrivilege(userId, VueConstants.MEMBER_REMOVE_AUTH);
         Map map = new HashMap();
         map.put("blackBoolean",blackBoolean);
         map.put("removeBoolean",removeBoolean);
@@ -226,7 +222,7 @@ public class AppUserModule extends BaseController {
     }
 
     //根据id添加或取消黑名单
-    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
+    @AuthorityToken(needToken = {VueConstants.BLACKLIST_AUTH})
     @RequestMapping("/createBlackListUserById")
     public VueResult createBlackListUserById(HttpServletRequest request){
         Long userId = RequestUtil.getLong(request, "userId");
@@ -238,7 +234,7 @@ public class AppUserModule extends BaseController {
 
     //根据id删除用户
     @RequestMapping("/deleteUserById")
-    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
+    @AuthorityToken(needToken = {VueConstants.MEMBER_REMOVE_AUTH})
     public VueResult deleteUserById(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
         MbcUserInfoEO mbcUserInfoEO = new MbcUserInfoEO();
@@ -250,7 +246,7 @@ public class AppUserModule extends BaseController {
     }
 
     //批量删除用户
-    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.remove"})
+    @AuthorityToken(needToken = {VueConstants.MEMBER_REMOVE_AUTH})
     @RequestMapping("/deleteUserByIdsBatch")
     public VueResult deleteUserByIdsBatch(HttpServletRequest request){
         SessionUserVO sessionUser = RequestUtil.getSessionUser(request);
@@ -274,7 +270,7 @@ public class AppUserModule extends BaseController {
     }
 
     //批量添加或解除黑名单
-    @AuthorityToken(needToken = {"meiren.acl.mbc.member.user.createBlackList"})
+    @AuthorityToken(needToken = {VueConstants.BLACKLIST_AUTH})
     @RequestMapping("/createBlackListBatch")
     public VueResult createBlackListBatch(HttpServletRequest request){
         String projectName = RequestUtil.getStringTrans(request, "projectName");
