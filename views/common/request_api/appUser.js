@@ -29,5 +29,14 @@ exports.exportLine = "/member/appUser/exportLine"
 //黑名单权限用户
 exports.getAuthByToken = "/member/appUser/getAuthByToken"
 
+//导入数据到表格
+exports.importExcel = "/member/appUser/importExcel"
+//马甲账号
+exports.addWaistcoatUser = "/member/appUser/addWaistcoatUser"
+exports.delWaistcoatUser = "/member/appUser/delWaistcoatUser"
+exports.editWaistcoatUser = "/member/appUser/editWaistcoatUser"
+exports.waistcoatList = "/member/appUser/waistcoatList"
+exports.addWaistcoatUserBatch = "/member/appUser/addWaistcoatUserBatch"
+exports.getWaistcoatUser = "/member/appUser/getWaistcoatUser"
 
 

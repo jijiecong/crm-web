@@ -21,7 +21,7 @@
                     </el-option>
                   </el-select>
                 </template>
-              </el-col >
+              </el-col>
               <el-col :span="2" >
                 <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
               </el-col >
@@ -30,7 +30,7 @@
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button type="warning" size="middle" @click="createBlackListBatch()">
+            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
               批量解黑
             </el-button >
             <el-button @click.stop="on_refresh" size="middle" >
@@ -85,6 +85,7 @@
           </template>
         </el-table-column >
         <el-table-column
+          v-if="blackAuth"
           label="操作"
           width="130" >
           <template scope="props" >
@@ -116,6 +117,7 @@
   export default{
     data(){
       return {
+        blackAuth:false,
         table_data: null,
         //数据总条目
         total_count: 0,
@@ -138,6 +140,7 @@
     created(){
       this.get_table_data()
       this.getProjects()
+      this.getAuth()
 //      this.table_data = [{
 //        id: '1',
 //        phone: '1235678910',
@@ -191,6 +194,17 @@
       ...mapActions(['setAppUserSearchData','setAppUserCurrentPage', 'setAppUserSelectValue']),
       to_date(time){
         return this.$dateFormat(time,'yyyy-MM-dd hh:mm')
+      },
+      //查询权限
+      getAuth(){
+        this.$http.get(request_appUser.getAuthByToken, {
+          params: {
+          }
+        }).then(({ data }) => {
+          console.log("data:"+JSON.stringify(data))
+          this.blackAuth = data.blackBoolean;
+        }).catch(() => {
+        })
       },
       //查询
       on_search(){
@@ -248,7 +262,6 @@
       createBlackList(id) {
         this.$confirm('您确定要把userId为' + id + '的用户移除黑名单吗？', '提示', { type: 'warning' })
           .then(() => {
-            debugger
             this.$http.get(request_appUser.createBlackListUserById, {
               params: {
                 userId:id,
