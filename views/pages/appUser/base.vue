@@ -296,7 +296,6 @@
           params: {
           }
         }).then(({ data }) => {
-          console.log("data:"+JSON.stringify(data))
           this.blackAuth = data.blackBoolean;
           this.removeAuth = data.removeBoolean;
           if(!data.blackBoolean && !data.removeBoolean){
@@ -312,7 +311,6 @@
       },
       //添加黑名单
       createBlackList(row) {
-        console.log("createBlackList"+row.userId)
         let id = row.userId;
         this.$confirm('您确定要把userId为' + id + '的用户添加黑名单吗？', '提示', { type: 'warning' })
           .then(() => {
@@ -342,7 +340,6 @@
       },
       //删除用户
       removeUser(row) {
-        console.log("removeUser"+row)
         let id = row.userId;
         this.$confirm('您确定要删除userId为 ' + id + '的用户吗？', '提示', { type: 'warning' })
           .then(() => {

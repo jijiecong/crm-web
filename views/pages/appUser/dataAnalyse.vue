@@ -522,10 +522,6 @@
             logSeriesData2.push(parseInt(value.loginCount))
             logSeriesData.push(parseInt(value.loginCount)- parseInt(value.registerCount))
           })
-          console.log(xAxisData)
-          console.log(regSeriesData)
-          console.log(logSeriesData)
-          console.log("2:"+logSeriesData2)
           var option = {
             title: {
               text: '注册和登录过的用户统计图',
