@@ -83,7 +83,6 @@
         this.imageUrl = this.imageUrlInit
       },
       beforeAvatarUpload(file) {
-        debugger
         //image/jpg, image/jpeg, image/png'
         const isJPG = file.type === 'image/jpeg';
         const isLt2M = file.size / 1024 / 1024 < 2;
