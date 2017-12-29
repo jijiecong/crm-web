@@ -320,7 +320,11 @@
           }
         }).then(({ data }) => {
           if(!data.success){
-            this.$message.error(data.error)
+            if(data.code==50217){
+              this.$message.error("手机号必须以1977777开头")
+            }else{
+              this.$message.error(data.error)
+            }
           }
           this.table_data = data.data.data
           this.total_count = data.data.totalCount
@@ -377,20 +381,6 @@
         this.editForm.userIcon = row.userIcon
         this.editForm.nickname = row.nickname
         this.dialogEditUserForm = true
-       /* this.$http.get(request_appUser.getWaistcoatUser, {
-          params: {userId:id}
-        }).then(({ data }) => {
-          if(data.success){
-            this.imgUrl = data.data.userIcon
-            this.editForm.nickname = data.data.nickname
-            console.log("this.imgUrl:"+this.imgUrl)
-          }else{
-            this.$message.error(data.message)
-          }
-        }).catch(() => {
-          this.$message.error('系统错误')
-        })*/
-
       },
       //修改马甲账号
       updateUser(formName) {

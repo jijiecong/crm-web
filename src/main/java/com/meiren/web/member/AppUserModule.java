@@ -192,22 +192,11 @@ public class AppUserModule extends BaseController {
     @RequestMapping("/registerByProjectNameStatistics")
     public VueResult registerByProjectNameStatistics(HttpServletRequest request) {
         ApiResult apiResult = userStatisticsService.statisticsByProjectNameFromMbc();
-        List<StatisticsProjectNameReturnEO> result = new ArrayList<>();
         if (apiResult.getData() != null) {
             List<StatisticsProjectNameReturnEO> statisticsProjectNameReturnEOList = (List<StatisticsProjectNameReturnEO>) apiResult.getData();
-            for (StatisticsProjectNameReturnEO statisticsProjectNameReturnEO : statisticsProjectNameReturnEOList) {
-                StatisticsProjectNameReturnEO statisticsProjectNameReturnEO1 = new StatisticsProjectNameReturnEO();
-                if("任务大厅".equals(statisticsProjectNameReturnEO.getProjectName())){
-                    continue;
-                }else if("素材平台".equals(statisticsProjectNameReturnEO.getProjectName())){
-                    continue;
-                }else{
-                    BeanUtils.copyProperties(statisticsProjectNameReturnEO,statisticsProjectNameReturnEO1);
-                    result.add(statisticsProjectNameReturnEO1);
-                }
-            }
+            return new VueResult(statisticsProjectNameReturnEOList);
         }
-        return new VueResult(result);
+        return new VueResult();
     }
 
     //获取所有projects
@@ -309,15 +298,6 @@ public class AppUserModule extends BaseController {
         queryParamEO.setPageNum(pageNum);
         queryParamEO.setPageSize(rowsNum);
         ApiResult apiResult = waistcoatService.getWaistcoatUserByPage(queryParamEO);
-       /* Map<String, Object> rMap = new HashMap<>();
-        if (apiResult.isSuccess() && apiResult.getData() != null ) {
-            PageEO<UserInfoStatisticsEO> pageEO = (PageEO<UserInfoStatisticsEO>) apiResult.getData();
-            List<UserInfoStatisticsEO> userInfoStatisticsEOList = pageEO.getData();
-            rMap.put("totalCount", pageEO.getTotalCount());
-            rMap.put("data", userInfoStatisticsEOList);
-        }else{
-            return new VueResult(apiResult);
-        }*/
         return new VueResult(apiResult);
     }
 
