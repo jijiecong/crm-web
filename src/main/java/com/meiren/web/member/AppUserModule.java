@@ -14,6 +14,7 @@ import com.meiren.member.service.UserStatisticsService;
 import com.meiren.member.service.WaistcoatService;
 import com.meiren.utils.ExcelUtil;
 import com.meiren.utils.RequestUtil;
+import com.meiren.vo.DateFormatVO;
 import com.meiren.vo.SessionUserVO;
 import com.meiren.vo.UserInfoVO;
 import com.meiren.web.acl.BaseController;
@@ -64,11 +65,15 @@ public class AppUserModule extends BaseController {
         QueryParamEO queryParamEO = new QueryParamEO();
         queryParamEO.setCommonFile(RequestUtil.getStringTrans(request, "commonFile"));
         String projectName = RequestUtil.getStringTrans(request, "projectName");
+        Long timeStart = RequestUtil.getLong(request, "timeStart");
+        Long timeEnd = RequestUtil.getLong(request, "timeEnd");
         if(!"all".equals(projectName)){
             queryParamEO.setRegisterProjectName(projectName);
         }
         queryParamEO.setPageNum(pageNum);
         queryParamEO.setPageSize(rowsNum);
+        queryParamEO.setStartTime(timeStart);
+        queryParamEO.setEndTime(timeEnd);
         ApiResult apiResult = userStatisticsService.getUserInfoByPage(queryParamEO);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.isSuccess() ) {
@@ -149,21 +154,44 @@ public class AppUserModule extends BaseController {
         Long timeStart = RequestUtil.getLong(request, "timeStart");
         Long timeEnd = RequestUtil.getLong(request, "timeEnd");
         String dateFormat = RequestUtil.getStringTrans(request, "dateFormat");
-        if(dateFormat.equals("datetime")){
-            dateFormat = "H";
-        }else if (dateFormat.equals("month")){
-            dateFormat = "M";
-        }else if (dateFormat.equals("year")){
-            dateFormat = "y";
-        }else {
-            dateFormat = "d";
-        }
-        ApiResult apiResult = userStatisticsService.statisticsByUserRegFromMbc(dateFormat, timeStart,timeEnd, projectNames);
+        DateFormatVO dateFormatVO = addCycleByDateFormat(dateFormat, timeEnd);
+        ApiResult apiResult = userStatisticsService.statisticsByUserRegFromMbc(dateFormatVO.getDateFormat(), timeStart,dateFormatVO.getTimeEnd(), projectNames);
         Map<String, Object> rMap = new HashMap<>();
         if (apiResult.getData() != null) {
             rMap = (Map<String, Object>) apiResult.getData();
         }
         return new VueResult(rMap);
+    }
+
+    private DateFormatVO addCycleByDateFormat(String dateFormat,Long timeEnd){
+        DateFormatVO dateFormatVO = new DateFormatVO();
+        Calendar c = Calendar.getInstance();
+        if(timeEnd != null){
+            c.setTimeInMillis(timeEnd);
+        }
+        if(dateFormat.equals("datetime")){
+            c.add(Calendar.HOUR_OF_DAY, 1);
+            dateFormatVO.setDateFormat("H");
+        }else if (dateFormat.equals("month")){
+            c.add(Calendar.MONTH, 1);
+            dateFormatVO.setDateFormat("M");
+        }else if (dateFormat.equals("year")){
+            c.add(Calendar.YEAR, 1);
+            dateFormatVO.setDateFormat("y");
+        }else {
+            c.add(Calendar.DAY_OF_MONTH, 1);
+            dateFormatVO.setDateFormat("d");
+        }
+        dateFormatVO.setTimeEnd(timeEnd==null?null:c.getTimeInMillis()-1);
+        return dateFormatVO;
+    }
+
+    public static void main(String[] args) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        System.out.println(c.getTimeInMillis());
+        System.out.println(c.getTime());
     }
 
     @RequestMapping("/exportLine")

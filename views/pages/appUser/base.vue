@@ -7,10 +7,10 @@
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
             <el-row :gutter="10" >
-              <el-col :span="6" >
+              <el-col :span="4" >
                 <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
-              <el-col :span="4" >
+              <el-col :span="3" >
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
                     <el-option
@@ -22,8 +22,32 @@
                   </el-select>
                 </template>
               </el-col >
-              <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
+              <el-col :span="1" style="margin-left: -30px;">
+                <span style="line-height: 36px;margin-left: -50px">&nbsp;</span>
+              </el-col>
+              <el-col :span="4" >
+                <template >
+                  <el-date-picker
+                    v-model="timeStart"
+                    type="datetime"
+                    placeholder="选择注册起始时间">
+                  </el-date-picker>
+                </template>
+              </el-col >
+              <el-col :span="1" style="margin-left: -30px;margin-right: -20px;">
+                <span style="line-height: 36px;">——</span>
+              </el-col>
+              <el-col :span="4" >
+                <template >
+                  <el-date-picker
+                    v-model="timeEnd"
+                    type="datetime"
+                    placeholder="选择注册结束时间">
+                  </el-date-picker>
+                </template>
+              </el-col >
+              <el-col :span="3" >
+                <el-button type="primary" size="medium" native-type="submit" ><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
             </el-row >
           </form >
@@ -146,6 +170,8 @@
         blackAuth:false,
         removeAuth:false,
         table_data: null,
+        timeStart: '',
+        timeEnd: '',
         //数据总条目
         total_count: 0,
         //每页显示多少条数据
@@ -231,6 +257,8 @@
         this.getCurrentPage = 1
         this.getSearchData = ''
         this.getSelectValue = ''
+        this.timeStart = ''
+        this.timeEnd = ''
         this.get_table_data()
       },
       //获取数据
@@ -241,7 +269,9 @@
             page: this.getCurrentPage,
             rows: this.rows,
             projectName: this.getSelectValue,
-            commonFile: this.getSearchData
+            commonFile: this.getSearchData,
+            timeStart : (this.timeStart == '') ? null : this.timeStart.getTime(),
+            timeEnd : (this.timeEnd == '') ? null : this.timeEnd.getTime(),
           }
         }).then(({ data }) => {
           this.table_data = data.data
