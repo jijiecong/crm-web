@@ -28,7 +28,6 @@
               <el-col :span="4" >
                 <template >
                   <el-date-picker
-                    style="width: 100%;"
                     v-model="timeStart"
                     type="datetime"
                     placeholder="选择注册起始时间">
@@ -43,7 +42,6 @@
                   <el-date-picker
                     v-model="timeEnd"
                     type="datetime"
-                    style="width: 100%;"
                     placeholder="选择注册结束时间">
                   </el-date-picker>
                 </template>
@@ -71,6 +69,9 @@
                 <i class="fa fa-refresh" ></i >
               </el-button >
             </el-col>
+
+
+
           </div >
         </el-col >
       </el-row >
