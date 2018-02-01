@@ -3,10 +3,10 @@
     <panel-title :title="$route.meta.title" >
     </panel-title >
     <div class="panel-title-down" >
-      <el-row >
+      <el-row>
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
-            <el-row :gutter="10" >
+            <el-row :gutter="10">
               <el-col :span="4" >
                 <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
@@ -22,19 +22,20 @@
                   </el-select>
                 </template>
               </el-col >
-              <el-col :span="1" style="margin-left: -30px;">
-                <span style="line-height: 36px;margin-left: -50px">&nbsp;</span>
+              <el-col :span="1" >
+                <span >&nbsp;</span>
               </el-col>
               <el-col :span="4" >
                 <template >
                   <el-date-picker
+                    style="width: 100%;"
                     v-model="timeStart"
                     type="datetime"
                     placeholder="选择注册起始时间">
                   </el-date-picker>
                 </template>
               </el-col >
-              <el-col :span="1" style="margin-left: -30px;margin-right: -20px;">
+              <el-col :span="1" >
                 <span style="line-height: 36px;">——</span>
               </el-col>
               <el-col :span="4" >
@@ -42,27 +43,34 @@
                   <el-date-picker
                     v-model="timeEnd"
                     type="datetime"
+                    style="width: 100%;"
                     placeholder="选择注册结束时间">
                   </el-date-picker>
                 </template>
               </el-col >
-              <el-col :span="3" >
-                <el-button type="primary" size="medium" native-type="submit" ><i class="el-icon-search"></i > 查询</el-button >
-              </el-col >
+              <el-col :span="2">
+                <el-button type="primary" size="medium" native-type="submit"><i class="el-icon-search"></i > 查询</el-button >
+              </el-col>
             </el-row >
           </form >
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
-              批量拉黑
-            </el-button >
-            <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
-              批量删除
-            </el-button >
-            <el-button @click.stop="on_refresh" size="middle" >
-              <i class="fa fa-refresh" ></i >
-            </el-button >
+            <el-col :span="10">
+              <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
+                批量拉黑
+              </el-button >
+            </el-col>
+            <el-col :span="10">
+              <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
+                批量删除
+              </el-button >
+            </el-col>
+            <el-col :span="4">
+              <el-button @click.stop="on_refresh" size="middle" >
+                <i class="fa fa-refresh" ></i >
+              </el-button >
+            </el-col>
           </div >
         </el-col >
       </el-row >

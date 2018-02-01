@@ -22,7 +22,7 @@
               <el-col :span="4" >
                 <template>
                   <el-row >
-                    <el-col :span="8">
+                    <el-col :span="8" >
                       <label style="line-height: 36px;font-size: 14px;">统计单位：</label >
                     </el-col >
                     <el-col :span="16">
@@ -42,6 +42,7 @@
               <el-col :span="4" >
                 <template >
                   <el-date-picker
+                    style="width: 100%;"
                     v-model="timeStart1"
                     :type="selectValueType1"
                     placeholder="选择起始时间">
@@ -51,9 +52,10 @@
               <el-col :span="1">
                 <span style="line-height: 36px;">——</span>
               </el-col>
-              <el-col :span="4" >
+              <el-col :span="4"  >
                 <template >
                   <el-date-picker
+                    style="width: 100%;"
                     v-model="timeEnd1"
                     :type="selectValueType1"
                     placeholder="选择结束时间">
@@ -62,19 +64,19 @@
               </el-col >
 
               <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="button" @click="search1()">查询</el-button >
+                <el-button type="primary" size="medium" native-type="button" @click="search1()"><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
 
-              <el-col :span="4" >
+             <!-- <el-col :span="4" >
                 <div class="fr" style="margin-right: -180px">
-              <!--    <form id="form1">
+              &lt;!&ndash;    <form id="form1">
                     <button >导出表格</button>
-                  </form>-->
-                 <!-- <el-button type="" size="middle" @click="exportLine()" >
+                  </form>&ndash;&gt;
+                 &lt;!&ndash; <el-button type="" size="middle" @click="exportLine()" >
                     导出表格
-                  </el-button >-->
+                  </el-button >&ndash;&gt;
                 </div >
-              </el-col >
+              </el-col >-->
             </el-row >
           </form >
         </el-col >
@@ -115,6 +117,7 @@
               <el-col :span="4" >
                 <template >
                   <el-date-picker
+                    style="width: 100%;"
                     v-model="timeStart2"
                     type="datetime"
                     placeholder="选择起始时间">
@@ -127,6 +130,7 @@
               <el-col :span="4" >
                 <template >
                   <el-date-picker
+                    style="width: 100%;"
                     v-model="timeEnd2"
                     type="datetime"
                     placeholder="选择结束时间">
@@ -134,7 +138,7 @@
                 </template>
               </el-col >
               <el-col :span="2" >
-                <el-button type="primary" size="middle  " native-type="button" @click="search2()">查询</el-button >
+                <el-button type="primary" size="medium" native-type="button" @click="search2()"><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
             </el-row >
           </form >
