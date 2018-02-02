@@ -65,10 +65,16 @@ public class AppUserModule extends BaseController {
         QueryParamEO queryParamEO = new QueryParamEO();
         queryParamEO.setCommonFile(RequestUtil.getStringTrans(request, "commonFile"));
         String projectName = RequestUtil.getStringTrans(request, "projectName");
+        String sort = RequestUtil.getStringTrans(request, "sort");
         Long timeStart = RequestUtil.getLong(request, "timeStart");
         Long timeEnd = RequestUtil.getLong(request, "timeEnd");
         if(!"all".equals(projectName)){
             queryParamEO.setRegisterProjectName(projectName);
+        }
+        if(StringUtils.isNotBlank(sort)){
+            String[] sortArray = sort.split("-");
+            queryParamEO.setSortFile(sortArray[0]);
+            queryParamEO.setSort(sortArray[1]);
         }
         queryParamEO.setPageNum(pageNum);
         queryParamEO.setPageSize(rowsNum);

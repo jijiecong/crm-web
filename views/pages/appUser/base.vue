@@ -10,7 +10,7 @@
               <el-col :span="4" >
                 <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
-              <el-col :span="3" >
+              <el-col :span="3" style="margin-right: 15px">
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
                     <el-option
@@ -22,9 +22,6 @@
                   </el-select>
                 </template>
               </el-col >
-              <el-col :span="1" >
-                <span >&nbsp;</span>
-              </el-col>
               <el-col :span="4" >
                 <template >
                   <el-date-picker
@@ -34,8 +31,8 @@
                   </el-date-picker>
                 </template>
               </el-col >
-              <el-col :span="1" >
-                <span style="line-height: 36px;">——</span>
+              <el-col :span="1"style="margin-right:-15px;margin-left: -15px" >
+                <span style="line-height: 36px;">———</span>
               </el-col>
               <el-col :span="4" >
                 <template >
@@ -44,6 +41,18 @@
                     type="datetime"
                     placeholder="选择注册结束时间">
                   </el-date-picker>
+                </template>
+              </el-col >
+              <el-col :span="2" >
+                <template>
+                  <el-select v-model="sortValue" placeholder="选择排序">
+                    <el-option
+                      v-for="item in sortOptions"
+                      :key="item.sortValue"
+                      :label="item.sortName"
+                      :value="item.sortValue">
+                    </el-option>
+                  </el-select>
                 </template>
               </el-col >
               <el-col :span="2">
@@ -190,7 +199,21 @@
         //批量选择数组
         batch_select: [],
         //APP名称
-        options: []
+        options: [],
+        sortOptions: [{
+          sortValue: 'userId-desc',
+          sortName: 'ID降序'
+        },{
+          sortValue: 'userId-asc',
+          sortName: 'ID升序'
+        },{
+          sortValue: 'regTime-desc',
+          sortName: '时间降序'
+        },{
+          sortValue: 'regTime-asc',
+          sortName: '时间升序'
+        }, ],
+        sortValue:''
       }
     },
     watch: {},
@@ -278,6 +301,7 @@
             page: this.getCurrentPage,
             rows: this.rows,
             projectName: this.getSelectValue,
+            sort: this.sortValue,
             commonFile: this.getSearchData,
             timeStart : (this.timeStart == '') ? null : this.timeStart.getTime(),
             timeEnd : (this.timeEnd == '') ? null : this.timeEnd.getTime(),
