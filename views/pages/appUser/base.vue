@@ -291,6 +291,7 @@
         this.getSelectValue = ''
         this.timeStart = ''
         this.timeEnd = ''
+        this.sortValue = ''
         this.get_table_data()
       },
       //获取数据
