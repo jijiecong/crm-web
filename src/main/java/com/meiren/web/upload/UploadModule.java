@@ -45,8 +45,6 @@ public class UploadModule extends BaseController {
     @RequestMapping(value = "headUpload", method = RequestMethod.POST)
     public VueResult headUpload(@RequestParam("file") MultipartFile file) throws IOException {
         VueResult result = new VueResult();
-        String upload = upload(file);
-//        System.out.println(upload);
         result.setData(upload(file));
         return result;
     }
