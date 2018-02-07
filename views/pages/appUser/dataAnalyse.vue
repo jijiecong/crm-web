@@ -62,7 +62,7 @@
               </el-col >
 
               <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="button" @click="search1()">查询</el-button >
+                <el-button type="primary" size="medium" native-type="button" @click="search1()"><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
 
               <el-col :span="4" >
@@ -134,7 +134,7 @@
                 </template>
               </el-col >
               <el-col :span="2" >
-                <el-button type="primary" size="middle  " native-type="button" @click="search2()">查询</el-button >
+                <el-button type="primary" size="medium" native-type="button" @click="search2()"><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
             </el-row >
           </form >

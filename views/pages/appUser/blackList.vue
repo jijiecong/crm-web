@@ -23,19 +23,25 @@
                 </template>
               </el-col>
               <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
+                <el-button type="primary" size="medium" native-type="submit" ><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
             </el-row >
           </form >
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
-              批量解黑
-            </el-button >
-            <el-button @click.stop="on_refresh" size="middle" >
-              <i class="fa fa-refresh" ></i >
-            </el-button >
+           <el-row :gutter="10">
+              <el-col :span="16">
+                <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
+                  批量解黑
+                </el-button >
+              </el-col>
+             <el-col :span="6">
+              <el-button @click.stop="on_refresh" size="middle" >
+                <i class="fa fa-refresh" ></i >
+              </el-button >
+             </el-col>
+           </el-row>
           </div >
         </el-col >
       </el-row >

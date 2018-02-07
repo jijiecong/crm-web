@@ -23,7 +23,7 @@
                 <el-input size="middle" placeholder="请输入关键字" v-model="getSearchData" ></el-input >
               </el-col >
               <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
+                <el-button type="primary" size="medium" native-type="submit" ><i class="el-icon-search"></i > 查询</el-button >
               </el-col >
             </el-row >
           </form >
@@ -33,15 +33,27 @@
         </el-col>-->
           <el-col :span="4" >
           <div class="fr" >
-            <el-button type="primary" size="middle" @click="dialogAddUserForm = true">
-              添加
-            </el-button >
-            <el-button type="danger" size="middle" @click="removeUserBatch()">
-              批量删除
-            </el-button >
-            <el-button @click.stop="on_refresh" size="middle" >
-              <i class="fa fa-refresh" ></i >
-            </el-button >
+            <el-row :gutter="10">
+              <el-col :span="8">
+                <el-button type="primary" size="middle" @click="dialogAddUserForm = true">
+                  添加
+                </el-button >
+              </el-col>
+              <el-col :span="11">
+                <el-button type="danger" size="middle" @click="removeUserBatch()">
+                  批量删除
+                </el-button >
+              </el-col>
+              <el-col :span="4">
+                <el-button @click.stop="on_refresh" size="middle" >
+                  <i class="fa fa-refresh" ></i >
+                </el-button >
+              </el-col>
+            </el-row>
+
+
+
+
           </div >
         </el-col >
       </el-row >

@@ -3,14 +3,14 @@
     <panel-title :title="$route.meta.title" >
     </panel-title >
     <div class="panel-title-down" >
-      <el-row >
+      <el-row>
         <el-col :span="20" >
           <form @submit.prevent="on_search" >
-            <el-row :gutter="10" >
-              <el-col :span="6" >
+            <el-row :gutter="10">
+              <el-col :span="4" >
                 <el-input size="middle" placeholder="用户id/手机号/昵称" v-model="getSearchData" ></el-input >
               </el-col >
-              <el-col :span="4" >
+              <el-col :span="3" style="margin-right: 15px">
                 <template>
                   <el-select v-model="getSelectValue" placeholder="请选择APP名称">
                     <el-option
@@ -22,23 +22,65 @@
                   </el-select>
                 </template>
               </el-col >
-              <el-col :span="2" >
-                <el-button type="primary" size="middle" native-type="submit" >查询</el-button >
+              <el-col :span="4" >
+                <template >
+                  <el-date-picker
+                    v-model="timeStart"
+                    type="datetime"
+                    placeholder="选择注册起始时间">
+                  </el-date-picker>
+                </template>
               </el-col >
+              <el-col :span="1"style="margin-right:-15px;margin-left: -15px" >
+                <span style="line-height: 36px;">———</span>
+              </el-col>
+              <el-col :span="4" >
+                <template >
+                  <el-date-picker
+                    v-model="timeEnd"
+                    type="datetime"
+                    placeholder="选择注册结束时间">
+                  </el-date-picker>
+                </template>
+              </el-col >
+              <el-col :span="2" >
+                <template>
+                  <el-select v-model="sortValue" placeholder="选择排序">
+                    <el-option
+                      v-for="item in sortOptions"
+                      :key="item.sortValue"
+                      :label="item.sortName"
+                      :value="item.sortValue">
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-col >
+              <el-col :span="2">
+                <el-button type="primary" size="medium" native-type="submit"><i class="el-icon-search"></i > 查询</el-button >
+              </el-col>
             </el-row >
           </form >
         </el-col >
         <el-col :span="4" >
           <div class="fr" >
-            <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
-              批量拉黑
-            </el-button >
-            <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
-              批量删除
-            </el-button >
-            <el-button @click.stop="on_refresh" size="middle" >
-              <i class="fa fa-refresh" ></i >
-            </el-button >
+            <el-col :span="10">
+              <el-button v-if="blackAuth" type="warning" size="middle" @click="createBlackListBatch()">
+                批量拉黑
+              </el-button >
+            </el-col>
+            <el-col :span="10">
+              <el-button v-if="removeAuth" type="danger" size="middle" @click="removeUserBatch()">
+                批量删除
+              </el-button >
+            </el-col>
+            <el-col :span="4">
+              <el-button @click.stop="on_refresh" size="middle" >
+                <i class="fa fa-refresh" ></i >
+              </el-button >
+            </el-col>
+
+
+
           </div >
         </el-col >
       </el-row >
@@ -146,6 +188,8 @@
         blackAuth:false,
         removeAuth:false,
         table_data: null,
+        timeStart: '',
+        timeEnd: '',
         //数据总条目
         total_count: 0,
         //每页显示多少条数据
@@ -155,7 +199,21 @@
         //批量选择数组
         batch_select: [],
         //APP名称
-        options: []
+        options: [],
+        sortOptions: [{
+          sortValue: 'userId-desc',
+          sortName: 'ID降序'
+        },{
+          sortValue: 'userId-asc',
+          sortName: 'ID升序'
+        },{
+          sortValue: 'regTime-desc',
+          sortName: '时间降序'
+        },{
+          sortValue: 'regTime-asc',
+          sortName: '时间升序'
+        }, ],
+        sortValue:''
       }
     },
     watch: {},
@@ -231,6 +289,9 @@
         this.getCurrentPage = 1
         this.getSearchData = ''
         this.getSelectValue = ''
+        this.timeStart = ''
+        this.timeEnd = ''
+        this.sortValue = ''
         this.get_table_data()
       },
       //获取数据
@@ -241,7 +302,10 @@
             page: this.getCurrentPage,
             rows: this.rows,
             projectName: this.getSelectValue,
-            commonFile: this.getSearchData
+            sort: this.sortValue,
+            commonFile: this.getSearchData,
+            timeStart : (this.timeStart == '') ? null : this.timeStart.getTime(),
+            timeEnd : (this.timeEnd == '') ? null : this.timeEnd.getTime(),
           }
         }).then(({ data }) => {
           this.table_data = data.data
