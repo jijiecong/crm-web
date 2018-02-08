@@ -8,10 +8,7 @@ import com.meiren.common.constants.VueConstants;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.member.entity.*;
-import com.meiren.member.service.LocationInfoService;
-import com.meiren.member.service.MemberService;
-import com.meiren.member.service.UserStatisticsService;
-import com.meiren.member.service.WaistcoatService;
+import com.meiren.member.service.*;
 import com.meiren.utils.ExcelUtil;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.DateFormatVO;
@@ -52,6 +49,7 @@ public class AppUserModule extends BaseController {
     @Resource LocationInfoService locationInfoService;
     @Resource AclPrivilegeService aclPrivilegeService;
     @Resource WaistcoatService waistcoatService;
+    @Resource UserTagService userTagService;
 
     /**
      * 列表
@@ -103,6 +101,11 @@ public class AppUserModule extends BaseController {
                 }
                 if(!(userInfoStatisticsEO.getBirthdayYear() == null || userInfoStatisticsEO.getBirthdayYear() == 0)){
                     userInfoVO.setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
+                }
+                ApiResult tagsNameList = userTagService.getTagsNameList(userInfoVO.getTags());
+                if(tagsNameList.isSuccess()){
+                    List<String> tagsNames = (List<String>) tagsNameList.getData();
+                    userInfoVO.setTags(StringUtils.join(tagsNames.toArray(), ","));
                 }
                 userInfoVOList.add(userInfoVO);
             }

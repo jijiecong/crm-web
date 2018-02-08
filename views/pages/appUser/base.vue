@@ -132,6 +132,11 @@
           label="地理位置" >
         </el-table-column >
         <el-table-column
+          prop="tags"
+          v-if="isShowTag"
+          label="用户标签" >
+        </el-table-column >
+        <el-table-column
           prop="registerProjectName"
           label="注册来源" >
         </el-table-column >
@@ -184,6 +189,7 @@
   export default{
     data(){
       return {
+        isShowTag:false,
         allAuth:true,
         blackAuth:false,
         removeAuth:false,
@@ -289,6 +295,7 @@
         this.getCurrentPage = 1
         this.getSearchData = ''
         this.getSelectValue = ''
+        this.isShowTag = false
         this.timeStart = ''
         this.timeEnd = ''
         this.sortValue = ''
@@ -308,6 +315,9 @@
             timeEnd : (this.timeEnd == '') ? null : this.timeEnd.getTime(),
           }
         }).then(({ data }) => {
+          if("kids_camera".indexOf(this.getSelectValue)!=-1){
+            this.isShowTag = true
+          }
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false
