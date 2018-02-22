@@ -51,6 +51,7 @@
 
     <!-- MBC -->
     <dubbo:reference id="mbcMenuService" interface="com.meiren.tech.mbc.service.MbcMenuService" check="false"  />
+    <dubbo:reference id="mbcMenuLoadService" interface="com.meiren.tech.mbc.service.MbcMenuLoadService" check="false"  />
 
     <!-- MEMBER -->
     <dubbo:reference id="userStatisticsService" interface="com.meiren.member.service.UserStatisticsService" check="false" timeout="${dubbo.service.timeout}" />

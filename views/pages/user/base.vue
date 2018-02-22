@@ -106,7 +106,7 @@
                       </a >
                     </el-dropdown-item >
                     <el-dropdown-item >
-                      <a @click="to_router('viewPrivilege',props.row)" >
+                      <a @click="to_router_view('viewPrivilege',props.row)" >
                         <span >视图权限</span >
                       </a >
                     </el-dropdown-item >
@@ -208,6 +208,9 @@
       },
       to_router(routerName, row){
         this.$router.push({ name: routerName, params: { id: row.id } })
+      },
+      to_router_view(routerName, row){
+        this.$router.push({ name: routerName, params: { id: row.id, businessId: this.getBid } })
       },
       to_router_hierarchy(routerName, row){
         this.$router.push({ name: routerName, params: { id: row.id, hierarchyId: row.hierarchyId } })

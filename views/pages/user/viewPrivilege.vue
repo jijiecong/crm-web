@@ -5,7 +5,7 @@
       <!--<div style='width:360px;' v-if='ztreeDataSource.length>0'>-->
         <!--<tree :list.sync='ztreeDataSource' :func='nodeClick' :is-open='false'></tree>-->
       <!--</div>-->
-      <tree-meiren :showCheckbox='false' :value="ztreeDataSource" size="small"></tree-meiren>
+      <tree-meiren :showCheckbox='false' size="small" :initUrl="initUrl" :initId="route_id" :businessId="businessId"></tree-meiren>
       <div style="height: 15px;"></div>
       <el-button @click="$router.back()">返回</el-button>
     </div>
@@ -18,27 +18,13 @@
       data() {
           return {
             route_id: this.$route.params.id,
-            ztreeDataSource:[]
+            businessId: this.$route.params.businessId,
+            initUrl:request_user.getViewPrivilege
           }
-      },
-      created() {
-        this.route_id && this.initData();
       },
       methods: {
         // 点击节点
         nodeClick:function(m){
-        },
-        initData() {
-          this.axios.get(request_user.getViewPrivilege, {
-            params: {
-              userId: this.route_id
-            }
-          }).then(({data: responseData}) => {
-            if(responseData !== null){
-              this.ztreeDataSource = responseData
-            }
-          }).catch(() => {
-          })
         }
       },
       components: {

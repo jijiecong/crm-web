@@ -1,9 +1,6 @@
 package com.meiren.web.acl;
 
-import com.meiren.acl.enums.CheckCanDoEnum;
-import com.meiren.acl.enums.UserPrivilegeStatusEnum;
-import com.meiren.acl.enums.UserRoleStatusEnum;
-import com.meiren.acl.enums.UserStatusEnum;
+import com.meiren.acl.enums.*;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
@@ -14,9 +11,11 @@ import com.meiren.common.result.VueResultCode;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.tech.mbc.action.ActionControllerLog;
+import com.meiren.tech.mbc.service.MbcMenuLoadService;
 import com.meiren.tech.mbc.service.MbcMenuService;
 import com.meiren.tech.mbc.service.entity.MbcMenuEntity;
-import com.meiren.utils.MBCEnum;
+import com.meiren.utils.MBCStatusEnum;
+import com.meiren.utils.MBCTypeEnum;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.SelectVO;
 import com.meiren.vo.SessionUserVO;
@@ -62,7 +61,9 @@ public class UserModule extends BaseController {
     @Autowired
     private AclPrivilegeService aclPrivilegeService;
     @Autowired
-    private MbcMenuService mbcMenuService;
+    private MbcMenuLoadService mbcMenuLoadService;
+    @Autowired
+    private AclBusinessService aclBusinessService;
 
     /**
      * 用户列表
@@ -587,35 +588,47 @@ public class UserModule extends BaseController {
      * @return
      */
     @RequestMapping(value = "getViewPrivilege", method = RequestMethod.GET)
-    public VueResult getViewPrivilege(HttpServletRequest request) throws ApiResultException {
+    public VueResult getViewPrivilege(HttpServletRequest request) throws Exception {
         VueResult result = new VueResult();
         SessionUserVO user = this.getUser(request);
         if (!this.hasUserAll(user)) {
             result.setError("您没有权限查看用户视图权限！");
             return result;
         }
-        Map<String, Object> searchParamMap = new HashMap<>();
-        searchParamMap.put("scope", MBCEnum.MenuScopeBackend.getType());
-        searchParamMap.put("status", MBCEnum.MenusStatusOpen.getType());
-        Long userId = RequestUtil.getLong(request, "userId");
-        ApiResult apiResult = mbcMenuService.loadMbcMenus(searchParamMap, userId).check();
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            throw new Exception("操作失败！");
+        }
+        AclBusinessEntity aclBusinessEntity =
+            (AclBusinessEntity) aclBusinessService.findAclBusiness(businessId).check().getData();
+        Integer type = MBCTypeEnum.MenuScopeBackend.getType();
+        if(aclBusinessEntity.getToken().equals(BusinessEnum.ELSE.typeName)){
+            type = MBCTypeEnum.MenuScopeMerchant.getType();
+        }
+        Long userId = RequestUtil.getLong(request, "initId");
+        ApiResult apiResult = mbcMenuLoadService.loadMbcMenus(userId, type).check();
         List<MbcMenuEntity> menuEntityList = (List<MbcMenuEntity>) apiResult.getData();
         List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList);
-        result.setData(viewPrivilegeVOList);
+        Map<String, Object> viewMap = new HashMap();
+        viewMap.put("treeData", viewPrivilegeVOList);
+        result.setData(viewMap);
         return result;
     }
 
     private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList) {
         List<ViewPrivilegeVO> viewPrivilegeVOList = new ArrayList<ViewPrivilegeVO>();
         for(MbcMenuEntity mbcMenuEntity : menuEntityList){
+            if(!mbcMenuEntity.getHasPrivilege()){
+                continue;
+            }
             ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
             if(mbcMenuEntity.getSubMenus().size() > 0) {
-                viewPrivilegeVO.setId(mbcMenuEntity.getId());
+                viewPrivilegeVO.setId(mbcMenuEntity.getToken());
                 viewPrivilegeVO.setName(mbcMenuEntity.getName());
                 viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
                 viewPrivilegeVO.setChildren(formatList(mbcMenuEntity.getSubMenus()));
             }else {
-                viewPrivilegeVO.setId(mbcMenuEntity.getId());
+                viewPrivilegeVO.setId(mbcMenuEntity.getToken());
                 viewPrivilegeVO.setName(mbcMenuEntity.getName());
                 viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
             }
