@@ -111,11 +111,11 @@
           label="昵称" >
         </el-table-column >
         <el-table-column
-          prop="nickname"
+          prop="userIcon"
           width="100"
           label="头像" >
           <template scope="scope">
-            <img :src="scope.row.userIcon" width="40" height="40"/>
+              <img :src="scope.row.userIcon"  style="margin-top: 1px;margin-bottom: 1px"/>
           </template>
         </el-table-column >
         <el-table-column
