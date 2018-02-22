@@ -227,13 +227,13 @@ public class GroupModule extends BaseController {
         for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectedVOs.add(vo);
         }
         for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectDataVOs.add(vo);
         }
 
@@ -322,13 +322,13 @@ public class GroupModule extends BaseController {
         for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectedVOs.add(vo);
         }
         for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectDataVOs.add(vo);
         }
 
