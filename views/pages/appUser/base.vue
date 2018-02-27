@@ -170,12 +170,14 @@
       <bottom-tool-bar >
         <div slot="page" >
           <el-pagination
+            @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="getCurrentPage"
-            :page-size="10"
-            layout="total, prev, pager, next"
-            :total="total_count" >
-          </el-pagination >
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="rows"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total_count">
+          </el-pagination>
         </div >
       </bottom-tool-bar >
     </div >
@@ -293,6 +295,7 @@
       //刷新
       on_refresh(){
         this.getCurrentPage = 1
+        this.rows = 10
         this.getSearchData = ''
         this.getSelectValue = ''
         this.isShowTag = false
@@ -377,6 +380,11 @@
           }
         }).catch(() => {
         })
+      },
+      //每页条数选择
+      handleSizeChange(val) {
+        this.rows = val
+        this.get_table_data()
       },
       //页码选择
       handleCurrentChange(val) {
