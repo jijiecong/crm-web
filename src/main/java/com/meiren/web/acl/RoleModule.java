@@ -5,15 +5,19 @@ import com.meiren.acl.enums.*;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.annotation.AuthorityToken;
+import com.meiren.common.exception.ApiResultException;
 import com.meiren.common.result.ApiResult;
 import com.meiren.common.result.VueResult;
 import com.meiren.common.utils.ObjectUtils;
 import com.meiren.common.utils.StringUtils;
 import com.meiren.tech.mbc.action.ActionControllerLog;
+import com.meiren.tech.mbc.service.MbcMenuLoadService;
 import com.meiren.tech.mbc.service.MbcMenuService;
 import com.meiren.tech.mbc.service.entity.MbcMenuEntity;
+import com.meiren.utils.MBCTypeEnum;
 import com.meiren.utils.RequestUtil;
 import com.meiren.vo.*;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,13 +50,16 @@ public class RoleModule extends BaseController {
     @Autowired
     protected AclProcessModelService aclProcessModelService;
     @Autowired
-    private MbcMenuService mbcMenuService;
+    private MbcMenuLoadService mbcMenuLoadService;
     @Autowired
     protected AclUserHasRoleService aclUserHasRoleService;
     @Autowired
     protected AclGroupHasRoleService aclGroupHasRoleService;
     @Autowired
     protected AclApplyService aclApplyService;
+    @Autowired
+    private AclBusinessService aclBusinessService;
+
     private String[] necessaryParam = {
         "name","businessId",
     };
@@ -540,39 +547,59 @@ public class RoleModule extends BaseController {
         Exception {
         VueResult result = new VueResult();
 
-        Long roleId = RequestUtil.getLong(request, "roleId");
+        Long roleId = RequestUtil.getLong(request, "initId");
         if (roleId == null) {
             throw new Exception("请选择要操作的角色！");
+        }
+        Long businessId = RequestUtil.getLong(request, "businessId");
+        if (businessId == null) {
+            throw new Exception("操作失败！");
         }
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("roleId", roleId);
         List<AclPrivilegeEntity> haveList = (List<AclPrivilegeEntity>)
             aclPrivilegeService.loadAclPrivilegeJoinRoleHas(searchParamMap).getData();
-
-        ApiResult apiResult = mbcMenuService.loadAllBackendMenus().check();
+        List<String> defaultCheckedData = new ArrayList<>();
+        for(AclPrivilegeEntity aclPrivilegeEntity: haveList){
+            defaultCheckedData.add(aclPrivilegeEntity.getToken());
+        }
+        AclBusinessEntity aclBusinessEntity =
+            (AclBusinessEntity) aclBusinessService.findAclBusiness(businessId).check().getData();
+        Integer type = MBCTypeEnum.MenuScopeBackend.getType();
+        if(aclBusinessEntity.getToken().equals(BusinessEnum.ELSE.typeName)){
+            type = MBCTypeEnum.MenuScopeMerchant.getType();
+        }
+        ApiResult apiResult = mbcMenuLoadService.loadAllMbcMenus(type).check();
         List<MbcMenuEntity> menuEntityList = (List<MbcMenuEntity>) apiResult.getData();
-        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList, haveList);
-        result.setData(viewPrivilegeVOList);
+        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList);
+        Map<String, Object> viewMap = new HashMap();
+        viewMap.put("treeData", viewPrivilegeVOList);
+        viewMap.put("defaultCheckedData", defaultCheckedData);
+        result.setData(viewMap);
         return result;
     }
 
-    private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList, List<AclPrivilegeEntity> haveList) {
+    private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList) {
         List<ViewPrivilegeVO> viewPrivilegeVOList = new ArrayList<ViewPrivilegeVO>();
         //没有权限的菜单不给看
-        List<MbcMenuEntity> viewMenus = new ArrayList<>();
-        for (MbcMenuEntity menuEntity : menuEntityList) {
-            for(AclPrivilegeEntity privilegeEntity : haveList) {
-                if (!menuEntity.getPrivilege() || privilegeEntity.getToken().equals(menuEntity.getToken())) {
-                    viewMenus.add(menuEntity);
-                    break;
-                }
-            }
-        }
+//        List<MbcMenuEntity> viewMenus = new ArrayList<>();
+//        for (MbcMenuEntity menuEntity : menuEntityList) {
+//            for(AclPrivilegeEntity privilegeEntity : haveList) {
+//                if (!menuEntity.getPrivilege() || privilegeEntity.getToken().equals(menuEntity.getToken())) {
+//                    viewMenus.add(menuEntity);
+//                    break;
+//                }
+//            }
+//        }
         Map<Long, ViewPrivilegeVO> ViewPrivilegeVOMap = new HashMap<>();
         //先把所有菜单放进缓存map
-        for (MbcMenuEntity mbcMenuEntity : viewMenus) {
+        for (MbcMenuEntity mbcMenuEntity : menuEntityList) {
             ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
-            viewPrivilegeVO.setId(mbcMenuEntity.getId());
+            viewPrivilegeVO.setId(mbcMenuEntity.getToken());
+            if(mbcMenuEntity.getToken() == null || "".equals(mbcMenuEntity.getToken()) ){
+                viewPrivilegeVO.setDisabled(Boolean.TRUE);
+                viewPrivilegeVO.setId("default" + mbcMenuEntity.getId());
+            }
             viewPrivilegeVO.setName(mbcMenuEntity.getName());
             viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
             viewPrivilegeVO.setChildren(new ArrayList<ViewPrivilegeVO>());
@@ -583,7 +610,7 @@ public class RoleModule extends BaseController {
             }
         }
 
-        for (MbcMenuEntity subMenuEntity : viewMenus) {
+        for (MbcMenuEntity subMenuEntity : menuEntityList) {
             //寻找父菜单并加入进子菜单列表
             if (subMenuEntity.getParentId() != -1L &&
                 ViewPrivilegeVOMap.get(subMenuEntity.getParentId()) != null) {
@@ -593,6 +620,78 @@ public class RoleModule extends BaseController {
         }
 
         return viewPrivilegeVOList;
+    }
+
+    /**
+     * 添加角色视图权限
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getRoleViewPrivilege/add", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult addRoleViewPrivilege(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        String id = request.getParameter("initId");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        if (!this.hasPrivilegeAuthorized(user)) {
+            result.setError("您没有权限授权权限！");
+            return result;
+        }
+        Long initId = Long.parseLong(id);
+        String token = request.getParameter("settedId");
+        if(StringUtils.isEmpty(token)){
+            result.setError("操作失败！");
+            return result;
+        }
+        AclPrivilegeEntity aclPrivilegeEntity = (AclPrivilegeEntity) aclPrivilegeService.findAclPrivilegeByToken(token).check().getData();
+        AclRoleHasPrivilegeEntity entity = new AclRoleHasPrivilegeEntity();
+        entity.setPrivilegeId(aclPrivilegeEntity.getId());
+        entity.setRoleId(initId);
+        aclRoleHasPrivilegeService.createAclRoleHasPrivilege(entity);
+        result.setData("操作成功！");
+        return result;
+    }
+
+    /**
+     * 删除角色视图权限
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "getRoleViewPrivilege/del", method = RequestMethod.POST)
+    @ResponseBody
+    public VueResult delRoleViewPrivilege(HttpServletRequest request) throws ApiResultException {
+        VueResult result = new VueResult();
+        SessionUserVO user = this.getUser(request);
+        String id = request.getParameter("initId");
+        if (!this.checkCanDo(user, id, CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        if (!this.hasPrivilegeAuthorized(user)) {
+            result.setError("您没有权限授权权限！");
+            return result;
+        }
+        Long initId = Long.parseLong(id);
+        String token = request.getParameter("settedId");
+        if(StringUtils.isEmpty(token)){
+            result.setError("操作失败！");
+            return result;
+        }
+        AclPrivilegeEntity aclPrivilegeEntity = (AclPrivilegeEntity) aclPrivilegeService.findAclPrivilegeByToken(token).check().getData();
+        Map<String, Object> delMap = new HashMap<>();
+        delMap.put("privilegeId", aclPrivilegeEntity.getId());
+        delMap.put("roleId", initId);
+        aclRoleHasPrivilegeService.deleteAclRoleHasPrivilege(delMap);
+        result.setData("操作成功！");
+        return result;
     }
 
     /**

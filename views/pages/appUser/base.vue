@@ -111,11 +111,11 @@
           label="昵称" >
         </el-table-column >
         <el-table-column
-          prop="nickname"
+          prop="userIcon"
           width="100"
           label="头像" >
           <template scope="scope">
-            <img :src="scope.row.userIcon" width="40" height="40"/>
+              <img :src="scope.row.userIcon"  style="margin-top: 1px;margin-bottom: 1px"/>
           </template>
         </el-table-column >
         <el-table-column
@@ -130,6 +130,11 @@
         <el-table-column
           prop="locationInfo"
           label="地理位置" >
+        </el-table-column >
+        <el-table-column
+          prop="tags"
+          v-if="isShowTag"
+          label="用户标签" >
         </el-table-column >
         <el-table-column
           prop="registerProjectName"
@@ -165,12 +170,14 @@
       <bottom-tool-bar >
         <div slot="page" >
           <el-pagination
+            @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="getCurrentPage"
-            :page-size="10"
-            layout="total, prev, pager, next"
-            :total="total_count" >
-          </el-pagination >
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="rows"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total_count">
+          </el-pagination>
         </div >
       </bottom-tool-bar >
     </div >
@@ -184,6 +191,7 @@
   export default{
     data(){
       return {
+        isShowTag:false,
         allAuth:true,
         blackAuth:false,
         removeAuth:false,
@@ -287,8 +295,10 @@
       //刷新
       on_refresh(){
         this.getCurrentPage = 1
+        this.rows = 10
         this.getSearchData = ''
         this.getSelectValue = ''
+        this.isShowTag = false
         this.timeStart = ''
         this.timeEnd = ''
         this.sortValue = ''
@@ -308,6 +318,9 @@
             timeEnd : (this.timeEnd == '') ? null : this.timeEnd.getTime(),
           }
         }).then(({ data }) => {
+          if("kids_camera".indexOf(this.getSelectValue)!=-1){
+            this.isShowTag = true
+          }
           this.table_data = data.data
           this.total_count = data.totalCount
           this.load_data = false
@@ -367,6 +380,11 @@
           }
         }).catch(() => {
         })
+      },
+      //每页条数选择
+      handleSizeChange(val) {
+        this.rows = val
+        this.get_table_data()
       },
       //页码选择
       handleCurrentChange(val) {

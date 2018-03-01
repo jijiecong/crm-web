@@ -9,18 +9,19 @@ import java.util.List;
  * @date 2017/9/27 16:07
  */
 public class ViewPrivilegeVO {
-    private Long id;
+    private String id;
     private String name;
 
 
     private String label;
+    private Boolean disabled;
     private List<ViewPrivilegeVO> children;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -30,6 +31,14 @@ public class ViewPrivilegeVO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
     }
 
     public String getLabel() {

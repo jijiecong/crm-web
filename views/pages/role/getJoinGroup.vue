@@ -141,7 +141,7 @@
           if (action === 'cancel') {
             return
           }
-          let param = this.$qs.stringify({roleId: this.route_id, groupId: item.userId})
+          let param = this.$qs.stringify({roleId: this.route_id, groupId: item.groupId})
           this.$http.post(request_uri.delGroupHasRole, param)
             .then(({data: responseData}) => {
               this.get_table_data()

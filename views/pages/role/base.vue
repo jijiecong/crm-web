@@ -93,7 +93,7 @@
                     </a>
                   </el-dropdown-item>
                   <el-dropdown-item>
-                    <a @click="to_router('getRoleViewPrivilege',props.row)">
+                    <a @click="to_router_view('getRoleViewPrivilege',props.row)">
                       <span>视图权限</span>
                     </a>
                   </el-dropdown-item>
@@ -210,6 +210,9 @@
       ...mapActions(['setBusinessId','setRoleSearchData','setRoleCurrentPage']),
       to_router(routerName, row){
         this.$router.push({name: routerName, params: {id: row.id}})
+      },
+      to_router_view(routerName, row){
+        this.$router.push({name: routerName, params: {id: row.id, businessId: this.getBid}})
       },
       //查询
       on_search(){
