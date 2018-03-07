@@ -102,10 +102,12 @@ public class AppUserModule extends BaseController {
                 if(!(userInfoStatisticsEO.getBirthdayYear() == null || userInfoStatisticsEO.getBirthdayYear() == 0)){
                     userInfoVO.setBirthday(userInfoStatisticsEO.getBirthdayYear()+"年"+userInfoStatisticsEO.getBirthdayMonth()+"月"+userInfoStatisticsEO.getBirthdayDay()+"日");
                 }
-                ApiResult tagsNameList = userTagService.getTagsNameList(userInfoVO.getTags());
-                if(tagsNameList.isSuccess()){
-                    List<String> tagsNames = (List<String>) tagsNameList.getData();
-                    userInfoVO.setTags(StringUtils.join(tagsNames.toArray(), ","));
+                if(StringUtils.isNotBlank(userInfoVO.getTags())){
+                    ApiResult tagsNameList = userTagService.getTagsNameList(userInfoVO.getTags());
+                    if(tagsNameList.isSuccess()){
+                        List<String> tagsNames = (List<String>) tagsNameList.getData();
+                        userInfoVO.setTags(StringUtils.join(tagsNames.toArray(), ","));
+                    }
                 }
                 userInfoVOList.add(userInfoVO);
             }
