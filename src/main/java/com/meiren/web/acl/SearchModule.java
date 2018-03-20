@@ -157,7 +157,7 @@ public class SearchModule extends BaseController {
         for (AclUserEntity userEntity : userList) {
             SelectVO selectVO = new SelectVO();
             selectVO.setId(userEntity.getId());
-            selectVO.setName(userEntity.getUserName());
+            selectVO.setName(userEntity.getNickname());
             all.add(selectVO);
         }
         return new VueResult(all);

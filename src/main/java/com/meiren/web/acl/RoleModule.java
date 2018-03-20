@@ -262,13 +262,13 @@ public class RoleModule extends BaseController {
         for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId()); // 将信息转换为id name 类型
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectedVOs.add(vo);
         }
         for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectDataVOs.add(vo);
         }
 
