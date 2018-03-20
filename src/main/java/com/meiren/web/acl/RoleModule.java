@@ -253,6 +253,7 @@ public class RoleModule extends BaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("businessId", businessId);
+        paramMap.put("status", UserStatusEnum.NORMAL.typeName);
         List<AclUserEntity> all = (List<AclUserEntity>)
             aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
 
