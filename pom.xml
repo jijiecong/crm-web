@@ -17,11 +17,17 @@
 
     <dependencies>
         <!--meiren api start-->
-        <!-- MEMBER -->
+        <!-- member-api -->
         <dependency>
             <groupId>org.meiren</groupId>
             <artifactId>member-api</artifactId>
-            <version>1.0.5.8</version>
+            <version>1.0.6.3-SNAPSHOT</version>
+        </dependency>
+        <!-- message-api -->
+        <dependency>
+            <groupId>org.meiren</groupId>
+            <artifactId>message-api</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <!-- API -->
         <dependency>

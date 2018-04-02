@@ -100,6 +100,9 @@
         },{
           title: "马甲账号管理",
           path: "/appUser/waistcoatList",
+        },{
+          title: "账号测试管理",
+          path: "/appUser/beta",
         },
 
 //          {

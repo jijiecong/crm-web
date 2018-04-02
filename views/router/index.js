@@ -364,6 +364,10 @@ const routes = [{
     path: '/appUser/waistcoatList', name: 'appUserWaistcoat',
     meta: { title: "马甲账号管理" },
     components: { default: () => import('pages/appUser/waistcoatList') },
+  },{
+    path: '/appUser/beta', name: 'beta',
+    meta: { title: "账号测试管理" },
+    components: { default: () => import('pages/appUser/beta') },
   },
 ]
 

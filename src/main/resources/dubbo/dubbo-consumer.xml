@@ -59,4 +59,8 @@
     <dubbo:reference id="locationInfoService" interface="com.meiren.member.service.LocationInfoService" check="false" timeout="${dubbo.service.timeout}"/>
     <dubbo:reference id="waistcoatService" interface="com.meiren.member.service.WaistcoatService" check="false" timeout="${dubbo.service.timeout}"/>
     <dubbo:reference id="userTagService" interface="com.meiren.member.service.UserTagService" check="false" timeout="${dubbo.service.timeout}"/>
+    <dubbo:reference id="loginProductService" interface="com.meiren.member.product.service.LoginProductService" check="false" timeout="${dubbo.service.timeout}"/>
+
+    <!-- MESSAGE -->
+    <dubbo:reference id="messageSmsAllManageService" interface="com.meiren.message.service.MessageSmsAllManageService" timeout="${dubbo.service.timeout}" check="false"  />
 </beans>
