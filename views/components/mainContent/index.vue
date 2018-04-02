@@ -9,7 +9,7 @@
   import vFooter from './footer'
 
   export default{
-    name: 'content',
+    name: 'mainContent',
     data(){
       return {}
     },

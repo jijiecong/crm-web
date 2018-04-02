@@ -253,6 +253,7 @@ public class RoleModule extends BaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("businessId", businessId);
+        paramMap.put("status", UserStatusEnum.NORMAL.typeName);
         List<AclUserEntity> all = (List<AclUserEntity>)
             aclUserService.loadAclUser(paramMap).getData(); // 查询商家下所有用户
 
@@ -262,13 +263,13 @@ public class RoleModule extends BaseController {
         for (AclUserEntity entity : selected) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId()); // 将信息转换为id name 类型
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectedVOs.add(vo);
         }
         for (AclUserEntity entity : all) {
             SelectVO vo = new SelectVO();
             vo.setId(entity.getId());
-            vo.setName(entity.getUserName());
+            vo.setName(entity.getNickname());
             selectDataVOs.add(vo);
         }
 
@@ -555,6 +556,13 @@ public class RoleModule extends BaseController {
         if (businessId == null) {
             throw new Exception("操作失败！");
         }
+        SessionUserVO user = this.getUser(request);
+        if (!this.checkCanDo(user, String.valueOf(roleId), CheckCanDoEnum.ROLE.typeName)) {
+            result.setError("您没有权限操作角色！");
+            return result;
+        }
+        List<AclPrivilegeEntity> manageablePrivilege = (List<AclPrivilegeEntity>)
+            aclPrivilegeService.getManageablePrivilege(user.getId(), businessId).getData();
         Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("roleId", roleId);
         List<AclPrivilegeEntity> haveList = (List<AclPrivilegeEntity>)
@@ -571,7 +579,7 @@ public class RoleModule extends BaseController {
         }
         ApiResult apiResult = mbcMenuLoadService.loadAllMbcMenus(type).check();
         List<MbcMenuEntity> menuEntityList = (List<MbcMenuEntity>) apiResult.getData();
-        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(menuEntityList);
+        List<ViewPrivilegeVO> viewPrivilegeVOList = formatList(manageablePrivilege, menuEntityList);
         Map<String, Object> viewMap = new HashMap();
         viewMap.put("treeData", viewPrivilegeVOList);
         viewMap.put("defaultCheckedData", defaultCheckedData);
@@ -579,41 +587,37 @@ public class RoleModule extends BaseController {
         return result;
     }
 
-    private List<ViewPrivilegeVO> formatList(List<MbcMenuEntity> menuEntityList) {
+    private List<ViewPrivilegeVO> formatList(List<AclPrivilegeEntity> manageablePrivilege, List<MbcMenuEntity> menuEntityList) {
         List<ViewPrivilegeVO> viewPrivilegeVOList = new ArrayList<ViewPrivilegeVO>();
-        //没有权限的菜单不给看
-//        List<MbcMenuEntity> viewMenus = new ArrayList<>();
-//        for (MbcMenuEntity menuEntity : menuEntityList) {
-//            for(AclPrivilegeEntity privilegeEntity : haveList) {
-//                if (!menuEntity.getPrivilege() || privilegeEntity.getToken().equals(menuEntity.getToken())) {
-//                    viewMenus.add(menuEntity);
-//                    break;
-//                }
-//            }
-//        }
         Map<Long, ViewPrivilegeVO> ViewPrivilegeVOMap = new HashMap<>();
+        Map<String, String> manageablePrivilegeVOMap = new HashMap<>();
+        for(AclPrivilegeEntity aclPrivilegeEntity : manageablePrivilege){
+            manageablePrivilegeVOMap.put(aclPrivilegeEntity.getToken(), aclPrivilegeEntity.getToken());
+        }
         //先把所有菜单放进缓存map
         for (MbcMenuEntity mbcMenuEntity : menuEntityList) {
-            ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
-            viewPrivilegeVO.setId(mbcMenuEntity.getToken());
-            if(mbcMenuEntity.getToken() == null || "".equals(mbcMenuEntity.getToken()) ){
-                viewPrivilegeVO.setDisabled(Boolean.TRUE);
-                viewPrivilegeVO.setId("default" + mbcMenuEntity.getId());
-            }
-            viewPrivilegeVO.setName(mbcMenuEntity.getName());
-            viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
-            viewPrivilegeVO.setChildren(new ArrayList<ViewPrivilegeVO>());
-            ViewPrivilegeVOMap.put(mbcMenuEntity.getId(), viewPrivilegeVO);
-            if (mbcMenuEntity.getParentId() == -1L) {
-                //根菜单
-                viewPrivilegeVOList.add(viewPrivilegeVO);
+            if(!mbcMenuEntity.getPrivilege() || manageablePrivilegeVOMap.containsKey(mbcMenuEntity.getToken())){
+                ViewPrivilegeVO viewPrivilegeVO = new ViewPrivilegeVO();
+                viewPrivilegeVO.setId(mbcMenuEntity.getToken());
+                if(!mbcMenuEntity.getPrivilege() ){
+                    viewPrivilegeVO.setDisabled(Boolean.TRUE);
+                    viewPrivilegeVO.setId("default" + mbcMenuEntity.getId());
+                }
+                viewPrivilegeVO.setName(mbcMenuEntity.getName());
+                viewPrivilegeVO.setLabel(mbcMenuEntity.getName());
+                viewPrivilegeVO.setChildren(new ArrayList<ViewPrivilegeVO>());
+                ViewPrivilegeVOMap.put(mbcMenuEntity.getId(), viewPrivilegeVO);
+                if (mbcMenuEntity.getParentId() == -1L) {
+                    //根菜单
+                    viewPrivilegeVOList.add(viewPrivilegeVO);
+                }
             }
         }
 
         for (MbcMenuEntity subMenuEntity : menuEntityList) {
             //寻找父菜单并加入进子菜单列表
             if (subMenuEntity.getParentId() != -1L &&
-                ViewPrivilegeVOMap.get(subMenuEntity.getParentId()) != null) {
+                ViewPrivilegeVOMap.get(subMenuEntity.getParentId()) != null && ViewPrivilegeVOMap.get(subMenuEntity.getId()) !=null) {
                 ViewPrivilegeVO viewPrivilegeVO = ViewPrivilegeVOMap.get(subMenuEntity.getId());
                 ViewPrivilegeVOMap.get(subMenuEntity.getParentId()).getChildren().add(viewPrivilegeVO);
             }

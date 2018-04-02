@@ -87,7 +87,7 @@
         return data.label.indexOf(value) !== -1;
       },
       getCheckedKeys() {
-        console.log(this.$refs.tree.getCheckedKeys());
+//        console.log(this.$refs.tree.getCheckedKeys());
       },
       handleCheckChange(data, checked, indeterminate) {
           let settedId = data.id;

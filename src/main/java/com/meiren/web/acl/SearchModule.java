@@ -1,5 +1,6 @@
 package com.meiren.web.acl;
 
+import com.meiren.acl.enums.UserStatusEnum;
 import com.meiren.acl.service.*;
 import com.meiren.acl.service.entity.*;
 import com.meiren.common.result.ApiResult;
@@ -152,12 +153,13 @@ public class SearchModule extends BaseController {
         } else {
             map.put("inIds", initId);
         }
+        map.put("status", UserStatusEnum.NORMAL.typeName);
         List<AclUserEntity> userList = (List<AclUserEntity>) aclUserService.loadAclUser(map).getData();
         List<SelectVO> all = new ArrayList<>();
         for (AclUserEntity userEntity : userList) {
             SelectVO selectVO = new SelectVO();
             selectVO.setId(userEntity.getId());
-            selectVO.setName(userEntity.getUserName());
+            selectVO.setName(userEntity.getNickname());
             all.add(selectVO);
         }
         return new VueResult(all);

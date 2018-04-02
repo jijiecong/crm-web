@@ -52,7 +52,7 @@ public class HierarchyModule extends BaseController {
     }
 
     /**
-     * 查找用户
+     * 查找层级
      *
      * @param request
      * @return
