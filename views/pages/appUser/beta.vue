@@ -727,8 +727,10 @@
           || this.ProtocolAccessEO.appName == 'beauty_camera_android' || this.ProtocolAccessEO.appName == 'beauty_camera_iphone'
           || this.ProtocolAccessEO.appName == 'jianke_app_android' || this.ProtocolAccessEO.appName == 'jianke_app_iphone'){
           this.showPwd = false
+          this.WriteRegisterUserInfoEO.pwd = this.MobileRegisterAccessParamsEO.pwd
         }else{
           this.showPwd = true
+          this.WriteRegisterUserInfoEO.pwd = this.MobileRegisterAccessParamsEO.pwd
         }
       },
       isShowBirthday(){
