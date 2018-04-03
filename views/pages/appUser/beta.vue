@@ -43,7 +43,7 @@
                     </el-col>
                   </el-row>
                 </el-form-item>
-                <el-form-item label="密码">
+                <el-form-item label="密码" v-if="showPwd">
                   <el-input v-model="MobileRegisterAccessParamsEO.pwd" placeholder="密码"></el-input>
                 </el-form-item>
                 <el-form-item label="区号">
@@ -68,16 +68,16 @@
                 <el-form-item label="头像地址">
                   <el-input v-model="WriteRegisterUserInfoEO.userIcon" placeholder="头像地址"></el-input>
                 </el-form-item>
-                <el-form-item label="密码">
+                <el-form-item label="密码" v-if="!showPwd">
                   <el-input v-model="WriteRegisterUserInfoEO.pwd" placeholder="密码"></el-input>
                 </el-form-item>
-                <el-form-item label="生日年">
+                <el-form-item label="生日年" v-if="showBirthday">
                   <el-input v-model="WriteRegisterUserInfoEO.birthdayYear" placeholder="生日年"></el-input>
                 </el-form-item>
-                <el-form-item label="生日月">
+                <el-form-item label="生日月" v-if="showBirthday">
                   <el-input v-model="WriteRegisterUserInfoEO.birthdayMonth" placeholder="生日月"></el-input>
                 </el-form-item>
-                <el-form-item label="生日天">
+                <el-form-item label="生日天" v-if="showBirthday">
                   <el-input v-model="WriteRegisterUserInfoEO.birthdayDay" placeholder="生日天"></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -211,7 +211,7 @@
                 <el-form-item label="过期时间">
                   <el-input v-model="PartnerLoginParamsEO.expiresIn" placeholder="过期时间"></el-input>
                 </el-form-item>
-                <el-form-item label="签名请求">
+                <el-form-item label="签名请求" v-show="false">
                   <el-input v-model="PartnerLoginParamsEO.signedRequest" placeholder="签名请求(Facebook独有)"></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -401,7 +401,7 @@
               <div style="margin-left: 200px;margin-bottom: 20px">基本协议入参</div>
               <el-form ref="form" :model="ProtocolAccessEO" label-width="120px">
                 <el-form-item label="app名称">
-                  <el-select v-model="ProtocolAccessEO.appName" placeholder="app名称">
+                  <el-select v-model="ProtocolAccessEO.appName" placeholder="app名称" @change="changeSelect">
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -429,6 +429,44 @@
               </el-form>
             </el-col>
           </el-row>
+          <el-row>
+            <el-col :span="2">&nbsp;</el-col>
+            <el-col :span="10">
+              <div style="margin-left: 200px;margin-bottom: 20px">手机注册流程</div>
+              <el-form ref="form" :model="RegisterProcessEO" label-width="120px">
+                <el-form-item label="手机号">
+                  <el-input v-model="MobileRegisterAccessParamsEO.phone" placeholder="手机号"></el-input>
+                </el-form-item>
+                <el-form-item label="区号">
+                  <el-input v-model="MobileRegisterAccessParamsEO.zoneNum" placeholder="区号"></el-input>
+                </el-form-item>
+                <el-form-item label="昵称">
+                  <el-input v-model="WriteRegisterUserInfoEO.nickName" placeholder="昵称"></el-input>
+                </el-form-item>
+                <el-form-item label="头像地址">
+                  <el-input v-model="WriteRegisterUserInfoEO.userIcon" placeholder="头像地址"></el-input>
+                </el-form-item>
+                <el-form-item label="密码">
+                  <el-input v-model="MobileRegisterAccessParamsEO.pwd" placeholder="密码"></el-input>
+                </el-form-item>
+                <!--<el-form-item label="密码">
+                  <el-input v-model="WriteRegisterUserInfoEO.pwd" placeholder="密码"></el-input>
+                </el-form-item>-->
+                <el-form-item label="生日年" v-if="showBirthday">
+                  <el-input v-model="WriteRegisterUserInfoEO.birthdayYear" placeholder="生日年"></el-input>
+                </el-form-item>
+                <el-form-item label="生日月" v-if="showBirthday">
+                  <el-input v-model="WriteRegisterUserInfoEO.birthdayMonth" placeholder="生日月"></el-input>
+                </el-form-item>
+                <el-form-item label="生日天" v-if="showBirthday">
+                  <el-input v-model="WriteRegisterUserInfoEO.birthdayDay" placeholder="生日天"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="registerProcess">注册流程测试</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
         </div>
       </el-col>
     </el-row>
@@ -444,6 +482,8 @@
     data(){
       return {
         activeNames: [],
+        showPwd:true,
+        showBirthday:false,
         options: [{
           value: 'jianpin_app_android',
           label: '简拼 Android'
@@ -533,13 +573,27 @@
           imei: '',
           requestVersion: '1.7.4'
         },
-        //验证码
-        MobileVerifyCodeParamsEO: {
-          userId: '',
+         MobileVerifyCodeParamsEO:{
           zoneNum: '86',
-          type: 'register',
           phone: '',
           verifyCode: ''
+        },
+        //验证码
+        RegisterProcessEO: {
+          userId: '',
+          zoneNum: '86',
+          phone: '',
+          type: 'register',
+          verifyCode: '',
+          pwd:'12345678',
+          userId:'',
+          accessToken:'',
+          userIcon:'http://avatar.adnonstop.com/member/camhomme/20170908/09/700351520170908094828339.jpg',
+          nickName:'',
+          sex:'男',
+          birthdayYear:'1993',
+          birthdayMonth:'10',
+          birthdayDay:'1'
         },
         //手机注册
         MobileRegisterAccessParamsEO:{
@@ -555,17 +609,17 @@
         WriteRegisterUserInfoEO:{
           userId:'',
           accessToken:'',
-          userIcon:'',
+          userIcon:'http://avatar.adnonstop.com/member/camhomme/20170908/09/700351520170908094828339.jpg',
           nickName:'',
-          pwd:'',
-          sex:'',
+          pwd:'12345678',
+          sex:'男',
           birthdayYear:'',
           birthdayMonth:'',
           birthdayDay:''
         },
         LoginParamsEO:{
           phone:'',//手机号码
-          password:'',//当前登录用户密码
+          password:'12345678',//当前登录用户密码
           zoneNum:'86'//国际区号
         },
         GetUserInfoEO:{
@@ -576,12 +630,12 @@
           userId:'',
           accessToken:'',
           nickname:'',
-          sex:'',
+          sex:'女',
           birthdayYear:'',
           birthdayMonth:'',
           birthdayDay:'',
-          locationId:'',
-          userIcon:''
+          locationId:'101011001006',
+          userIcon:'http://avatar.adnonstop.com/member/camhomme/20170908/09/700351520170908094828339.jpg'
         },
         ForgetPasswordEO:{
           zoneNum:'86',
@@ -649,11 +703,40 @@
       }
     },
     created(){
+      this.isShowPwd()
     },
     methods: {
       //折叠面板
       handleChange(val) {
         console.log(val);
+      },
+      //基本协议app名称下拉框改变
+      changeSelect(val){
+        this.isShowPwd()
+        this.isShowBirthday()
+        debugger
+        if(val.indexOf('android') > 1){
+          this.ProtocolAccessEO.osType = 'android'
+        }else{
+          this.ProtocolAccessEO.osType = 'ios'
+        }
+      },
+      isShowPwd(){
+        if(this.ProtocolAccessEO.appName == 'jianpin_app_android' || this.ProtocolAccessEO.appName == 'jianpin_app_iphone'
+          || this.ProtocolAccessEO.appName == 'camhomme_android' || this.ProtocolAccessEO.appName == 'camhomme_iphone'
+          || this.ProtocolAccessEO.appName == 'beauty_camera_android' || this.ProtocolAccessEO.appName == 'beauty_camera_iphone'
+          || this.ProtocolAccessEO.appName == 'jianke_app_android' || this.ProtocolAccessEO.appName == 'jianke_app_iphone'){
+          this.showPwd = false
+        }else{
+          this.showPwd = true
+        }
+      },
+      isShowBirthday(){
+        if(this.ProtocolAccessEO.appName == 'x_star_app_android' || this.ProtocolAccessEO.appName == 'x_star_app_iphone'){
+          this.showBirthday = true
+        }else{
+          this.showBirthday = false
+        }
       },
       /*//查询全部app名
       getAppName(){
@@ -676,20 +759,20 @@
         return str.replace(/[^0-9]/ig, "")
       },
       //返回结果处理
-      doResult(data){
+      doResult(data,title){
         let flag = null;
         let temp = null;
         if(data.success){
           flag = 'success'
-          temp = '请求成功'
+          temp = title + '(请求成功)'
         }else{
           flag = 'error'
-          temp = data.error
+          temp = title + '('+data.error+')'
         }
         this.$notify({
           title: temp,
           message: JSON.stringify(data),
-          duration: 60000,
+          duration: 30000,
           type: flag
         });
         this.load_data = false
@@ -714,13 +797,14 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'发送验证码')
         }).catch(() => {
           this.load_data = false
         })
       },
       //获取验证码
       getSmsVerifyCode(evnt,type){
+        debugger
         this.load_data = true
         let phone = null
         let zoneNum = null
@@ -785,9 +869,10 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'手机注册')
           this.WriteRegisterUserInfoEO.userId = data.data.accessInfo.userId
           this.WriteRegisterUserInfoEO.accessToken = data.data.accessInfo.accessToken
+          this.LoginParamsEO.phone = this.MobileRegisterAccessParamsEO.phone
           this.load_data = false
         }).catch(() => {
           this.load_data = false
@@ -803,11 +888,24 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'填写注册信息')
           this.load_data = false
         }).catch(() => {
           this.load_data = false
         })
+      },
+      //注册流程 三个接口结合
+      registerProcess(){
+        let context = this
+        this.getSmsVerifyCode(null,'register')
+        setTimeout(function () {
+          context.doRegisterByPhone()
+        },3000)
+        setTimeout(function () {
+          context.writeRegisterUserInfo()
+        },5000)
+        //todo
+        this.LoginParamsEO.password = this.MobileRegisterAccessParamsEO.pwd
       },
       //手机登录
       doLogin(){
@@ -819,7 +917,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'手机登录')
           this.GetUserInfoEO.userId = data.data.userId
           this.GetUserInfoEO.accessToken = data.data.accessToken
           this.UpdateUserInfoEO.userId = data.data.userId
@@ -846,7 +944,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'获取用户信息')
           this.load_data = false
         }).catch(() => {
           this.load_data = false
@@ -862,7 +960,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'修改用户信息')
           this.load_data = false
         }).catch(() => {
           this.load_data = false
@@ -878,7 +976,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'忘记密码')
         }).catch(() => {
           this.load_data = false
         })
@@ -893,7 +991,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'修改密码')
         }).catch(() => {
           this.load_data = false
         })
@@ -908,7 +1006,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'绑定手机')
         }).catch(() => {
           this.load_data = false
         })
@@ -923,7 +1021,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'第三方登录')
           this.BindPhoneEO.userId = data.data.userId
           this.RefreshTokenEO.userId = data.data.userId
           this.RefreshTokenEO.refreshToken = data.data.accessInfo.refreshToken
@@ -941,7 +1039,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'刷新token')
         }).catch(() => {
           this.load_data = false
         })
@@ -960,14 +1058,14 @@
             this.$notify({
               title: '用户存在',
               message: JSON.stringify(data),
-              duration: 60000,
+              duration: 30000,
               type: 'success'
             });
           }else{
             this.$notify({
               title: '用户不存在',
               message: JSON.stringify(data),
-              duration: 60000,
+              duration: 30000,
               type: 'warning'
             });
           }
@@ -986,7 +1084,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'密保登录')
         }).catch(() => {
           this.load_data = false
         })
@@ -1001,7 +1099,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'修改手机号')
         }).catch(() => {
           this.load_data = false
         })
@@ -1016,7 +1114,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'校验验证码')
         }).catch(() => {
           this.load_data = false
         })
@@ -1033,7 +1131,7 @@
             kidsRegisterType:registerType
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'密保注册')
         }).catch(() => {
           this.load_data = false
         })
@@ -1048,7 +1146,7 @@
             param:json
           }
         }).then(({ data }) => {
-          this.doResult(data)
+          this.doResult(data,'检测第三方账号')
         }).catch(() => {
           this.load_data = false
         })
